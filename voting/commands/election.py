@@ -1,0 +1,98 @@
+from __future__ import annotations
+
+import typer
+
+from voting.commands.common import ctx_project, output
+from voting.core.errors import UserError
+from voting.core.ids import local_iso_now, validate_id
+from voting.core.store import list_entities, read_entity, write_entity, write_json
+
+app = typer.Typer(no_args_is_help=True, add_completion=False)
+
+
+@app.command("add")
+def add(
+    ctx: typer.Context,
+    election_id: str,
+    name: str,
+    method: str = typer.Option("fptp", "--method"),
+    ballot_type: str = typer.Option("single_choice", "--ballot-type"),
+    seats: int = typer.Option(1, "--seats"),
+    tie_policy: str = typer.Option("lexicographic", "--tie-policy"),
+    description: str = "",
+) -> None:
+    validate_id(election_id, "election id")
+    if seats < 1:
+        raise UserError("Seats must be at least 1.", {"seats": seats})
+    data = {
+        "id": election_id,
+        "name": name,
+        "description": description,
+        "created_at": local_iso_now(),
+        "method": method,
+        "ballot_type": ballot_type,
+        "seats": seats,
+        "status": "draft",
+        "options": [],
+        "settings": {"tie_policy": tie_policy, "quota": "droop"},
+    }
+    write_entity(ctx_project(ctx), "elections", election_id, data)
+    output(ctx, data, human_message=f"Added election {election_id}")
+
+
+@app.command("list")
+def list_cmd(ctx: typer.Context) -> None:
+    output(ctx, list_entities(ctx_project(ctx), "elections"))
+
+
+@app.command("show")
+def show(ctx: typer.Context, election_id: str) -> None:
+    output(ctx, read_entity(ctx_project(ctx), "elections", election_id))
+
+
+@app.command("open")
+def open_cmd(ctx: typer.Context, election_id: str) -> None:
+    _set_status(ctx, election_id, "open")
+
+
+@app.command("close")
+def close(ctx: typer.Context, election_id: str) -> None:
+    _set_status(ctx, election_id, "closed")
+
+
+@app.command("set-method")
+def set_method(ctx: typer.Context, election_id: str, method: str) -> None:
+    project = ctx_project(ctx)
+    data = read_entity(project, "elections", election_id)
+    data["method"] = method
+    write_json(project.path("elections", f"{election_id}.json"), data)
+    output(ctx, data)
+
+
+@app.command("add-option")
+def add_option(ctx: typer.Context, election_id: str, option_id: str) -> None:
+    project = ctx_project(ctx)
+    read_entity(project, "options", option_id)
+    data = read_entity(project, "elections", election_id)
+    if option_id not in data["options"]:
+        data["options"].append(option_id)
+    write_json(project.path("elections", f"{election_id}.json"), data)
+    output(ctx, data)
+
+
+@app.command("remove-option")
+def remove_option(ctx: typer.Context, election_id: str, option_id: str) -> None:
+    project = ctx_project(ctx)
+    data = read_entity(project, "elections", election_id)
+    data["options"] = [item for item in data["options"] if item != option_id]
+    write_json(project.path("elections", f"{election_id}.json"), data)
+    output(ctx, data)
+
+
+def _set_status(ctx: typer.Context, election_id: str, status: str) -> None:
+    project = ctx_project(ctx)
+    data = read_entity(project, "elections", election_id)
+    data["status"] = status
+    data[f"{status}_at"] = local_iso_now()
+    write_json(project.path("elections", f"{election_id}.json"), data)
+    output(ctx, data, human_message=f"Set {election_id} to {status}")
