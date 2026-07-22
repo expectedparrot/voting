@@ -18,4 +18,4 @@ def command(ctx: typer.Context) -> None:
             "voters": len(list_entities(project, "voters")),
         },
     }
-    output(ctx, data)
+    output(ctx, "info", data, next_steps=["voting status"])

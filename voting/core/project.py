@@ -16,6 +16,7 @@ SUBDIRS = [
     "sessions",
     "results",
     "reports",
+    "output",
 ]
 
 

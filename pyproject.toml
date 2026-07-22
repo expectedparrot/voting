@@ -10,6 +10,7 @@ requires-python = ">=3.11"
 dependencies = [
   "rich",
   "typer",
+  "pyyaml>=6.0"
 ]
 
 [project.optional-dependencies]
@@ -17,7 +18,11 @@ dev = ["pytest"]
 
 [project.scripts]
 voting = "voting.cli:main"
+[tool.setuptools.packages.find]
+where = ["."]
 
+[tool.setuptools.package-data]
+voting = ["docs_content/*.md"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-
 import typer
 
 from voting.commands.common import ctx_project, output
@@ -74,6 +72,7 @@ def run(
     selected_tie_policy = tie_policy or election.get("settings", {}).get("tie_policy", "lexicographic")
     counter = METHODS[selected_method]
     method_result = counter(election, prepared["options"], prepared["ballots"], selected_tie_policy)
+    method_warnings = method_result.pop("warnings", [])
     result = {
         "election_id": election_id,
         "method": selected_method,
@@ -88,40 +87,59 @@ def run(
         "summary": {
             "valid_ballots": len(prepared["ballots"]),
             "invalid_ballots": len(prepared["warnings"]),
-            "total_valid_weight": round(sum(float(ballot.get("weight", 1.0)) for ballot in prepared["ballots"]), 6),
+            "total_valid_weight": round(sum(float(b.get("weight", 1.0)) for b in prepared["ballots"]), 6),
             "exhausted_weight": method_result.get("exhausted_weight", 0.0),
         },
-        **{key: value for key, value in method_result.items() if key not in {"winners", "ranking"}},
-        "warnings": prepared["warnings"],
+        **{k: v for k, v in method_result.items() if k not in {"winners", "ranking"}},
+        "warnings": prepared["warnings"] + method_warnings,
     }
     rid, _ = append_record(project, "results", [election_id, selected_method], result)
     result["id"] = rid
-    output(ctx, result)
+    output(
+        ctx,
+        "count run",
+        result,
+        next_steps=[f"voting count show {rid}", "voting count list"],
+    )
 
 
 @app.command("list")
-def list_cmd(ctx: typer.Context, election: str | None = typer.Option(None, "--election")) -> None:
+def list_cmd(
+    ctx: typer.Context,
+    election: str | None = typer.Option(None, "--election"),
+) -> None:
     records = [record for _, record in list_records(ctx_project(ctx), "results")]
     if election:
-        records = [record for record in records if record.get("election_id") == election]
-    output(ctx, records)
+        records = [r for r in records if r.get("election_id") == election]
+    output(ctx, "count list", {"results": records})
 
 
 @app.command("show")
 def show(ctx: typer.Context, result_id: str) -> None:
     project = ctx_project(ctx)
-    output(ctx, read_json(project.path("results", f"{result_id}.json")))
+    output(ctx, "count show", read_json(project.path("results", f"{result_id}.json")))
 
 
 def prepare_count(project: Project, election_id: str, method: str | None) -> dict:
     election = read_entity(project, "elections", election_id)
     selected_method = method or election.get("method", "fptp")
     if selected_method not in METHODS:
-        raise UserError("Unknown voting method.", {"method": selected_method, "known": sorted(METHODS)})
-    options = eligible_options(election, [read_entity(project, "options", option_id) for option_id in election.get("options", [])])
+        raise UserError(
+            "Unknown voting method.",
+            {"method": selected_method, "known": sorted(METHODS)},
+            hint=f"Run `voting docs show voting-methods` to see all supported methods.",
+        )
+    options = eligible_options(
+        election,
+        [read_entity(project, "options", oid) for oid in election.get("options", [])],
+    )
     if not options:
-        raise UserError("Election has no eligible options.", {"election_id": election_id})
-    voters = {voter["id"]: voter for voter in _safe_list_voters(project)}
+        raise UserError(
+            "Election has no eligible options.",
+            {"election_id": election_id},
+            hint=f"Add options with `voting election add-option {election_id} <option_id>`.",
+        )
+    voters = {v["id"]: v for v in _safe_list_voters(project)}
     ballots = []
     warnings = []
     for ballot in latest_ballots(project, election_id):
@@ -135,7 +153,6 @@ def prepare_count(project: Project, election_id: str, method: str | None) -> dic
 
 def _safe_list_voters(project: Project) -> list[dict]:
     from voting.core.store import list_entities
-
     return list_entities(project, "voters")
 
 
@@ -163,12 +180,12 @@ def _ballot_warning(ballot: dict, options: list[str], voters: dict[str, dict], e
         values = list((ballot.get("grades") or {}).keys())
     elif ballot_type == "allocated":
         values = list((ballot.get("allocations") or {}).keys())
-    unknown = [value for value in values if value not in option_set]
+    unknown = [v for v in values if v not in option_set]
     if unknown:
         return {"code": "unknown_option", "ballot_id": ballot.get("id"), "options": unknown}
     if ballot_type == "allocated":
         budget = election.get("settings", {}).get("budget")
-        total = sum(float(value) for value in (ballot.get("allocations") or {}).values())
+        total = sum(float(v) for v in (ballot.get("allocations") or {}).values())
         if budget is not None and total > float(budget):
             return {"code": "allocation_over_budget", "ballot_id": ballot.get("id"), "total": total, "budget": budget}
     return None

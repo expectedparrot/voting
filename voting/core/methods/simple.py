@@ -11,8 +11,22 @@ def fptp(election: dict, options: list[str], ballots: list[dict], tie_policy: st
             choice = ballot["ranking"][0]
         if choice in totals:
             totals[choice] += float(ballot.get("weight", 1.0))
+    best = max(totals.values(), default=0.0)
+    tied = sorted(oid for oid, t in totals.items() if t == best)
     winner = choose_highest(totals, tie_policy)
-    return {"winners": [winner], "ranking": _ranking(totals), "scores": sorted_totals(totals), "rounds": []}
+    warnings = []
+    if len(tied) > 1:
+        warnings.append({
+            "code": "tiebreak_applied",
+            "tied_options": tied,
+            "score": round_number(best),
+            "policy": tie_policy,
+            "message": (
+                f"Tie between {', '.join(tied)} ({round_number(best)} votes each). "
+                f"Winner selected by {tie_policy!r} tiebreak."
+            ),
+        })
+    return {"winners": [winner], "ranking": _ranking(totals), "scores": sorted_totals(totals), "rounds": [], "warnings": warnings}
 
 
 def simple_majority(election: dict, options: list[str], ballots: list[dict], tie_policy: str) -> dict:

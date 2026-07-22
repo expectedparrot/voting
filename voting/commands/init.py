@@ -25,4 +25,14 @@ def command(
         "settings": {"default_tie_policy": "lexicographic", "allow_unregistered_voters": False},
     }
     write_json(project.path("meta.json"), meta)
-    output(ctx, {"project": str(project.root), "data_dir": str(project.data_dir), "meta": meta}, human_message=f"Created {project.data_dir}")
+    output(
+        ctx,
+        "init",
+        {"project": str(project.root), "data_dir": str(project.data_dir), "meta": meta},
+        human_message=f"Created {project.data_dir}",
+        next_steps=[
+            f"voting option add <id> <name>",
+            f"voting voter add <id> <name>",
+            f"voting election add <id> <name>",
+        ],
+    )

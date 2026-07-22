@@ -7,6 +7,7 @@ from typing import Any
 import typer
 
 from voting.core.project import Project, find_project
+from voting.output import finish
 
 
 def ctx_project(ctx: typer.Context) -> Project:
@@ -14,11 +15,20 @@ def ctx_project(ctx: typer.Context) -> Project:
     return find_project(override=override)
 
 
-def output(ctx: typer.Context, data: Any, warnings: list[dict] | None = None, human_message: str | None = None) -> None:
-    if ctx.obj and ctx.obj.human:
+def output(
+    ctx: typer.Context,
+    command: str,
+    data: Any,
+    warnings: list[dict] | None = None,
+    next_steps: list[str] | None = None,
+    human_message: str | None = None,
+) -> None:
+    human = ctx.obj.human if ctx.obj else False
+    if human:
         typer.echo(human_message or json.dumps(data, indent=2, sort_keys=True))
         return
-    typer.echo(json.dumps({"data": data, "warnings": warnings or []}, indent=2, sort_keys=True))
+    payload = data if isinstance(data, dict) else {"items": data}
+    finish(command, payload, warnings=warnings, next_steps=next_steps)
 
 
 def parse_json_value(value: str) -> Any:

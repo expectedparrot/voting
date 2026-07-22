@@ -3,12 +3,12 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
-from typing import Any
 
 import typer
 from rich.console import Console
 
 from voting.commands import ballot, count, election, info, init, option, voter
+from voting.commands import docs_cmd, status, survey
 from voting.core.errors import VotingError
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
@@ -20,10 +20,6 @@ class CliContext:
         self.project = project
         self.human = human
         self.quiet = quiet
-
-
-def emit(data: Any = None, warnings: list[dict] | None = None) -> None:
-    typer.echo(json.dumps({"data": data, "warnings": warnings or []}, indent=2, sort_keys=True))
 
 
 @app.callback()
@@ -38,27 +34,42 @@ def callback(
 
 app.command("init")(init.command)
 app.command("info")(info.command)
+app.command("status")(status.command)
 app.add_typer(election.app, name="election")
 app.add_typer(option.app, name="option")
 app.add_typer(voter.app, name="voter")
 app.add_typer(ballot.app, name="ballot")
 app.add_typer(count.app, name="count")
+app.add_typer(docs_cmd.app, name="docs")
+app.add_typer(survey.app, name="survey")
 
 
 def main() -> None:
     try:
         app()
     except VotingError as exc:
-        typer.echo(
-            json.dumps({"error": {"code": exc.code, "message": exc.message, "details": exc.details}}, indent=2, sort_keys=True),
-            err=True,
-        )
+        payload = {
+            "command": "",
+            "status": "error",
+            "data": {},
+            "warnings": [],
+            "errors": [{"code": exc.code, "message": str(exc), "context": exc.details, "hint": exc.hint}],
+            "next_steps": [],
+        }
+        typer.echo(json.dumps(payload, indent=2))
         sys.exit(exc.exit_code)
+    except SystemExit:
+        raise
     except Exception as exc:
-        typer.echo(
-            json.dumps({"error": {"code": "internal_error", "message": str(exc), "details": {}}}, indent=2, sort_keys=True),
-            err=True,
-        )
+        payload = {
+            "command": "",
+            "status": "error",
+            "data": {},
+            "warnings": [],
+            "errors": [{"code": "internal_error", "message": str(exc), "context": {}, "hint": ""}],
+            "next_steps": [],
+        }
+        typer.echo(json.dumps(payload, indent=2))
         sys.exit(1)
 
 
