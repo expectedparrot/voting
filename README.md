@@ -1,7 +1,7 @@
 # voting — election-method modeling and ballot analysis CLI
 <!-- id: voting/voting -->
 
-voting models social-choice problems with options, voters, elections, ballots, and counting methods across plurality, ranked, approval, score, grade, allocation, Condorcet, and multi-winner families. The agent uses it to help the user define the electorate and ballot format, cast or import ballots, compare counting methods, inspect winners/rankings, and generate survey scripts for preference elicitation.
+voting models social-choice problems with options, voters, elections, ballots, and counting methods across plurality, ranked, approval, score, grade, allocation, Condorcet, and multi-winner families. The agent uses it to help the user define the electorate and ballot format, cast or import ballots, compare counting methods, inspect winners/rankings, generate synthetic preference studies, and publish Humanize surveys for real voters.
 
 ## When to use this
 <!-- id: voting/when-to-use -->
@@ -15,7 +15,7 @@ voting models social-choice problems with options, voters, elections, ballots, a
 <!-- id: voting/when-stretch -->
 
 - The decision is criteria scoring by a committee rather than ballots. Use [mcda](#mcda/mcda), or convert criteria judgments into ballots only if social choice is the point.
-- The user has survey preferences but no ballot format. Use `voting survey` to generate elicitation scripts, then import/cast ballots.
+- The user has survey preferences but no ballot format. Use `voting survey generate` for synthetic agents or `voting survey humanize` for a hosted human ballot.
 - The user wants strategic scenario planning. Use [kahn](#kahn/kahn) for scenarios and voting only if stakeholders vote on options.
 - The election is legally binding or security-critical. Use voting for analysis and method comparison, not as an election administration or audit system.
 - The electorate is hypothetical. Model voters and ballots transparently, and report that results are scenario-based.
@@ -89,7 +89,7 @@ How the agent elicits this:
 
 Default to suggest: validate ballots before every count run, especially after method or eligibility changes.
 
-Fallback: if ballots are missing, use `voting survey` to generate EDSL scripts for preference elicitation.
+Fallback: if ballots are missing, use `voting survey generate` for synthetic preferences or `voting survey humanize` for real respondents.
 
 ## Outputs
 <!-- id: voting/outputs -->
@@ -100,7 +100,7 @@ voting produces:
 - Election results with winners, rankings, seat allocations, pairwise matrices, score summaries, or method-specific diagnostics.
 - Saved count snapshots under project results state.
 - Status output with current phase, counts, and recommended next steps.
-- Generated EDSL survey scripts for collecting ballots or preferences.
+- Generated EDSL scripts for synthetic agents and model-free Humanize jobs for hosted human ballots.
 
 ## Workflow
 <!-- id: voting/workflow -->
@@ -117,6 +117,27 @@ Canonical sequence:
 8. `voting count show` or `voting count list` — inspect saved results.
 9. Repeat count runs with alternative methods for method comparison.
 10. `voting survey ...` — generate EDSL scripts when ballots need to be elicited.
+
+For a hosted survey that humans can open in a browser, generate a model-free
+EDSL Humanize job and publish it through the `ep` CLI:
+
+```bash
+voting survey humanize ranked_pref
+voting survey publish ranked_pref
+```
+
+The publish response includes the respondent and admin URLs. To send unique
+links by email, first store an email trait for every registered voter, then
+include that trait when building the job:
+
+```bash
+voting voter set-trait v1 email '"v1@example.com"'
+voting survey humanize ranked_pref --email-trait email
+voting survey publish ranked_pref
+voting survey email ranked_pref --name "Voting invitation"
+```
+
+Humanize support requires the optional dependency: `pip install -e '.[humanize]'`.
 
 Use `voting status` to recover phase and next actions.
 
@@ -155,13 +176,16 @@ Output: saved count results for both methods that can be compared in the report.
 <!-- id: voting/example-survey-generation -->
 
 ```bash
-voting option add a --name "Option A"
-voting option add b --name "Option B"
-voting election add ranked_pref --method condorcet --ballot-type ranked
-voting survey generate --election ranked_pref --output-dir voting_jobs/ranked_pref
+voting option add a "Option A"
+voting option add b "Option B"
+voting election add ranked_pref "Ranked preference" --method copeland --ballot-type ranked
+voting election add-option ranked_pref a
+voting election add-option ranked_pref b
+voting survey generate ranked_pref
+voting --human survey show ranked_pref
 ```
 
-Output: EDSL scripts for collecting compatible ranked ballots.
+Output: an inspectable EDSL script for collecting compatible synthetic ranked ballots. For real voters, run `voting survey humanize ranked_pref` followed by `voting survey publish ranked_pref`.
 
 ## Quick command reference
 <!-- id: voting/commands -->
@@ -177,8 +201,9 @@ For full options, run `voting <subcommand> --help`.
 | `voting election ...` | Manage elections, methods, seats, options, and tie policy. |
 | `voting ballot ...` | Cast, import, list, show, and validate ballots. |
 | `voting count run/list/show` | Run and inspect election counts. |
-| `voting survey ...` | Generate EDSL preference-elicitation scripts. |
-| `voting docs` | Read built-in method guidance. |
+| `voting survey generate/show` | Generate and inspect model-based EDSL preference scripts. |
+| `voting survey humanize/publish/email/responses` | Create, distribute, and retrieve hosted human surveys. |
+| `voting docs` | Read built-in method and Humanize guidance. |
 
 ## Common pitfalls
 <!-- id: voting/pitfalls -->

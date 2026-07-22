@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typer
+from typing import Optional
 
 from voting.commands.common import ctx_project, output
 from voting.core.ballots import latest_ballots
@@ -59,9 +60,9 @@ METHODS = {
 def run(
     ctx: typer.Context,
     election_id: str,
-    method: str | None = typer.Option(None, "--method"),
-    seats: int | None = typer.Option(None, "--seats"),
-    tie_policy: str | None = typer.Option(None, "--tie-policy"),
+    method: Optional[str] = typer.Option(None, "--method"),
+    seats: Optional[int] = typer.Option(None, "--seats"),
+    tie_policy: Optional[str] = typer.Option(None, "--tie-policy"),
 ) -> None:
     project = ctx_project(ctx)
     prepared = prepare_count(project, election_id, method)
@@ -106,7 +107,7 @@ def run(
 @app.command("list")
 def list_cmd(
     ctx: typer.Context,
-    election: str | None = typer.Option(None, "--election"),
+    election: Optional[str] = typer.Option(None, "--election"),
 ) -> None:
     records = [record for _, record in list_records(ctx_project(ctx), "results")]
     if election:

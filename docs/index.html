@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A practical guide to modeling elections, recording ballots, and comparing voting methods with the voting CLI.">
+  <title>Expected Parrot | Voting Methods and Ballot Analysis</title>
+  <style>
+    :root{--green:#428a5f;--dark:#214d35;--light:#edf7f1;--ink:#17201a;--muted:#667069;--paper:#f5f7f5;--panel:#fff;--rule:#dfe5e0;--amber:#b66b13;--red:#aa3c35;--blue:#39778d;--code:#19231d;--sidebar:286px;--measure:790px;--serif:Georgia,"Times New Roman",serif;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;--mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:var(--paper);font:16px/1.7 var(--sans)}
+    #progress{position:fixed;inset:0 auto auto 0;z-index:20;width:0;height:4px;background:#65b783}
+    nav{position:fixed;inset:0 auto 0 0;z-index:10;width:var(--sidebar);overflow:auto;padding:24px 22px 40px;color:#eef7f1;background:var(--dark);font:14px/1.35 var(--sans)}
+    .brand{display:block;margin-bottom:24px;padding:13px 14px;color:var(--ink);background:#fff;border-radius:9px;text-decoration:none}.brand strong{display:block;font:700 19px/1.15 var(--serif)}.brand small{color:var(--muted);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    nav .book{margin:0 8px 23px;font:600 20px/1.25 var(--serif)}nav .part{margin:19px 8px 5px;color:#9fd3b2;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}nav>a:not(.brand){display:block;padding:6px 8px;color:#d5e9dc;text-decoration:none;border-radius:6px}nav>a:not(.brand):hover{color:#fff;background:#2d6244}.small{margin:28px 8px 0;color:#b7cec0;font-size:12px}.nav-toggle{display:none;width:100%;padding:10px 12px;color:#fff;background:#2d6244;border:1px solid #72a685;border-radius:7px;font:700 14px var(--sans);text-align:left;cursor:pointer}.nav-toggle:after{float:right;content:"+"}.open .nav-toggle:after{content:"−"}
+    main{margin-left:var(--sidebar)}article{max-width:920px;margin:auto;padding:48px 48px 110px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.025)}header{padding:60px 0 44px;border-bottom:3px solid var(--green)}
+    .eyebrow{color:var(--green);font-size:12px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}h1,h2,h3,h4{font-family:var(--serif);font-weight:600;line-height:1.3}h1{max-width:780px;margin:14px 0 20px;font-size:clamp(40px,6vw,61px);letter-spacing:-.025em}h2{margin:78px 0 22px;padding:12px 0 8px;color:var(--green);font-size:32px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}h3{margin:40px 0 13px;font-size:23px}h4{margin:26px 0 8px;font-size:18px}.dek{max-width:740px;color:var(--muted);font-size:21px;line-height:1.5}.meta{display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:27px;color:var(--muted);font-size:13px}
+    p,ul,ol,table,pre,.callout,figure,.formula{max-width:var(--measure)}a{color:var(--green)}code{padding:.14em .35em;background:#f0f3f0;border-radius:4px;font:88% var(--mono)}pre{position:relative;overflow:auto;margin:18px 0 26px;padding:20px 58px 20px 22px;color:#d8e3db;background:var(--code);border-radius:8px;font:13px/1.55 var(--mono)}pre code{padding:0;color:inherit;background:none}.copy{position:absolute;top:10px;right:10px;padding:5px 8px;color:#d8ebe0;background:#34453b;border:0;border-radius:5px;font:11px var(--sans);cursor:pointer}.copy:hover{background:var(--green)}
+    .chapter{font-size:.55em;vertical-align:.35em}.callout{margin:24px 0;padding:18px 22px;background:linear-gradient(135deg,#f9fbf9,var(--light));border-left:4px solid var(--green);border-radius:0 8px 8px 0}.callout.warn{background:#fff7e9;border-color:var(--amber)}.callout.stop{background:#fff1ef;border-color:var(--red)}.formula{margin:22px 0;padding:18px;text-align:center;background:#f2f0e9;border-left:4px solid var(--green);font:19px/1.55 Georgia,serif}.formula small{display:block;color:var(--muted);font:13px var(--sans)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:var(--measure)}.card{padding:18px;background:#fff;border:1px solid var(--rule);border-radius:8px;box-shadow:0 2px 7px rgba(0,0,0,.035)}.card h4{margin-top:0;color:var(--dark)}table{width:100%;margin:20px 0 28px;border-collapse:collapse;font-size:14px}th,td{padding:11px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule)}th{color:#fff;background:var(--green)}tbody tr:nth-child(even){background:#f7f9f7}
+    figure{margin:30px 0 36px;padding:20px;border:1px solid var(--rule);border-radius:8px}figure svg{display:block;width:100%;height:auto}figcaption{margin-top:12px;color:var(--muted);font-size:13px;line-height:1.45}.flow{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}.step{position:relative;padding:14px 7px;text-align:center;background:var(--light);border:1px solid #afd0ba;border-radius:7px;font-size:12px;font-weight:700}.step:not(:last-child):after{position:absolute;top:50%;right:-8px;z-index:2;color:var(--green);content:"›";font-size:22px;transform:translateY(-53%)}
+    .ballot{display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--rule)}.rank{display:grid;place-items:center;width:28px;height:28px;color:#fff;background:var(--green);border-radius:50%;font-weight:800}.bar-chart{padding:12px 0}.bar-row{display:grid;grid-template-columns:110px 1fr 45px;gap:12px;align-items:center;margin:10px 0;font-size:13px}.bar-track{height:18px;overflow:hidden;background:#edf0ed;border-radius:4px}.bar-fill{height:100%;background:var(--green)}.bar-fill.alt{background:var(--blue)}.method-map{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.method-map div{padding:14px;background:#f8faf8;border:1px solid var(--rule);border-radius:7px}.method-map strong{display:block;color:var(--dark)}footer{margin-top:85px;padding-top:28px;color:var(--muted);border-top:3px solid var(--green);font-size:13px}
+    @media(max-width:960px){nav{position:static;width:auto;padding-bottom:22px}.nav-toggle{display:block}nav .part,nav>a:not(.brand),nav .small{display:none}nav.open .part{display:block}nav.open>a:not(.brand){display:inline-block}nav.open .small{display:block}nav .book{margin-bottom:14px}main{margin-left:0}article{padding:28px 24px 80px}.brand{max-width:270px}}@media(max-width:650px){.grid,.flow,.method-map{grid-template-columns:1fr}.step:not(:last-child):after{display:none}.bar-row{grid-template-columns:85px 1fr 35px}h2{font-size:28px}table{display:block;overflow-x:auto}pre{padding-right:44px}}@media print{nav,#progress,.copy,.nav-toggle{display:none!important}main{margin:0}article{max-width:none;padding:0}h2{break-before:page}pre{white-space:pre-wrap;color:#000;background:#eee}}
+  </style>
+</head>
+<body>
+<div id="progress"></div>
+<nav aria-label="Tutorial contents">
+  <a class="brand" href="https://www.expectedparrot.com/"><strong>Expected Parrot</strong><small>Open-source research tools</small></a>
+  <div class="book">Voting Methods<br>and Ballot Analysis</div>
+  <button class="nav-toggle" type="button" aria-expanded="false">Show tutorial contents</button>
+  <div class="part">Foundations</div><a href="#orientation">1. Why methods matter</a><a href="#model">2. The data model</a><a href="#methods">3. Choose a method</a><a href="#ballots">4. Choose a ballot</a>
+  <div class="part">Worked example</div><a href="#install">5. Install and initialize</a><a href="#setup">6. Options and voters</a><a href="#election">7. Create an election</a><a href="#cast">8. Record ballots</a><a href="#validate">9. Validate and count</a><a href="#compare">10. Compare methods</a>
+  <div class="part">Extended workflows</div><a href="#survey">11. Synthetic &amp; human surveys</a><a href="#multiwinner">12. Multi-winner rules</a><a href="#weights">13. Weights and ties</a><a href="#audit">14. State and audit</a><a href="#recovery">15. Recovery checklist</a><a href="#reference">16. Command reference</a>
+  <div class="small">A self-contained practical tutorial for the voting CLI. For analysis and method comparison—not election administration.</div>
+</nav>
+<main><article>
+  <header>
+    <div class="eyebrow">Expected Parrot · A practical social-choice tutorial</div>
+    <h1>Voting methods and ballot analysis</h1>
+    <p class="dek">Model an electorate once, preserve its ballots, and see how plurality, ranked, approval, score, Condorcet, and multi-winner rules turn the same preferences into different collective choices.</p>
+    <div class="meta"><span>Tool: <strong>voting</strong></span><span>Interface: <strong>JSON-first CLI</strong></span><span>Methods: <strong>28 names and aliases</strong></span></div>
+  </header>
+
+  <section id="orientation">
+    <h2><span class="chapter">01</span> Why the voting method matters</h2>
+    <p>A ballot records individual preference; a counting rule converts many ballots into a winner, ranking, or set of seats. That conversion is a modeling choice. Plurality sees first choices, Borda uses every rank, approval measures acceptable breadth, and Condorcet rules examine every head-to-head contest.</p>
+    <div class="formula">result = f(options, electorate, ballots, rule, tie policy)<small>Change the rule while holding the other inputs fixed, and the collective outcome can change.</small></div>
+    <div class="grid">
+      <div class="card"><h4>Single winner</h4><p>Select one candidate, proposal, product concept, or priority.</p></div>
+      <div class="card"><h4>Collective ranking</h4><p>Order alternatives rather than reporting only the top choice.</p></div>
+      <div class="card"><h4>Multiple seats</h4><p>Choose a slate using proportional or bloc-style representation.</p></div>
+      <div class="card"><h4>Method comparison</h4><p>Test whether a conclusion survives reasonable alternative rules.</p></div>
+    </div>
+    <div class="callout"><strong>The core habit.</strong> Define what voters can express before choosing how to count it. A richer rule cannot recover preferences that the ballot never collected.</div>
+    <figure><div class="flow"><div class="step">Define options</div><div class="step">Register voters</div><div class="step">Choose ballot</div><div class="step">Record preferences</div><div class="step">Validate</div><div class="step">Compare counts</div></div><figcaption>The CLI keeps each boundary explicit and saves every count as a reproducible result snapshot.</figcaption></figure>
+    <div class="callout stop"><strong>Scope boundary.</strong> This package supports research, education, scenario analysis, and decision modeling. It does not provide identity verification, secret-ballot infrastructure, cryptographic auditing, statutory compliance, or production election security.</div>
+  </section>
+
+  <section id="model">
+    <h2><span class="chapter">02</span> The data model</h2>
+    <p>A project is a local directory with a <code>.voting/</code> state tree. Options and voters exist independently of elections. An election selects eligible options, a default method, a ballot format, seats, and a tie policy. Ballots connect voters to elections.</p>
+    <table><thead><tr><th>Object</th><th>Key fields</th><th>Purpose</th></tr></thead><tbody>
+      <tr><td>Option</td><td>ID, name, type, eligibility</td><td>A candidate, proposal, reference, or write-in.</td></tr>
+      <tr><td>Voter</td><td>ID, name, weight, traits, eligibility</td><td>A person, stakeholder group, or synthetic persona.</td></tr>
+      <tr><td>Election</td><td>Method, ballot type, seats, options, status</td><td>The rules and eligible choice set.</td></tr>
+      <tr><td>Ballot</td><td>Voter, election, preferences, weight</td><td>One recorded expression of preference.</td></tr>
+      <tr><td>Result</td><td>Method, winners, ranking, summary, diagnostics</td><td>An immutable count snapshot.</td></tr>
+    </tbody></table>
+    <p>Ballot records are append-only. If one voter casts again in the same election, the latest record is used for counting while the earlier record remains on disk. That makes corrections possible without erasing history.</p>
+    <pre><code>project/
+└── .voting/
+    ├── meta.json
+    ├── options/       # one JSON file per option
+    ├── voters/        # one JSON file per voter
+    ├── elections/     # one JSON file per election
+    ├── ballots/       # append-only ballot records
+    ├── results/       # saved count snapshots
+    └── output/        # generated survey artifacts</code></pre>
+  </section>
+
+  <section id="methods">
+    <h2><span class="chapter">03</span> Choose a counting method</h2>
+    <div class="method-map">
+      <div><strong>Plurality</strong><code>fptp</code>, <code>simple_majority</code>, <code>runoff</code></div>
+      <div><strong>Ranked aggregation</strong><code>irv</code>, <code>borda</code>, <code>bucklin</code></div>
+      <div><strong>Condorcet</strong><code>copeland</code>, <code>minimax</code>, <code>ranked_pairs</code>, <code>schulze</code>, <code>kemeny_young</code></div>
+      <div><strong>Approval</strong><code>approval</code>, <code>block_voting</code>, <code>limited_voting</code></div>
+      <div><strong>Intensity</strong><code>score</code>, <code>star</code>, <code>majority_judgment</code></div>
+      <div><strong>Multiple winners</strong><code>stv</code>, <code>sntv</code>, <code>cumulative</code></div>
+    </div>
+    <table><thead><tr><th>If the decision goal is…</th><th>Start with</th><th>Then compare</th></tr></thead><tbody>
+      <tr><td>A familiar, transparent single winner</td><td><code>fptp</code></td><td><code>runoff</code> or <code>irv</code></td></tr>
+      <tr><td>Broad acceptability</td><td><code>approval</code></td><td><code>borda</code></td></tr>
+      <tr><td>A head-to-head majority winner</td><td><code>schulze</code></td><td><code>ranked_pairs</code>, <code>copeland</code></td></tr>
+      <tr><td>Preference intensity</td><td><code>score</code></td><td><code>star</code></td></tr>
+      <tr><td>Proportional multi-seat representation</td><td><code>stv</code></td><td><code>sntv</code></td></tr>
+    </tbody></table>
+    <div class="callout warn"><strong>Comparison needs compatible evidence.</strong> Ranked ballots can support many ranked and first-choice methods. Approval ballots cannot reveal the voters’ order among approved options, and single-choice ballots cannot reveal second preferences.</div>
+  </section>
+
+  <section id="ballots">
+    <h2><span class="chapter">04</span> Choose what voters express</h2>
+    <table><thead><tr><th>Ballot type</th><th>Expression</th><th>Typical methods</th></tr></thead><tbody>
+      <tr><td><code>single_choice</code></td><td>Exactly one option</td><td>FPTP, majority, SNTV, runoff</td></tr>
+      <tr><td><code>ranked</code></td><td>Ordered options; omissions allowed</td><td>IRV, STV, Borda, Condorcet, Bucklin</td></tr>
+      <tr><td><code>approval</code></td><td>Any number of acceptable options</td><td>Approval, block, limited</td></tr>
+      <tr><td><code>score</code></td><td>Numeric strength for each option</td><td>Score, STAR</td></tr>
+      <tr><td><code>grade</code></td><td>Letter grade for each option</td><td>Majority judgment</td></tr>
+      <tr><td><code>allocated</code></td><td>A budget distributed across options</td><td>Cumulative voting</td></tr>
+    </tbody></table>
+    <div class="grid">
+      <div class="card"><h4>Ranked ballot</h4><div class="ballot"><span class="rank">1</span><strong>Library hours</strong><span>first</span></div><div class="ballot"><span class="rank">2</span><strong>Bus shelters</strong><span>second</span></div><div class="ballot"><span class="rank">3</span><strong>Park lighting</strong><span>third</span></div></div>
+      <div class="card"><h4>Approval ballot</h4><p>☑ Library hours</p><p>☑ Bus shelters</p><p>☐ Park lighting</p><p>Every checked option receives equal support.</p></div>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2><span class="chapter">05</span> Install and initialize</h2>
+    <p>The worked example chooses one neighborhood project from three proposals. Install the package, create a project, and enter its directory.</p>
+    <pre><code>git clone https://github.com/expectedparrot/voting.git
+cd voting
+pip install -e .
+
+voting init neighborhood_vote
+cd neighborhood_vote
+voting status</code></pre>
+    <p>Commands emit structured JSON by default. Put <code>--human</code> before the subcommand for readable terminal output, or set <code>VOTING_HUMAN_OUTPUT=true</code>.</p>
+    <pre><code>voting --human status
+voting docs list
+voting docs show getting-started</code></pre>
+  </section>
+
+  <section id="setup">
+    <h2><span class="chapter">06</span> Register options and voters</h2>
+    <p>IDs are stable join keys: lowercase letters, numbers, and underscores, without a leading digit. Names are presentation labels and may contain spaces.</p>
+    <pre><code>voting option add library "Extend library hours" --type proposal
+voting option add shelters "Build covered bus shelters" --type proposal
+voting option add lighting "Upgrade park lighting" --type proposal
+
+voting voter add voter_1 "Avery"
+voting voter add voter_2 "Blake"
+voting voter add voter_3 "Casey"
+voting voter add voter_4 "Devon"
+voting voter add voter_5 "Emery"
+
+voting option list
+voting voter list</code></pre>
+    <p>Weights default to 1.0. Use traits to record relevant metadata or a readable <code>persona</code> for EDSL survey generation. Do not use an opaque ID itself as evidence about a voter.</p>
+    <pre><code>voting voter set-trait voter_1 persona \
+  '"Daily bus rider who also uses the library on weekends"'</code></pre>
+  </section>
+
+  <section id="election">
+    <h2><span class="chapter">07</span> Create and open an election</h2>
+    <p>An election begins in <code>draft</code>. Add its eligible options, inspect it, and only then open balloting.</p>
+    <pre><code>voting election add neighborhood_ranked "Neighborhood project choice" \
+  --method irv --ballot-type ranked
+
+voting election add-option neighborhood_ranked library
+voting election add-option neighborhood_ranked shelters
+voting election add-option neighborhood_ranked lighting
+
+voting election show neighborhood_ranked
+voting election open neighborhood_ranked</code></pre>
+    <div class="callout"><strong>Eligibility is election-specific.</strong> An option may remain in the project registry for historical continuity while being omitted from a particular election.</div>
+  </section>
+
+  <section id="cast">
+    <h2><span class="chapter">08</span> Record ranked ballots</h2>
+    <p>Rank options from most to least preferred. Partial rankings are allowed; unlisted options are generally treated as tied last. Duplicate option IDs are rejected.</p>
+    <pre><code>voting ballot rank neighborhood_ranked voter_1 library shelters lighting
+voting ballot rank neighborhood_ranked voter_2 library lighting shelters
+voting ballot rank neighborhood_ranked voter_3 shelters lighting library
+voting ballot rank neighborhood_ranked voter_4 lighting shelters library
+voting ballot rank neighborhood_ranked voter_5 shelters library lighting
+
+voting ballot list --election neighborhood_ranked</code></pre>
+    <p>Other ballot formats use commands shaped for their data:</p>
+    <pre><code>voting ballot cast election_id voter_1 --choice library
+voting ballot approve election_id voter_1 --option library --option shelters
+voting ballot score election_id voter_1 library=8 shelters=9 lighting=4
+voting ballot grade election_id voter_1 library=A shelters=B lighting=C
+voting ballot allocate election_id voter_1 library=40 shelters=35 lighting=25</code></pre>
+  </section>
+
+  <section id="validate">
+    <h2><span class="chapter">09</span> Validate before counting</h2>
+    <p>Validation uses the latest ballot for every voter and checks registration, voter eligibility, option eligibility, duplicate ranks, and allocation budgets. Invalid ballots produce warnings and are skipped by the count.</p>
+    <pre><code>voting ballot validate neighborhood_ranked
+voting election close neighborhood_ranked
+voting count run neighborhood_ranked
+voting count list --election neighborhood_ranked
+voting count show &lt;result_id&gt;</code></pre>
+    <p>IRV repeatedly eliminates the last-place option and transfers its ballots to the next continuing preference until a majority remains.</p>
+    <figure>
+      <svg viewBox="0 0 760 230" role="img" aria-label="Instant runoff rounds for the neighborhood example">
+        <g font-family="Arial, sans-serif"><text x="16" y="25" font-size="15" font-weight="700" fill="#214d35">Round 1</text><text x="400" y="25" font-size="15" font-weight="700" fill="#214d35">Round 2</text>
+        <g font-size="13"><text x="16" y="65">Library</text><rect x="100" y="49" width="180" height="22" rx="3" fill="#428a5f"/><text x="290" y="65">2</text><text x="16" y="105">Shelters</text><rect x="100" y="89" width="180" height="22" rx="3" fill="#428a5f"/><text x="290" y="105">2</text><text x="16" y="145">Lighting</text><rect x="100" y="129" width="90" height="22" rx="3" fill="#39778d"/><text x="200" y="145">1</text>
+        <text x="400" y="65">Library</text><rect x="484" y="49" width="180" height="22" rx="3" fill="#428a5f"/><text x="674" y="65">2</text><text x="400" y="105">Shelters</text><rect x="484" y="89" width="270" height="22" rx="3" fill="#428a5f"/><text x="730" y="105" fill="#fff">3</text></g>
+        <path d="M322 140 C350 140 350 104 380 104" fill="none" stroke="#39778d" stroke-width="2"/><text x="16" y="196" font-size="12" fill="#667069">Lighting is eliminated; its ballot transfers to Shelters.</text><text x="400" y="196" font-size="12" fill="#667069">Shelters has 3 of 5 continuing votes and wins.</text></g>
+      </svg>
+      <figcaption>A round trace explains not just who won, but how later preferences changed the outcome.</figcaption>
+    </figure>
+  </section>
+
+  <section id="compare">
+    <h2><span class="chapter">10</span> Compare methods without rewriting ballots</h2>
+    <p>Ranked ballots contain enough information for several alternative counts. Override the configured method at count time; each run is saved separately.</p>
+    <pre><code>voting count run neighborhood_ranked --method fptp
+voting count run neighborhood_ranked --method borda
+voting count run neighborhood_ranked --method copeland
+voting count run neighborhood_ranked --method ranked_pairs
+voting count run neighborhood_ranked --method schulze
+
+voting count list --election neighborhood_ranked</code></pre>
+    <div class="callout"><strong>Interpret differences, do not hide them.</strong> A method comparison is a sensitivity analysis. Report which preference information each rule uses, whether winners change, where ties or cycles occur, and why the chosen rule fits the decision.</div>
+    <p>Condorcet methods build a pairwise matrix. For options <em>a</em> and <em>b</em>, the cell counts the weight of voters who rank <em>a</em> above <em>b</em>.</p>
+    <div class="formula">P(a,b) = Σ w<sub>i</sub> · 1[a ≻<sub>i</sub> b]<small>A Condorcet winner has P(a,b) &gt; P(b,a) against every other b.</small></div>
+  </section>
+
+  <section id="survey">
+    <h2><span class="chapter">11</span> Synthetic and human surveys</h2>
+    <p>If registered voters represent synthetic personas, voting can generate a standalone EDSL survey script. Inspect the prompts, run the script in an environment with EDSL installed, then import its result JSON.</p>
+    <pre><code>voting survey generate neighborhood_ranked
+
+# Inspect before execution:
+voting --human survey show neighborhood_ranked
+
+# EDSL is an optional, separate dependency:
+python .voting/output/survey_neighborhood_ranked.py
+
+voting ballot import --election neighborhood_ranked \
+  --from .voting/output/results_neighborhood_ranked.json
+voting ballot validate neighborhood_ranked</code></pre>
+    <div class="callout warn"><strong>Label the evidence.</strong> Preferences produced by language-model agents describe a simulated electorate. They are useful for scenarios and experiments, but they are not observed public opinion or a substitute for human respondents.</div>
+    <h3>Publish a survey for human voters</h3>
+    <p>Humanize uses the same election and options to build a model-free EDSL Jobs package, then creates a hosted survey through the <code>ep</code> CLI. Publishing returns a respondent URL you can share and an admin URL for monitoring responses. Choice order is randomized independently for each respondent by default; pass <code>--no-randomize-options</code> only when order is meaningful.</p>
+    <pre><code>pip install -e '.[humanize]'
+
+voting survey humanize neighborhood_ranked
+voting survey publish neighborhood_ranked
+
+# Download submitted responses as an EDSL Results package:
+voting survey responses neighborhood_ranked</code></pre>
+    <p>For individual email invitations, give each registered voter an email trait before generating the job. Humanize creates a respondent list with unique links; the delivery command asks Expected Parrot to email its standard invitation template.</p>
+    <pre><code>voting voter set-trait voter_1 email '"avery@example.com"'
+voting voter set-trait voter_2 email '"blake@example.com"'
+# Repeat for every registered voter.
+
+voting survey humanize neighborhood_ranked --email-trait email
+voting survey publish neighborhood_ranked
+voting survey email neighborhood_ranked \
+  --name "Neighborhood vote invitation" \
+  --subject "Please cast your neighborhood vote"</code></pre>
+    <div class="callout"><strong>Two distinct paths.</strong> <code>survey generate</code> asks AI agents for synthetic preferences. <code>survey humanize</code> creates a web survey for real people and contains no language model.</div>
+  </section>
+
+  <section id="multiwinner">
+    <h2><span class="chapter">12</span> Multi-winner elections</h2>
+    <p>Set <code>--seats</code> when creating an election, or override it for a count. The rule determines what representation means.</p>
+    <table><thead><tr><th>Method</th><th>Ballot</th><th>Representation logic</th></tr></thead><tbody>
+      <tr><td><code>stv</code></td><td>Ranked</td><td>Elects candidates who reach a Droop quota and transfers surplus and eliminated ballots.</td></tr>
+      <tr><td><code>sntv</code></td><td>Single choice</td><td>Each voter casts one vote; the top N options win.</td></tr>
+      <tr><td><code>block_voting</code></td><td>Approval</td><td>Top N approval totals win; cohesive majorities can sweep seats.</td></tr>
+      <tr><td><code>limited_voting</code></td><td>Approval</td><td>Voters approve fewer options than available seats.</td></tr>
+      <tr><td><code>cumulative</code></td><td>Allocated</td><td>Voters concentrate or spread a vote budget.</td></tr>
+    </tbody></table>
+    <pre><code>voting election add council "Advisory council" \
+  --method stv --ballot-type ranked --seats 3
+
+# Or explore a different seat count without changing the election record:
+voting count run council --method stv --seats 4</code></pre>
+  </section>
+
+  <section id="weights">
+    <h2><span class="chapter">13</span> Weights, incomplete ballots, and ties</h2>
+    <p>A voter’s weight is copied onto newly recorded ballots. Weighting can represent stakeholder groups or survey weights, but it changes the effective electorate and must be documented. Equal weight is the safest default when no defensible scheme exists.</p>
+    <div class="formula">support(a) = Σ<sub>i</sub> w<sub>i</sub> · support<sub>i</sub>(a)<small>One heavily weighted ballot can contribute as much as many ordinary ballots.</small></div>
+    <ul>
+      <li><strong>Partial ranking:</strong> unranked options carry no later transfer preference and can create exhausted weight.</li>
+      <li><strong>Abstention:</strong> represent it explicitly in analysis notes; do not invent a preference.</li>
+      <li><strong>Ties:</strong> the default policy is lexicographic, which is deterministic but substantively arbitrary.</li>
+      <li><strong>Recounts:</strong> pass <code>--tie-policy</code> to record an alternative policy in the result snapshot.</li>
+    </ul>
+    <pre><code>voting count run neighborhood_ranked --tie-policy lexicographic</code></pre>
+  </section>
+
+  <section id="audit">
+    <h2><span class="chapter">14</span> Preserve an auditable analysis</h2>
+    <p>Every reported conclusion should be traceable to a project state and a saved result. Keep IDs stable, validate before each run, and retain the method name, seats, tie policy, warnings, valid weight, exhausted weight, ranking, and winner list.</p>
+    <table><thead><tr><th>Check</th><th>Why it matters</th></tr></thead><tbody>
+      <tr><td>Same electorate</td><td>Method comparisons are misleading if voter inclusion changes.</td></tr>
+      <tr><td>Same eligible options</td><td>Adding or withdrawing an option can change transfers and pairwise contests.</td></tr>
+      <tr><td>Compatible ballot evidence</td><td>A rule should not be credited with information voters never supplied.</td></tr>
+      <tr><td>Warnings disclosed</td><td>Skipped ballots and exhausted weight affect the meaning of a result.</td></tr>
+      <tr><td>Saved result IDs</td><td>Readers can reconnect claims to exact count snapshots.</td></tr>
+    </tbody></table>
+    <pre><code>voting info
+voting status
+voting ballot validate neighborhood_ranked
+voting count list --election neighborhood_ranked</code></pre>
+  </section>
+
+  <section id="recovery">
+    <h2><span class="chapter">15</span> Diagnose and recover</h2>
+    <table><thead><tr><th>Symptom</th><th>Likely cause</th><th>Next action</th></tr></thead><tbody>
+      <tr><td><code>missing_project</code></td><td>No discoverable <code>.voting/meta.json</code></td><td>Enter the project or run <code>voting init</code>.</td></tr>
+      <tr><td><code>ELECTION_NOT_OPEN</code></td><td>Balloting attempted in draft or closed state</td><td>Run <code>voting election open &lt;id&gt;</code>.</td></tr>
+      <tr><td><code>unknown_option</code></td><td>A ballot names an option outside the election</td><td>Check IDs and election eligibility.</td></tr>
+      <tr><td><code>duplicate_ranked_option</code></td><td>An option appears twice</td><td>Cast a corrected ranking; the latest ballot wins.</td></tr>
+      <tr><td><code>allocation_over_budget</code></td><td>Cumulative ballot exceeds its configured budget</td><td>Correct the allocation or documented budget.</td></tr>
+      <tr><td><code>UNKNOWN_METHOD</code></td><td>Unsupported name or alias</td><td>Read <code>voting docs show voting-methods</code>.</td></tr>
+    </tbody></table>
+    <p>Error output is JSON too. Read the first error’s <code>hint</code> field for a concrete recovery command. Use <code>voting status</code> whenever you need to reconstruct the current phase and likely next step.</p>
+  </section>
+
+  <section id="reference">
+    <h2><span class="chapter">16</span> Compact command reference</h2>
+    <table><thead><tr><th>Command family</th><th>Responsibility</th></tr></thead><tbody>
+      <tr><td><code>voting init</code>, <code>info</code>, <code>status</code></td><td>Create, summarize, and orient within a project.</td></tr>
+      <tr><td><code>voting option …</code></td><td>Add, inspect, list, and change option eligibility.</td></tr>
+      <tr><td><code>voting voter …</code></td><td>Add voters, weights, traits, and eligibility.</td></tr>
+      <tr><td><code>voting election …</code></td><td>Configure method, ballot type, seats, options, and lifecycle.</td></tr>
+      <tr><td><code>voting ballot …</code></td><td>Cast, rank, approve, score, grade, allocate, import, and validate.</td></tr>
+      <tr><td><code>voting count run/list/show</code></td><td>Execute methods and inspect immutable results.</td></tr>
+      <tr><td><code>voting survey generate/show</code></td><td>Create and inspect an AI preference-elicitation script.</td></tr>
+      <tr><td><code>voting survey humanize/publish/email/responses</code></td><td>Create, distribute, and retrieve hosted human voting surveys.</td></tr>
+      <tr><td><code>voting docs list/show</code></td><td>Read the package’s built-in operational guidance.</td></tr>
+    </tbody></table>
+    <div class="callout"><strong>A defensible finish.</strong> Report the electorate, ballot format, eligible options, weights, method, seats, tie policy, invalid and exhausted ballots, winner and ranking, plus the outcome under at least one plausible comparison rule.</div>
+  </section>
+
+  <footer><strong>Voting Methods and Ballot Analysis</strong><br>Built for reproducible, inspectable social-choice analysis with the voting CLI and Expected Parrot research tools.</footer>
+</article></main>
+<script>
+var nav=document.querySelector('nav'),toggle=document.querySelector('.nav-toggle');toggle.addEventListener('click',function(){var open=nav.classList.toggle('open');toggle.setAttribute('aria-expanded',String(open));toggle.textContent=open?'Hide tutorial contents':'Show tutorial contents'});nav.querySelectorAll('a[href^="#"]').forEach(function(link){link.addEventListener('click',function(){if(window.matchMedia('(max-width: 960px)').matches){nav.classList.remove('open');toggle.setAttribute('aria-expanded','false');toggle.textContent='Show tutorial contents'}})});
+document.querySelectorAll('pre').forEach(function(pre){var b=document.createElement('button');b.className='copy';b.type='button';b.textContent='Copy';b.setAttribute('aria-label','Copy code');b.addEventListener('click',function(){navigator.clipboard.writeText(pre.querySelector('code').innerText).then(function(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy'},1200)})});pre.appendChild(b)});
+function progress(){var d=document.documentElement,m=d.scrollHeight-d.clientHeight;document.getElementById('progress').style.width=(m?d.scrollTop/m*100:0)+'%'}document.addEventListener('scroll',progress,{passive:true});progress();
+</script>
+</body>
+</html>

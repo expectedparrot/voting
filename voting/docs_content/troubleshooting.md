@@ -62,6 +62,27 @@ Ballot warnings appear in `voting ballot validate` and `voting count run` output
 **Cause:** The EDSL agent names (voter IDs in the generated script) don't match registered voter IDs.
 **Fix:** Voter IDs in `voting voter add` should match what you used in the generated script. The generated script uses voter IDs from the registry, so this should not happen unless voters were added after the script was generated. Regenerate with `voting survey generate`.
 
+## Humanize Issues
+
+### `EDSL is required to build a Humanize job`
+**Fix:** Install the optional integration with `pip install -e '.[humanize]'`.
+
+### `The ep CLI was not found`
+**Cause:** EDSL may not be installed in the active environment, or its console scripts are not on `PATH`.
+**Fix:** Confirm that `ep --help` succeeds in the same shell.
+
+### `Some voters do not have the 'email' email trait`
+**Cause:** Email delivery was requested, but one or more registered voters lack an address.
+**Fix:** Run `voting voter set-trait <id> email '"person@example.com"'` for every voter, then regenerate the Humanize job.
+
+### Humanize publish fails
+**Cause:** Expected Parrot authentication, the saved EDSL job, or its schema was rejected by `ep humanize create`.
+**Fix:** Check the structured `ep` error in the command output, confirm your active `ep` profile, and regenerate with `voting survey humanize <election_id>` if the election changed.
+
+### Email delivery is unavailable
+**Cause:** The published job was generated without an agent list and delivery map.
+**Fix:** Regenerate using `--email-trait email`, publish the new deployment, then run `voting survey email <election_id>`.
+
 ## ID Format Errors
 
 Voter, option, and election IDs must be lowercase alphanumeric with underscores, not starting with a digit.

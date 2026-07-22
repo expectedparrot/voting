@@ -17,10 +17,11 @@ Use `voting` when you want to answer: *"How would this group decide under differ
 Good use cases:
 - Comparing IRV vs. Condorcet methods on the same panel preferences
 - Eliciting AI agent preferences via EDSL and running multi-method analysis
+- Publishing Humanize web ballots for real voters, with optional email invitations
 - Exploring how ballot type affects outcomes for different group compositions
 - Building voting scenarios for research, education, or design
 
-## Two Paths to Ballots
+## Three Paths to Preferences
 
 **Direct ballot casting** — you already have preferences or are generating them programmatically:
 ```
@@ -30,11 +31,24 @@ voting ballot rank <election_id> <voter_id> opt_a opt_b opt_c
 **Survey generation** — use EDSL AI agents to elicit preferences:
 ```
 voting survey generate <election_id>   # generates a runnable Python script
+voting --human survey show <election_id>
 python .voting/output/survey_<id>.py  # runs EDSL survey, saves results
 voting ballot import --election <id> --from .voting/output/results_<id>.json
 ```
 
-The survey path requires `edsl` to be installed separately — `voting` itself has no EDSL dependency.
+**Humanize web survey** — collect preferences from real people at a hosted URL:
+```
+voting survey humanize <election_id>
+voting survey publish <election_id>    # returns respondent_url and admin_url
+voting survey responses <election_id>  # downloads an EDSL Results package
+```
+
+For unique email invitations, add an email trait to every voter, generate with
+`--email-trait email`, publish, and run `voting survey email <election_id>`.
+
+The synthetic script and Humanize paths require EDSL. Install the supported
+optional integration with `pip install -e '.[humanize]'`. Humanize jobs contain
+no language model; they are answered by people.
 
 ## Key Design Principles
 

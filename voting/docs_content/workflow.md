@@ -9,7 +9,7 @@ The `voting` workflow has six phases inferred from what exists on disk — no me
 | `init` | No `.voting/` project | `voting init <name>` |
 | `setup` | Project exists, no options or voters | `voting option add`, `voting voter add` |
 | `elections` | Options+voters ready, no open election | `voting election add` + `voting election open` |
-| `balloting` | Open election exists, no ballots | Direct ballot or `voting survey generate` |
+| `balloting` | Open election exists, no ballots | Direct ballot, synthetic survey, or Humanize survey |
 | `counting` | Ballots recorded, no results | `voting count run <election_id>` |
 | `done` | Results exist | `voting count list` / `voting count show` |
 
@@ -20,12 +20,14 @@ voting status
 
 ## Phase: setup
 
-Register all options and voters before creating elections. Voter traits power EDSL survey generation later.
+Register all options and voters before creating elections. The `persona` trait
+powers synthetic EDSL agents; an email trait enables Humanize invitations.
 
 ```bash
 voting option add <id> <name> [--type candidate|proposal|reference|write_in]
 voting voter add <id> <name> [--weight 1.0]
 voting voter set-trait <id> persona '"Description of this voter as an AI agent persona"'
+voting voter set-trait <id> email '"person@example.com"'
 ```
 
 ## Phase: elections
@@ -60,7 +62,7 @@ voting ballot approve <election_id> <voter_id> --option opt1 --option opt2
 voting ballot score   <election_id> <voter_id> opt1=8 opt2=5 opt3=9
 ```
 
-### Survey-generated ballots (EDSL path)
+### Synthetic survey-generated ballots (EDSL path)
 
 Use when you want AI agents to elicit preferences. Voter traits become agent personas.
 
@@ -68,8 +70,8 @@ Use when you want AI agents to elicit preferences. Voter traits become agent per
 # Step 1: generate a runnable Python script
 voting survey generate <election_id> [--model claude-opus-4-6]
 
-# Step 2: inspect and optionally edit the script
-cat .voting/output/survey_<election_id>.py
+# Step 2: inspect the script
+voting --human survey show <election_id>
 
 # Step 3: run it (requires edsl installed in your environment)
 python .voting/output/survey_<election_id>.py
@@ -80,6 +82,36 @@ voting ballot import --election <election_id> \
 ```
 
 The generated script bakes in your project's options and voters. Voters with `persona` traits produce richer agent responses.
+
+### Hosted ballots for real people (Humanize path)
+
+Generate a model-free EDSL Jobs package, then publish it through the `ep` CLI:
+
+```bash
+pip install -e '.[humanize]'
+voting survey humanize <election_id>
+voting survey publish <election_id>
+```
+
+`publish` saves the Humanize UUID and URLs under `.voting/output/` and returns
+the respondent and admin URLs. Retrieve responses later with:
+
+```bash
+voting survey responses <election_id>
+```
+
+For email delivery, every voter must have the selected trait:
+
+```bash
+voting voter set-trait <voter_id> email '"person@example.com"'
+voting survey humanize <election_id> --email-trait email
+voting survey publish <election_id>
+voting survey email <election_id> --name "Voting invitation"
+```
+
+The Humanize job contains no model. Without `--email-trait`, share the returned
+respondent URL directly. With it, Humanize creates tracked respondents and sends
+unique links through Expected Parrot's delivery system.
 
 Validate before counting:
 ```bash

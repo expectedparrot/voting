@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from typing import Optional
 
 import typer
 from rich.console import Console
@@ -25,7 +26,7 @@ class CliContext:
 @app.callback()
 def callback(
     ctx: typer.Context,
-    project: Path | None = typer.Option(None, "--project", help="Override project root."),
+    project: Optional[Path] = typer.Option(None, "--project", help="Override project root."),
     human: bool = typer.Option(False, "--human", help="Use human-readable output."),
     quiet: bool = typer.Option(False, "--quiet", help="Suppress non-data human output."),
 ) -> None:

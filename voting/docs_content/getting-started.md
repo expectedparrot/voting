@@ -65,7 +65,7 @@ If you want EDSL AI agents to supply preferences instead:
 ```bash
 voting survey generate city_council
 # Inspect the generated script:
-cat .voting/output/survey_city_council.py
+voting --human survey show city_council
 
 # Run it (requires edsl to be installed):
 python .voting/output/survey_city_council.py
@@ -73,6 +73,33 @@ python .voting/output/survey_city_council.py
 # Import the results as ballots:
 voting ballot import --election city_council \
     --from .voting/output/results_city_council.json
+```
+
+## 5. Collect Ballots from Humans (Hosted Path)
+
+Generate a model-free EDSL Jobs package and publish it as a Humanize web survey:
+
+```bash
+pip install -e '.[humanize]'
+voting survey humanize city_council
+voting survey publish city_council
+```
+
+The publish output contains a `respondent_url` to share and an `admin_url` for
+monitoring. Download submitted responses as an EDSL Results package with:
+
+```bash
+voting survey responses city_council
+```
+
+To email unique links, first give every registered voter an email trait:
+
+```bash
+voting voter set-trait voter_1 email '"voter1@example.com"'
+# Repeat for every registered voter.
+voting survey humanize city_council --email-trait email
+voting survey publish city_council
+voting survey email city_council --name "City council ballot"
 ```
 
 ## 6. Count the Results

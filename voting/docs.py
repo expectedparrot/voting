@@ -16,8 +16,13 @@ DOCS: dict[str, dict] = {
     },
     "workflow": {
         "title": "Workflow & Phases",
-        "summary": "The six phases, state machine, direct vs. survey-generated ballot paths.",
+        "summary": "The six phases and direct, synthetic, and hosted-human preference paths.",
         "file": "workflow.md",
+    },
+    "humanize": {
+        "title": "Humanize Surveys",
+        "summary": "Publish hosted voting surveys, share URLs, send email invitations, and retrieve responses.",
+        "file": "humanize.md",
     },
     "ballot-types": {
         "title": "Ballot Types",

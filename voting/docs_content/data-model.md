@@ -13,7 +13,7 @@ All state lives in the `.voting/` hidden directory inside the project root.
     ├── voters/            # one JSON file per voter
     ├── ballots/           # one JSON file per ballot record (append-only)
     ├── results/           # one JSON file per count run
-    ├── output/            # generated survey scripts and results files
+    ├── output/            # synthetic and Humanize survey artifacts
     ├── policies/          # (reserved)
     ├── sessions/          # (reserved)
     └── reports/           # (reserved)
@@ -60,12 +60,13 @@ Types: `candidate`, `proposal`, `reference`, `write_in`
   "weight": 1.0,
   "eligible": true,
   "traits": {
-    "persona": "Progressive urban planner who prioritizes transit"
+    "persona": "Progressive urban planner who prioritizes transit",
+    "email": "voter@example.com"
   }
 }
 ```
 
-Traits are arbitrary key/value pairs. The `persona` trait is used by `voting survey generate` to build EDSL agent descriptions.
+Traits are arbitrary key/value pairs. The `persona` trait is used by `voting survey generate` to build EDSL agent descriptions. A trait selected with `voting survey humanize --email-trait` supplies Humanize delivery addresses.
 
 ## elections/<id>.json
 
@@ -178,6 +179,22 @@ The results file format:
   ]
 }
 ```
+
+`voting survey humanize` adds a model-free hosted-survey package:
+
+- `humanize_<election_id>.ep` — EDSL Jobs package containing the ballot survey
+- `humanize_<election_id>.json` — manifest and stable option/question mapping
+- `humanize_schema_<election_id>.json` — Humanize presentation schema
+- `humanize_delivery_<election_id>.json` — email-column mapping, when requested
+
+After `voting survey publish`, the directory also contains:
+
+- `humanize_deployment_<election_id>.json` — Humanize UUID and hosted URLs
+- `humanize_responses_<election_id>.ep` — downloaded responses, after retrieval
+
+Deployment state contains service identifiers and URLs, not credentials. EDSL
+and the `ep` CLI obtain Expected Parrot credentials from their normal profile or
+environment configuration.
 
 ## Next Steps
 

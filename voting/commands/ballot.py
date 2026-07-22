@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Optional
 
 import typer
 
@@ -138,8 +139,8 @@ def allocate(
 @app.command("list")
 def list_cmd(
     ctx: typer.Context,
-    election: str | None = typer.Option(None, "--election"),
-    voter: str | None = typer.Option(None, "--voter"),
+    election: Optional[str] = typer.Option(None, "--election"),
+    voter: Optional[str] = typer.Option(None, "--voter"),
 ) -> None:
     records = [record for _, record in list_records(ctx_project(ctx), "ballots")]
     if election:

@@ -89,7 +89,15 @@ Some methods handle ballot types they weren't designed for:
 
 Always validate after importing: `voting ballot validate <election_id>`
 
+## Survey Collection Support
+
+Both synthetic EDSL generation and hosted Humanize surveys support
+`single_choice`, `ranked`, `approval`, and `score`. Humanize jobs are model-free
+and collect answers from real people at a respondent URL. `grade` and
+`allocated` ballots currently use direct casting or custom imports.
+
 ## Next Steps
 
 - `voting docs show voting-methods` — which methods pair with which ballot types
+- `voting docs show humanize` — publish and email hosted human ballots
 - `voting docs show workflow` — the balloting phase in detail
