@@ -3,6 +3,48 @@
 
 voting models social-choice problems with options, voters, elections, ballots, and counting methods across plurality, ranked, approval, score, grade, allocation, Condorcet, and multi-winner families. The agent uses it to help the user define the electorate and ballot format, cast or import ballots, compare counting methods, inspect winners/rankings, generate synthetic preference studies, and publish Humanize surveys for real voters.
 
+## Copy and paste into Codex or Claude Code
+
+```text
+Set up voting and help me model and run an election.
+
+Install the current voting and EDSL `main` branches from GitHub. If `uv` is not
+installed, first run `python -m pip install --upgrade uv`. Then install voting
+as a managed tool, including the EDSL executable used for generated and hosted
+surveys:
+
+uv tool install --upgrade --force \
+  --with-executables-from "edsl @ git+https://github.com/expectedparrot/edsl.git@main" \
+  "voting[humanize] @ git+https://github.com/expectedparrot/voting.git@main"
+
+Verify that both command-line tools are available:
+
+voting --help
+ep --help
+
+Ask me for a project name and a short description of the decision, candidates
+or proposals, voters, and whether I need a single winner, ranking, or multiple
+winners. Then run `voting init <project_name> --description "<description>"`,
+enter the new project directory, and run `voting status`.
+
+Treat voting's JSON output as the source of truth. Follow each command's
+`next_steps`, using `voting status` whenever the next action is unclear. Before
+counting, confirm the election method and ballot type with me, add eligible
+options, open the election, collect or import ballots, and validate them. Use
+`voting docs show voting-methods` when helping me choose a method. Do not invent
+preferences or silently resolve substantive ties or data errors.
+
+Only if I ask to generate an AI survey or publish a Humanize survey, run
+`ep auth status`. If authentication is missing, run `ep auth login` and follow
+its login flow; let the EDSL CLI create and manage the repository-local `.env`.
+Never display, copy, or commit API keys. Then run `ep profiles current` to
+inspect the redacted configuration and `ep check` to verify connectivity.
+```
+
+Local ballot entry, validation, and counting do not require EDSL
+authentication. The `humanize` extra and `ep` setup are included above so the
+agent can also generate or publish surveys when requested.
+
 ## When to use this
 <!-- id: voting/when-to-use -->
 
