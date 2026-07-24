@@ -8,7 +8,7 @@ from typing import Optional
 import typer
 from rich.console import Console
 
-from voting.commands import ballot, count, election, info, init, option, voter
+from voting.commands import agent_bootstrap, ballot, count, election, info, init, option, voter
 from voting.commands import docs_cmd, status, survey
 from voting.core.errors import VotingError
 
@@ -34,6 +34,7 @@ def callback(
 
 
 app.command("init")(init.command)
+app.command("agent-bootstrap")(agent_bootstrap.command)
 app.command("info")(info.command)
 app.command("status")(status.command)
 app.add_typer(election.app, name="election")
