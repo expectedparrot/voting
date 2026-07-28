@@ -8,7 +8,7 @@ import typer
 
 ENVELOPE_SCHEMA_VERSION = "1.0"
 
-_COMMAND_GROUPS = {"election", "option", "voter", "ballot", "count", "docs", "survey"}
+_COMMAND_GROUPS = {"election", "option", "voter", "ballot", "count", "docs", "survey", "plot"}
 
 
 def canonical_command(argv: list[str] | None = None) -> str:

@@ -254,6 +254,10 @@ Every registered command (options and defaults live in `voting <command> --help`
 | `voting option list` |  |
 | `voting option set-eligible` |  |
 | `voting option show` |  |
+| `voting plot methods` | Grid of finishing positions across every saved count — does the method change the winner? |
+| `voting plot pairwise` | Head-to-head margin matrix from a Condorcet-style count result. |
+| `voting plot ranks` | Stacked bars of where voters ranked each option (latest ballot per voter). |
+| `voting plot scores` | Bar chart of a count's per-option totals, winner highlighted. |
 | `voting status` | Show current project phase, counts, and recommended next steps. |
 | `voting survey email` | Email unique Humanize voting links to configured voters. |
 | `voting survey generate` | Build an EDSL Jobs package (.jobs.ep) that elicits AI voter preferences via `ep run`. |

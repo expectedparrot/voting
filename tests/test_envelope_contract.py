@@ -204,6 +204,48 @@ def test_human_mode_renders_rich_tables(tmp_path: Path) -> None:
     assert "winner" in counts.stdout.lower() or "tea" in counts.stdout
 
 
+def test_plot_commands_write_svgs(tmp_path: Path) -> None:
+    assert run_voting("init", "plots", cwd=tmp_path).returncode == 0
+    cwd = tmp_path / "plots"
+    for step in [
+        ("option", "add", "tea", "Tea"),
+        ("option", "add", "coffee", "Coffee"),
+        ("option", "add", "milk", "Milk"),
+        ("voter", "add", "v1", "One"), ("voter", "add", "v2", "Two"), ("voter", "add", "v3", "Three"),
+        ("election", "add", "drink", "Best drink", "--method", "borda", "--ballot-type", "ranked"),
+        ("election", "add-option", "drink", "tea"),
+        ("election", "add-option", "drink", "coffee"),
+        ("election", "add-option", "drink", "milk"),
+        ("election", "open", "drink"),
+        ("ballot", "rank", "drink", "v1", "tea", "coffee", "milk"),
+        ("ballot", "rank", "drink", "v2", "tea", "milk", "coffee"),
+        ("ballot", "rank", "drink", "v3", "coffee", "tea", "milk"),
+    ]:
+        assert run_voting(*step, cwd=cwd).returncode == 0, step
+    borda = json.loads(run_voting("count", "run", "drink", cwd=cwd).stdout)["data"]
+    schulze = json.loads(run_voting("count", "run", "drink", "--method", "schulze", cwd=cwd).stdout)["data"]
+
+    for args in [
+        ("plot", "scores", borda["id"]),
+        ("plot", "ranks", "drink"),
+        ("plot", "pairwise", schulze["id"]),
+        ("plot", "methods", "--election", "drink"),
+    ]:
+        completed = run_voting(*args, cwd=cwd)
+        assert completed.returncode == 0, (args, completed.stdout, completed.stderr)
+        payload = json.loads(completed.stdout)
+        svg_path = Path(payload["data"]["path"])
+        assert svg_path.exists(), args
+        content = svg_path.read_text()
+        assert content.startswith("<svg"), args
+        assert "Tea" in content or "tea" in content, args
+
+    # pairwise on a non-Condorcet result fails with guidance, not a stack trace
+    failed = run_voting("plot", "pairwise", borda["id"], cwd=cwd)
+    assert failed.returncode == 1
+    assert json.loads(failed.stdout)["errors"][0]["hint"]
+
+
 def test_survey_generate_emits_executable_jobs_package(tmp_path: Path) -> None:
     steps = [
         ("init", "books"),

@@ -38,6 +38,8 @@
     details.output[open] summary{margin-bottom:8px}
     details.output pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;max-height:480px;overflow:auto}
     figure{margin:30px 0 36px;padding:0;border:0}
+    figure.plot{max-width:820px}
+    figure.plot svg{width:100%;height:auto;border:1px solid var(--rule);border-radius:8px}
     figure.human pre.human{margin:0 0 8px;color:var(--ink);background:#fbfdfb;border:1px solid var(--rule);border-left:4px solid #9fd3b2;overflow:auto}
     figcaption{color:var(--muted);font-size:13px}
     .callout{margin:24px 0;padding:18px 22px;background:linear-gradient(135deg,#f9fbf9,var(--light));border-left:4px solid var(--green);border-radius:0 8px 8px 0}
@@ -153,7 +155,7 @@
       &quot;id&quot;: &quot;classic_books&quot;,
       &quot;title&quot;: &quot;Classic Books&quot;,
       &quot;description&quot;: &quot;&quot;,
-      &quot;created_at&quot;: &quot;2026-07-28T12:01:33&quot;,
+      &quot;created_at&quot;: &quot;2026-07-28T12:50:18&quot;,
       &quot;settings&quot;: {
         &quot;default_tie_policy&quot;: &quot;lexicographic&quot;,
         &quot;allow_unregistered_voters&quot;: false
@@ -228,7 +230,7 @@
     &quot;id&quot;: &quot;book_preference&quot;,
     &quot;name&quot;: &quot;Classic book preference&quot;,
     &quot;description&quot;: &quot;&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T12:01:34&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:50:18&quot;,
     &quot;method&quot;: &quot;borda&quot;,
     &quot;ballot_type&quot;: &quot;ranked&quot;,
     &quot;seats&quot;: 1,
@@ -343,7 +345,7 @@
   ],
   &quot;data&quot;: {
     &quot;ballot_type&quot;: &quot;ranked&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T12:01:34&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:50:18&quot;,
     &quot;description&quot;: &quot;&quot;,
     &quot;id&quot;: &quot;book_preference&quot;,
     &quot;method&quot;: &quot;borda&quot;,
@@ -364,7 +366,7 @@
       &quot;tie_policy&quot;: &quot;lexicographic&quot;
     },
     &quot;status&quot;: &quot;open&quot;,
-    &quot;open_at&quot;: &quot;2026-07-28T12:01:34&quot;
+    &quot;open_at&quot;: &quot;2026-07-28T12:50:19&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
@@ -512,17 +514,17 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     &quot;warnings&quot;: [
       {
         &quot;code&quot;: &quot;unknown_voter&quot;,
-        &quot;ballot_id&quot;: &quot;20260728T160136917386Z_29a1719b_r_95fa122e_8606_4b48_8903_a342103fedb3_book_preference&quot;,
+        &quot;ballot_id&quot;: &quot;20260728T165022375011Z_f661622d_r_95fa122e_8606_4b48_8903_a342103fedb3_book_preference&quot;,
         &quot;voter_id&quot;: &quot;r_95fa122e_8606_4b48_8903_a342103fedb3&quot;
       },
       {
         &quot;code&quot;: &quot;unknown_voter&quot;,
-        &quot;ballot_id&quot;: &quot;20260728T160136917624Z_bb0439b7_r_02a2ae52_9765_414d_9d2e_9cfc19942690_book_preference&quot;,
+        &quot;ballot_id&quot;: &quot;20260728T165022375275Z_03404e3a_r_02a2ae52_9765_414d_9d2e_9cfc19942690_book_preference&quot;,
         &quot;voter_id&quot;: &quot;r_02a2ae52_9765_414d_9d2e_9cfc19942690&quot;
       },
       {
         &quot;code&quot;: &quot;unknown_voter&quot;,
-        &quot;ballot_id&quot;: &quot;20260728T160136917739Z_c6ca502d_r_6785ca96_b4ae_482d_a397_1f78214cb69d_book_preference&quot;,
+        &quot;ballot_id&quot;: &quot;20260728T165022375420Z_f230dde4_r_6785ca96_b4ae_482d_a397_1f78214cb69d_book_preference&quot;,
         &quot;voter_id&quot;: &quot;r_6785ca96_b4ae_482d_a397_1f78214cb69d&quot;
       },
       &quot;… 15 further entries elided …&quot;
@@ -601,34 +603,133 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
 ┏━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
 ┃ voter          ┃ ballot                                                    ┃ recorded            ┃
 ┡━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
-│ r_95fa122e_86… │ nineteen_eighty_four &gt; lord_flies &gt; scarlet_letter … (+5  │ 2026-07-28 12:01:38 │
+│ r_95fa122e_86… │ nineteen_eighty_four &gt; lord_flies &gt; scarlet_letter … (+5  │ 2026-07-28 12:50:23 │
 │                │ more)                                                     │                     │
-│ r_02a2ae52_97… │ catcher_rye &gt; nineteen_eighty_four &gt; great_gatsby … (+5   │ 2026-07-28 12:01:38 │
+│ r_02a2ae52_97… │ catcher_rye &gt; nineteen_eighty_four &gt; great_gatsby … (+5   │ 2026-07-28 12:50:23 │
 │                │ more)                                                     │                     │
-│ r_6785ca96_b4… │ nineteen_eighty_four &gt; animal_farm &gt; great_gatsby … (+5   │ 2026-07-28 12:01:38 │
+│ r_6785ca96_b4… │ nineteen_eighty_four &gt; animal_farm &gt; great_gatsby … (+5   │ 2026-07-28 12:50:23 │
 │                │ more)                                                     │                     │
-│ r_253c40f1_32… │ nineteen_eighty_four &gt; mice_men &gt; mockingbird … (+5 more) │ 2026-07-28 12:01:38 │
-│ r_2fbe4384_33… │ mice_men &gt; great_gatsby &gt; lord_flies … (+5 more)          │ 2026-07-28 12:01:38 │
-│ r_0f85628b_50… │ nineteen_eighty_four &gt; scarlet_letter &gt; catcher_rye … (+5 │ 2026-07-28 12:01:38 │
+│ r_253c40f1_32… │ nineteen_eighty_four &gt; mice_men &gt; mockingbird … (+5 more) │ 2026-07-28 12:50:23 │
+│ r_2fbe4384_33… │ mice_men &gt; great_gatsby &gt; lord_flies … (+5 more)          │ 2026-07-28 12:50:23 │
+│ r_0f85628b_50… │ nineteen_eighty_four &gt; scarlet_letter &gt; catcher_rye … (+5 │ 2026-07-28 12:50:23 │
 │                │ more)                                                     │                     │
-│ b29fe300_0612… │ nineteen_eighty_four &gt; animal_farm &gt; mice_men … (+5 more) │ 2026-07-28 12:01:38 │
-│ r_60abb9b9_1c… │ nineteen_eighty_four &gt; animal_farm &gt; catcher_rye … (+5    │ 2026-07-28 12:01:38 │
+│ b29fe300_0612… │ nineteen_eighty_four &gt; animal_farm &gt; mice_men … (+5 more) │ 2026-07-28 12:50:23 │
+│ r_60abb9b9_1c… │ nineteen_eighty_four &gt; animal_farm &gt; catcher_rye … (+5    │ 2026-07-28 12:50:23 │
 │                │ more)                                                     │                     │
-│ r_4e8ddeca_81… │ mockingbird &gt; mice_men &gt; nineteen_eighty_four … (+5 more) │ 2026-07-28 12:01:38 │
-│ r_51e15daa_72… │ mockingbird &gt; nineteen_eighty_four &gt; lord_flies … (+5     │ 2026-07-28 12:01:38 │
+│ r_4e8ddeca_81… │ mockingbird &gt; mice_men &gt; nineteen_eighty_four … (+5 more) │ 2026-07-28 12:50:23 │
+│ r_51e15daa_72… │ mockingbird &gt; nineteen_eighty_four &gt; lord_flies … (+5     │ 2026-07-28 12:50:23 │
 │                │ more)                                                     │                     │
-│ b2d6c619_8c5e… │ nineteen_eighty_four &gt; great_gatsby &gt; mockingbird … (+5   │ 2026-07-28 12:01:38 │
+│ b2d6c619_8c5e… │ nineteen_eighty_four &gt; great_gatsby &gt; mockingbird … (+5   │ 2026-07-28 12:50:23 │
 │                │ more)                                                     │                     │
-│ r_2dcf9550_88… │ catcher_rye &gt; great_gatsby &gt; mice_men … (+5 more)         │ 2026-07-28 12:01:38 │
-│ r_866b5ae1_22… │ mockingbird &gt; great_gatsby &gt; scarlet_letter … (+5 more)   │ 2026-07-28 12:01:38 │
-│ abb414e9_cd1e… │ nineteen_eighty_four &gt; animal_farm &gt; lord_flies … (+5     │ 2026-07-28 12:01:38 │
+│ r_2dcf9550_88… │ catcher_rye &gt; great_gatsby &gt; mice_men … (+5 more)         │ 2026-07-28 12:50:23 │
+│ r_866b5ae1_22… │ mockingbird &gt; great_gatsby &gt; scarlet_letter … (+5 more)   │ 2026-07-28 12:50:23 │
+│ abb414e9_cd1e… │ nineteen_eighty_four &gt; animal_farm &gt; lord_flies … (+5     │ 2026-07-28 12:50:23 │
 │                │ more)                                                     │                     │
-│ r_7cb11170_5a… │ mockingbird &gt; nineteen_eighty_four &gt; mice_men … (+5 more) │ 2026-07-28 12:01:38 │
-│ r_5b8d9c86_19… │ great_gatsby &gt; scarlet_letter &gt; mockingbird … (+5 more)   │ 2026-07-28 12:01:38 │
-│ r_7df8a708_8e… │ great_gatsby &gt; nineteen_eighty_four &gt; lord_flies … (+5    │ 2026-07-28 12:01:38 │
+│ r_7cb11170_5a… │ mockingbird &gt; nineteen_eighty_four &gt; mice_men … (+5 more) │ 2026-07-28 12:50:23 │
+│ r_5b8d9c86_19… │ great_gatsby &gt; scarlet_letter &gt; mockingbird … (+5 more)   │ 2026-07-28 12:50:23 │
+│ r_7df8a708_8e… │ great_gatsby &gt; nineteen_eighty_four &gt; lord_flies … (+5    │ 2026-07-28 12:50:23 │
 │                │ more)                                                     │                     │
-│ cd27fba8_b7ee… │ animal_farm &gt; catcher_rye &gt; great_gatsby … (+5 more)      │ 2026-07-28 12:01:38 │
+│ cd27fba8_b7ee… │ animal_farm &gt; catcher_rye &gt; great_gatsby … (+5 more)      │ 2026-07-28 12:50:23 │
 └────────────────┴───────────────────────────────────────────────────────────┴─────────────────────┘</code></pre><figcaption>The countable ballots: eighteen anonymous respondents at weight 1.0, top three choices shown; full rankings live in the ballot records and drive every count.</figcaption></figure>
+    <p>Eighteen full rankings are hard to eyeball. The built-in plots turn them into a picture — <code>voting plot ranks</code> shows, for each book, how many voters placed it first, second, and so on (hover any segment for the exact count):</p>
+    <pre class="command"><code>voting plot ranks book_preference</code></pre>
+    <details class="output"><summary>Show command output</summary><pre><code>{
+  &quot;schema_version&quot;: &quot;1.0&quot;,
+  &quot;command&quot;: &quot;plot ranks&quot;,
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;argv&quot;: [
+    &quot;voting&quot;,
+    &quot;plot&quot;,
+    &quot;ranks&quot;,
+    &quot;book_preference&quot;
+  ],
+  &quot;data&quot;: {
+    &quot;election_id&quot;: &quot;book_preference&quot;,
+    &quot;ballots&quot;: 18,
+    &quot;path&quot;: &quot;.voting/output/plots/ranks_book_preference.svg&quot;,
+    &quot;format&quot;: &quot;svg&quot;
+  },
+  &quot;warnings&quot;: [],
+  &quot;errors&quot;: [],
+  &quot;next_steps&quot;: [
+    &quot;open .voting/output/plots/ranks_book_preference.svg&quot;
+  ]
+}</code></pre></details>
+    <figure class="plot"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif" role="img" aria-label="Where voters ranked each option">
+<rect width="760" height="380" fill="#ffffff"/>
+<text x="20" y="30" font-size="17" font-weight="700" fill="#214d35">Where voters ranked each option</text>
+<text x="20" y="52" font-size="12" fill="#5b665e">Each bar spans all 18 ballots; darker = ranked closer to first choice.</text>
+<text x="240" y="99" font-size="13" text-anchor="end" fill="#214d35">1984 — Orwell</text>
+<rect x="250.0" y="85" width="208.9" height="20" fill="#214d35"><title>1984 — Orwell: ranked #1 by 8</title></rect>
+<text x="256.0" y="99" font-size="12" font-weight="700" fill="#ffffff">8</text>
+<rect x="458.9" y="85" width="104.4" height="20" fill="#2e6b4f"><title>1984 — Orwell: ranked #2 by 4</title></rect>
+<rect x="563.3" y="85" width="26.1" height="20" fill="#4d8a6a"><title>1984 — Orwell: ranked #3 by 1</title></rect>
+<rect x="589.4" y="85" width="26.1" height="20" fill="#71a888"><title>1984 — Orwell: ranked #4 by 1</title></rect>
+<rect x="615.6" y="85" width="104.4" height="20" fill="#dcebe2"><title>1984 — Orwell: ranked #7 by 4</title></rect>
+<text x="240" y="133" font-size="13" text-anchor="end" fill="#214d35">To Kill a Mockingbird — Har…</text>
+<rect x="250.0" y="119" width="104.4" height="20" fill="#214d35"><title>To Kill a Mockingbird — Harper Lee: ranked #1 by 4</title></rect>
+<text x="256.0" y="133" font-size="12" font-weight="700" fill="#ffffff">4</text>
+<rect x="354.4" y="119" width="78.3" height="20" fill="#4d8a6a"><title>To Kill a Mockingbird — Harper Lee: ranked #3 by 3</title></rect>
+<rect x="432.8" y="119" width="156.7" height="20" fill="#71a888"><title>To Kill a Mockingbird — Harper Lee: ranked #4 by 6</title></rect>
+<rect x="589.4" y="119" width="78.3" height="20" fill="#97c2a8"><title>To Kill a Mockingbird — Harper Lee: ranked #5 by 3</title></rect>
+<rect x="667.8" y="119" width="26.1" height="20" fill="#bcd8c7"><title>To Kill a Mockingbird — Harper Lee: ranked #6 by 1</title></rect>
+<rect x="693.9" y="119" width="26.1" height="20" fill="#dcebe2"><title>To Kill a Mockingbird — Harper Lee: ranked #7 by 1</title></rect>
+<text x="240" y="167" font-size="13" text-anchor="end" fill="#214d35">The Great Gatsby — Fitzgera…</text>
+<rect x="250.0" y="153" width="52.2" height="20" fill="#214d35"><title>The Great Gatsby — Fitzgerald: ranked #1 by 2</title></rect>
+<text x="256.0" y="167" font-size="12" font-weight="700" fill="#ffffff">2</text>
+<rect x="302.2" y="153" width="104.4" height="20" fill="#2e6b4f"><title>The Great Gatsby — Fitzgerald: ranked #2 by 4</title></rect>
+<rect x="406.7" y="153" width="78.3" height="20" fill="#4d8a6a"><title>The Great Gatsby — Fitzgerald: ranked #3 by 3</title></rect>
+<rect x="485.0" y="153" width="26.1" height="20" fill="#71a888"><title>The Great Gatsby — Fitzgerald: ranked #4 by 1</title></rect>
+<rect x="511.1" y="153" width="78.3" height="20" fill="#97c2a8"><title>The Great Gatsby — Fitzgerald: ranked #5 by 3</title></rect>
+<rect x="589.4" y="153" width="78.3" height="20" fill="#bcd8c7"><title>The Great Gatsby — Fitzgerald: ranked #6 by 3</title></rect>
+<rect x="667.8" y="153" width="26.1" height="20" fill="#dcebe2"><title>The Great Gatsby — Fitzgerald: ranked #7 by 1</title></rect>
+<rect x="693.9" y="153" width="26.1" height="20" fill="#f2f8f4"><title>The Great Gatsby — Fitzgerald: ranked #8 by 1</title></rect>
+<text x="240" y="201" font-size="13" text-anchor="end" fill="#214d35">Of Mice and Men — Steinbeck</text>
+<rect x="250.0" y="187" width="26.1" height="20" fill="#214d35"><title>Of Mice and Men — Steinbeck: ranked #1 by 1</title></rect>
+<text x="256.0" y="201" font-size="12" font-weight="700" fill="#ffffff">1</text>
+<rect x="276.1" y="187" width="52.2" height="20" fill="#2e6b4f"><title>Of Mice and Men — Steinbeck: ranked #2 by 2</title></rect>
+<rect x="328.3" y="187" width="78.3" height="20" fill="#4d8a6a"><title>Of Mice and Men — Steinbeck: ranked #3 by 3</title></rect>
+<rect x="406.7" y="187" width="78.3" height="20" fill="#71a888"><title>Of Mice and Men — Steinbeck: ranked #4 by 3</title></rect>
+<rect x="485.0" y="187" width="130.6" height="20" fill="#97c2a8"><title>Of Mice and Men — Steinbeck: ranked #5 by 5</title></rect>
+<rect x="615.6" y="187" width="26.1" height="20" fill="#bcd8c7"><title>Of Mice and Men — Steinbeck: ranked #6 by 1</title></rect>
+<rect x="641.7" y="187" width="52.2" height="20" fill="#dcebe2"><title>Of Mice and Men — Steinbeck: ranked #7 by 2</title></rect>
+<rect x="693.9" y="187" width="26.1" height="20" fill="#f2f8f4"><title>Of Mice and Men — Steinbeck: ranked #8 by 1</title></rect>
+<text x="240" y="235" font-size="13" text-anchor="end" fill="#214d35">Animal Farm — Orwell</text>
+<rect x="250.0" y="221" width="26.1" height="20" fill="#214d35"><title>Animal Farm — Orwell: ranked #1 by 1</title></rect>
+<text x="256.0" y="235" font-size="12" font-weight="700" fill="#ffffff">1</text>
+<rect x="276.1" y="221" width="104.4" height="20" fill="#2e6b4f"><title>Animal Farm — Orwell: ranked #2 by 4</title></rect>
+<rect x="380.6" y="221" width="104.4" height="20" fill="#71a888"><title>Animal Farm — Orwell: ranked #4 by 4</title></rect>
+<rect x="485.0" y="221" width="52.2" height="20" fill="#97c2a8"><title>Animal Farm — Orwell: ranked #5 by 2</title></rect>
+<rect x="537.2" y="221" width="104.4" height="20" fill="#bcd8c7"><title>Animal Farm — Orwell: ranked #6 by 4</title></rect>
+<rect x="641.7" y="221" width="26.1" height="20" fill="#dcebe2"><title>Animal Farm — Orwell: ranked #7 by 1</title></rect>
+<rect x="667.8" y="221" width="52.2" height="20" fill="#f2f8f4"><title>Animal Farm — Orwell: ranked #8 by 2</title></rect>
+<text x="240" y="269" font-size="13" text-anchor="end" fill="#214d35">The Catcher in the Rye — Sa…</text>
+<rect x="250.0" y="255" width="52.2" height="20" fill="#214d35"><title>The Catcher in the Rye — Salinger: ranked #1 by 2</title></rect>
+<text x="256.0" y="269" font-size="12" font-weight="700" fill="#ffffff">2</text>
+<rect x="302.2" y="255" width="26.1" height="20" fill="#2e6b4f"><title>The Catcher in the Rye — Salinger: ranked #2 by 1</title></rect>
+<rect x="328.3" y="255" width="52.2" height="20" fill="#4d8a6a"><title>The Catcher in the Rye — Salinger: ranked #3 by 2</title></rect>
+<rect x="380.6" y="255" width="52.2" height="20" fill="#71a888"><title>The Catcher in the Rye — Salinger: ranked #4 by 2</title></rect>
+<rect x="432.8" y="255" width="26.1" height="20" fill="#97c2a8"><title>The Catcher in the Rye — Salinger: ranked #5 by 1</title></rect>
+<rect x="458.9" y="255" width="78.3" height="20" fill="#bcd8c7"><title>The Catcher in the Rye — Salinger: ranked #6 by 3</title></rect>
+<rect x="537.2" y="255" width="104.4" height="20" fill="#dcebe2"><title>The Catcher in the Rye — Salinger: ranked #7 by 4</title></rect>
+<rect x="641.7" y="255" width="78.3" height="20" fill="#f2f8f4"><title>The Catcher in the Rye — Salinger: ranked #8 by 3</title></rect>
+<text x="240" y="303" font-size="13" text-anchor="end" fill="#214d35">Lord of the Flies — Golding</text>
+<rect x="250.0" y="289" width="26.1" height="20" fill="#2e6b4f"><title>Lord of the Flies — Golding: ranked #2 by 1</title></rect>
+<rect x="276.1" y="289" width="104.4" height="20" fill="#4d8a6a"><title>Lord of the Flies — Golding: ranked #3 by 4</title></rect>
+<rect x="380.6" y="289" width="26.1" height="20" fill="#71a888"><title>Lord of the Flies — Golding: ranked #4 by 1</title></rect>
+<rect x="406.7" y="289" width="52.2" height="20" fill="#97c2a8"><title>Lord of the Flies — Golding: ranked #5 by 2</title></rect>
+<rect x="458.9" y="289" width="26.1" height="20" fill="#bcd8c7"><title>Lord of the Flies — Golding: ranked #6 by 1</title></rect>
+<rect x="485.0" y="289" width="78.3" height="20" fill="#dcebe2"><title>Lord of the Flies — Golding: ranked #7 by 3</title></rect>
+<rect x="563.3" y="289" width="156.7" height="20" fill="#f2f8f4"><title>Lord of the Flies — Golding: ranked #8 by 6</title></rect>
+<text x="240" y="337" font-size="13" text-anchor="end" fill="#214d35">The Scarlet Letter — Hawtho…</text>
+<rect x="250.0" y="323" width="52.2" height="20" fill="#2e6b4f"><title>The Scarlet Letter — Hawthorne: ranked #2 by 2</title></rect>
+<rect x="302.2" y="323" width="52.2" height="20" fill="#4d8a6a"><title>The Scarlet Letter — Hawthorne: ranked #3 by 2</title></rect>
+<rect x="354.4" y="323" width="52.2" height="20" fill="#97c2a8"><title>The Scarlet Letter — Hawthorne: ranked #5 by 2</title></rect>
+<rect x="406.7" y="323" width="130.6" height="20" fill="#bcd8c7"><title>The Scarlet Letter — Hawthorne: ranked #6 by 5</title></rect>
+<rect x="537.2" y="323" width="52.2" height="20" fill="#dcebe2"><title>The Scarlet Letter — Hawthorne: ranked #7 by 2</title></rect>
+<rect x="589.4" y="323" width="130.6" height="20" fill="#f2f8f4"><title>The Scarlet Letter — Hawthorne: ranked #8 by 5</title></rect>
+</svg>
+<figcaption>Position distributions from the real ballots. nineteen_eighty_four's long dark leading edge is its 8 first-place votes; books lower down live mostly in the pale right-hand (late-rank) end of the bar.</figcaption></figure>
     <p><code>voting status</code> is the project's dashboard. Note the ballot count: 36 records, not 18 — the superseded first import is still in the append-only log (an audit trail, never silently rewritten), while counting uses each voter's latest ballot. The phase says exactly what remains:</p>
     <pre class="command"><code>voting status</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
@@ -685,7 +786,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   &quot;data&quot;: {
     &quot;election_id&quot;: &quot;book_preference&quot;,
     &quot;method&quot;: &quot;borda&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T12:01:38&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:50:24&quot;,
     &quot;settings&quot;: {
       &quot;seats&quot;: 1,
       &quot;tie_policy&quot;: &quot;lexicographic&quot;,
@@ -738,16 +839,16 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     ],
     &quot;rounds&quot;: [],
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T160138958420Z_4c8d389d_book_preference_borda&quot;
+    &quot;id&quot;: &quot;20260728T165024622599Z_743044e6_book_preference_borda&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T160138958420Z_4c8d389d_book_preference_borda&quot;,
+    &quot;voting count show 20260728T165024622599Z_743044e6_book_preference_borda&quot;,
     &quot;voting count list&quot;
   ]
 }</code></pre></details>
-    <figure class="human"><pre class="human"><code>$ voting --human count show 20260728T160138958420Z_4c8d389d_book_preference_borda
+    <figure class="human"><pre class="human"><code>$ voting --human count show 20260728T165024622599Z_743044e6_book_preference_borda
           borda count — book_preference           
 ┏━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━┓
 ┃ rank ┃ option               ┃ score ┃ status   ┃
@@ -762,6 +863,59 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
 │    8 │ scarlet_letter       │    40 │ defeated │
 └──────┴──────────────────────┴───────┴──────────┘
            winner: nineteen_eighty_four</code></pre><figcaption>The saved Borda count rendered for people: full ranking, scores, and the winner.</figcaption></figure>
+    <p>Any saved count can also be plotted — the winner's bar in green:</p>
+    <pre class="command"><code>voting plot scores 20260728T165024622599Z_743044e6_book_preference_borda</code></pre>
+    <details class="output"><summary>Show command output</summary><pre><code>{
+  &quot;schema_version&quot;: &quot;1.0&quot;,
+  &quot;command&quot;: &quot;plot scores&quot;,
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;argv&quot;: [
+    &quot;voting&quot;,
+    &quot;plot&quot;,
+    &quot;scores&quot;,
+    &quot;20260728T165024622599Z_743044e6_book_preference_borda&quot;
+  ],
+  &quot;data&quot;: {
+    &quot;result_id&quot;: &quot;20260728T165024622599Z_743044e6_book_preference_borda&quot;,
+    &quot;method&quot;: &quot;borda&quot;,
+    &quot;path&quot;: &quot;.voting/output/plots/scores_20260728T165024622599Z_743044e6_book_preference_borda.svg&quot;,
+    &quot;format&quot;: &quot;svg&quot;
+  },
+  &quot;warnings&quot;: [],
+  &quot;errors&quot;: [],
+  &quot;next_steps&quot;: [
+    &quot;open .voting/output/plots/scores_20260728T165024622599Z_743044e6_book_preference_borda.svg&quot;
+  ]
+}</code></pre></details>
+    <figure class="plot"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 358" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif" role="img" aria-label="borda totals — book_preference">
+<rect width="760" height="358" fill="#ffffff"/>
+<text x="20" y="30" font-size="17" font-weight="700" fill="#214d35">borda totals — book_preference</text>
+<text x="240" y="77" font-size="13" text-anchor="end" fill="#214d35">1984 — Orwell</text>
+<rect x="250" y="63" width="420.0" height="20" rx="3" fill="#2e6b4f"/>
+<text x="678.0" y="77" font-size="13" font-weight="700" fill="#5b665e">93</text>
+<text x="240" y="111" font-size="13" text-anchor="end" fill="#214d35">To Kill a Mockingbird — Har…</text>
+<rect x="250" y="97" width="356.8" height="20" rx="3" fill="#97c2a8"/>
+<text x="614.7741935483871" y="111" font-size="13" font-weight="700" fill="#5b665e">79</text>
+<text x="240" y="145" font-size="13" text-anchor="end" fill="#214d35">The Great Gatsby — Fitzgera…</text>
+<rect x="250" y="131" width="329.7" height="20" rx="3" fill="#97c2a8"/>
+<text x="587.6774193548388" y="145" font-size="13" font-weight="700" fill="#5b665e">73</text>
+<text x="240" y="179" font-size="13" text-anchor="end" fill="#214d35">Of Mice and Men — Steinbeck</text>
+<rect x="250" y="165" width="293.5" height="20" rx="3" fill="#97c2a8"/>
+<text x="551.5483870967741" y="179" font-size="13" font-weight="700" fill="#5b665e">65</text>
+<text x="240" y="213" font-size="13" text-anchor="end" fill="#214d35">Animal Farm — Orwell</text>
+<rect x="250" y="199" width="280.0" height="20" rx="3" fill="#97c2a8"/>
+<text x="538.0" y="213" font-size="13" font-weight="700" fill="#5b665e">62</text>
+<text x="240" y="247" font-size="13" text-anchor="end" fill="#214d35">The Catcher in the Rye — Sa…</text>
+<rect x="250" y="233" width="230.3" height="20" rx="3" fill="#97c2a8"/>
+<text x="488.3225806451613" y="247" font-size="13" font-weight="700" fill="#5b665e">51</text>
+<text x="240" y="281" font-size="13" text-anchor="end" fill="#214d35">Lord of the Flies — Golding</text>
+<rect x="250" y="267" width="185.2" height="20" rx="3" fill="#97c2a8"/>
+<text x="443.1612903225806" y="281" font-size="13" font-weight="700" fill="#5b665e">41</text>
+<text x="240" y="315" font-size="13" text-anchor="end" fill="#214d35">The Scarlet Letter — Hawtho…</text>
+<rect x="250" y="301" width="180.6" height="20" rx="3" fill="#97c2a8"/>
+<text x="438.64516129032256" y="315" font-size="13" font-weight="700" fill="#5b665e">40</text>
+</svg>
+<figcaption>Borda totals as a picture: every ballot position contributes points, so the gaps show breadth of support, not just first choices.</figcaption></figure>
     <p>Borda gives <em>nineteen_eighty_four</em> 93 points against mockingbird's 79. Now the other six. Each envelope records how its method actually reasoned, so they are worth opening for different things:</p>
     <p><strong>Instant-runoff</strong> eliminates the weakest option and retries until someone holds a majority — the <code>rounds</code> array is the elimination story, round by round:</p>
     <pre class="command"><code>voting count run book_preference --method irv</code></pre>
@@ -780,7 +934,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   &quot;data&quot;: {
     &quot;election_id&quot;: &quot;book_preference&quot;,
     &quot;method&quot;: &quot;irv&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T12:01:39&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:50:24&quot;,
     &quot;settings&quot;: {
       &quot;seats&quot;: 1,
       &quot;tie_policy&quot;: &quot;lexicographic&quot;,
@@ -878,16 +1032,16 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     ],
     &quot;exhausted_weight&quot;: 0.0,
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T160139152982Z_c9a82b98_book_preference_irv&quot;
+    &quot;id&quot;: &quot;20260728T165024885951Z_b549d21b_book_preference_irv&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T160139152982Z_c9a82b98_book_preference_irv&quot;,
+    &quot;voting count show 20260728T165024885951Z_b549d21b_book_preference_irv&quot;,
     &quot;voting count list&quot;
   ]
 }</code></pre></details>
-    <p><strong>Schulze</strong> (a Condorcet method) plays every option against every other; the <code>pairwise</code> matrix holds all 28 head-to-head margins:</p>
+    <p><strong>Schulze</strong> (a Condorcet method) plays every option against every other; the <code>pairwise</code> matrix holds all 28 head-to-head margins — and <code>voting plot pairwise</code> makes it legible at a glance:</p>
     <pre class="command"><code>voting count run book_preference --method schulze</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
@@ -904,7 +1058,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   &quot;data&quot;: {
     &quot;election_id&quot;: &quot;book_preference&quot;,
     &quot;method&quot;: &quot;schulze&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T12:01:39&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:50:25&quot;,
     &quot;settings&quot;: {
       &quot;seats&quot;: 1,
       &quot;tie_policy&quot;: &quot;lexicographic&quot;,
@@ -1021,15 +1175,180 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     },
     &quot;rounds&quot;: [],
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T160139239480Z_d4e34f24_book_preference_schulze&quot;
+    &quot;id&quot;: &quot;20260728T165025035231Z_b707a4ea_book_preference_schulze&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T160139239480Z_d4e34f24_book_preference_schulze&quot;,
+    &quot;voting count show 20260728T165025035231Z_b707a4ea_book_preference_schulze&quot;,
     &quot;voting count list&quot;
   ]
 }</code></pre></details>
+    <pre class="command"><code>voting plot pairwise 20260728T165025035231Z_b707a4ea_book_preference_schulze</code></pre>
+    <details class="output"><summary>Show command output</summary><pre><code>{
+  &quot;schema_version&quot;: &quot;1.0&quot;,
+  &quot;command&quot;: &quot;plot pairwise&quot;,
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;argv&quot;: [
+    &quot;voting&quot;,
+    &quot;plot&quot;,
+    &quot;pairwise&quot;,
+    &quot;20260728T165025035231Z_b707a4ea_book_preference_schulze&quot;
+  ],
+  &quot;data&quot;: {
+    &quot;result_id&quot;: &quot;20260728T165025035231Z_b707a4ea_book_preference_schulze&quot;,
+    &quot;method&quot;: &quot;schulze&quot;,
+    &quot;path&quot;: &quot;.voting/output/plots/pairwise_20260728T165025035231Z_b707a4ea_book_preference_schulze.svg&quot;,
+    &quot;format&quot;: &quot;svg&quot;
+  },
+  &quot;warnings&quot;: [],
+  &quot;errors&quot;: [],
+  &quot;next_steps&quot;: [
+    &quot;open .voting/output/plots/pairwise_20260728T165025035231Z_b707a4ea_book_preference_schulze.svg&quot;
+  ]
+}</code></pre></details>
+    <figure class="plot"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 666 576" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif" role="img" aria-label="Head-to-head margins — book_preference">
+<rect width="666" height="576" fill="#ffffff"/>
+<text x="20" y="30" font-size="17" font-weight="700" fill="#214d35">Head-to-head margins — book_preference</text>
+<text x="20" y="52" font-size="12" fill="#5b665e">Green: row beats column (darker = larger margin). Red: row loses. Grey: tie.</text>
+<g transform="translate(236.0,112) rotate(-45)"><text font-size="11" fill="#214d35">1984 — Orwell</text></g>
+<g transform="translate(288.0,112) rotate(-45)"><text font-size="11" fill="#214d35">The Great Gats</text></g>
+<g transform="translate(340.0,112) rotate(-45)"><text font-size="11" fill="#214d35">To Kill a Mock</text></g>
+<g transform="translate(392.0,112) rotate(-45)"><text font-size="11" fill="#214d35">Animal Farm — </text></g>
+<g transform="translate(444.0,112) rotate(-45)"><text font-size="11" fill="#214d35">Of Mice and Me</text></g>
+<g transform="translate(496.0,112) rotate(-45)"><text font-size="11" fill="#214d35">Lord of the Fl</text></g>
+<g transform="translate(548.0,112) rotate(-45)"><text font-size="11" fill="#214d35">The Catcher in</text></g>
+<g transform="translate(600.0,112) rotate(-45)"><text font-size="11" fill="#214d35">The Scarlet Le</text></g>
+<text x="200" y="150.0" font-size="12" text-anchor="end" fill="#214d35">1984 — Orwell</text>
+<rect x="210" y="120" width="49" height="49" fill="#eef5f0"/>
+<rect x="262" y="120" width="49" height="49" fill="#2e6b4f" fill-opacity="0.57"><title>1984 — Orwell vs The Great Gatsby — Fitzgera…: +6</title></rect>
+<text x="286.5" y="149.0" font-size="12" text-anchor="middle" fill="#ffffff">+6</text>
+<rect x="314" y="120" width="49" height="49" fill="#2e6b4f" fill-opacity="0.46"><title>1984 — Orwell vs To Kill a Mockingbird — Har…: +4</title></rect>
+<text x="338.5" y="149.0" font-size="12" text-anchor="middle" fill="#214d35">+4</text>
+<rect x="366" y="120" width="49" height="49" fill="#2e6b4f" fill-opacity="0.68"><title>1984 — Orwell vs Animal Farm — Orwell: +8</title></rect>
+<text x="390.5" y="149.0" font-size="12" text-anchor="middle" fill="#ffffff">+8</text>
+<rect x="418" y="120" width="49" height="49" fill="#2e6b4f" fill-opacity="0.68"><title>1984 — Orwell vs Of Mice and Men — Steinbeck: +8</title></rect>
+<text x="442.5" y="149.0" font-size="12" text-anchor="middle" fill="#ffffff">+8</text>
+<rect x="470" y="120" width="49" height="49" fill="#2e6b4f" fill-opacity="1.00"><title>1984 — Orwell vs Lord of the Flies — Golding: +14</title></rect>
+<text x="494.5" y="149.0" font-size="12" text-anchor="middle" fill="#ffffff">+14</text>
+<rect x="522" y="120" width="49" height="49" fill="#2e6b4f" fill-opacity="0.57"><title>1984 — Orwell vs The Catcher in the Rye — Sa…: +6</title></rect>
+<text x="546.5" y="149.0" font-size="12" text-anchor="middle" fill="#ffffff">+6</text>
+<rect x="574" y="120" width="49" height="49" fill="#2e6b4f" fill-opacity="1.00"><title>1984 — Orwell vs The Scarlet Letter — Hawtho…: +14</title></rect>
+<text x="598.5" y="149.0" font-size="12" text-anchor="middle" fill="#ffffff">+14</text>
+<text x="200" y="202.0" font-size="12" text-anchor="end" fill="#214d35">The Great Gatsby — Fitzg</text>
+<rect x="210" y="172" width="49" height="49" fill="#a4442f" fill-opacity="0.57"><title>The Great Gatsby — Fitzgera… vs 1984 — Orwell: -6</title></rect>
+<text x="234.5" y="201.0" font-size="12" text-anchor="middle" fill="#ffffff">-6</text>
+<rect x="262" y="172" width="49" height="49" fill="#eef5f0"/>
+<rect x="314" y="172" width="49" height="49" fill="#c9d4cc" fill-opacity="1.00"><title>The Great Gatsby — Fitzgera… vs To Kill a Mockingbird — Har…: +0</title></rect>
+<text x="338.5" y="201.0" font-size="12" text-anchor="middle" fill="#214d35">+0</text>
+<rect x="366" y="172" width="49" height="49" fill="#2e6b4f" fill-opacity="0.36"><title>The Great Gatsby — Fitzgera… vs Animal Farm — Orwell: +2</title></rect>
+<text x="390.5" y="201.0" font-size="12" text-anchor="middle" fill="#214d35">+2</text>
+<rect x="418" y="172" width="49" height="49" fill="#2e6b4f" fill-opacity="0.36"><title>The Great Gatsby — Fitzgera… vs Of Mice and Men — Steinbeck: +2</title></rect>
+<text x="442.5" y="201.0" font-size="12" text-anchor="middle" fill="#214d35">+2</text>
+<rect x="470" y="172" width="49" height="49" fill="#2e6b4f" fill-opacity="0.57"><title>The Great Gatsby — Fitzgera… vs Lord of the Flies — Golding: +6</title></rect>
+<text x="494.5" y="201.0" font-size="12" text-anchor="middle" fill="#ffffff">+6</text>
+<rect x="522" y="172" width="49" height="49" fill="#2e6b4f" fill-opacity="0.46"><title>The Great Gatsby — Fitzgera… vs The Catcher in the Rye — Sa…: +4</title></rect>
+<text x="546.5" y="201.0" font-size="12" text-anchor="middle" fill="#214d35">+4</text>
+<rect x="574" y="172" width="49" height="49" fill="#2e6b4f" fill-opacity="0.89"><title>The Great Gatsby — Fitzgera… vs The Scarlet Letter — Hawtho…: +12</title></rect>
+<text x="598.5" y="201.0" font-size="12" text-anchor="middle" fill="#ffffff">+12</text>
+<text x="200" y="254.0" font-size="12" text-anchor="end" fill="#214d35">To Kill a Mockingbird — </text>
+<rect x="210" y="224" width="49" height="49" fill="#a4442f" fill-opacity="0.46"><title>To Kill a Mockingbird — Har… vs 1984 — Orwell: -4</title></rect>
+<text x="234.5" y="253.0" font-size="12" text-anchor="middle" fill="#214d35">-4</text>
+<rect x="262" y="224" width="49" height="49" fill="#c9d4cc" fill-opacity="1.00"><title>To Kill a Mockingbird — Har… vs The Great Gatsby — Fitzgera…: +0</title></rect>
+<text x="286.5" y="253.0" font-size="12" text-anchor="middle" fill="#214d35">+0</text>
+<rect x="314" y="224" width="49" height="49" fill="#eef5f0"/>
+<rect x="366" y="224" width="49" height="49" fill="#2e6b4f" fill-opacity="0.57"><title>To Kill a Mockingbird — Har… vs Animal Farm — Orwell: +6</title></rect>
+<text x="390.5" y="253.0" font-size="12" text-anchor="middle" fill="#ffffff">+6</text>
+<rect x="418" y="224" width="49" height="49" fill="#2e6b4f" fill-opacity="0.36"><title>To Kill a Mockingbird — Har… vs Of Mice and Men — Steinbeck: +2</title></rect>
+<text x="442.5" y="253.0" font-size="12" text-anchor="middle" fill="#214d35">+2</text>
+<rect x="470" y="224" width="49" height="49" fill="#2e6b4f" fill-opacity="0.79"><title>To Kill a Mockingbird — Har… vs Lord of the Flies — Golding: +10</title></rect>
+<text x="494.5" y="253.0" font-size="12" text-anchor="middle" fill="#ffffff">+10</text>
+<rect x="522" y="224" width="49" height="49" fill="#2e6b4f" fill-opacity="0.68"><title>To Kill a Mockingbird — Har… vs The Catcher in the Rye — Sa…: +8</title></rect>
+<text x="546.5" y="253.0" font-size="12" text-anchor="middle" fill="#ffffff">+8</text>
+<rect x="574" y="224" width="49" height="49" fill="#2e6b4f" fill-opacity="0.79"><title>To Kill a Mockingbird — Har… vs The Scarlet Letter — Hawtho…: +10</title></rect>
+<text x="598.5" y="253.0" font-size="12" text-anchor="middle" fill="#ffffff">+10</text>
+<text x="200" y="306.0" font-size="12" text-anchor="end" fill="#214d35">Animal Farm — Orwell</text>
+<rect x="210" y="276" width="49" height="49" fill="#a4442f" fill-opacity="0.68"><title>Animal Farm — Orwell vs 1984 — Orwell: -8</title></rect>
+<text x="234.5" y="305.0" font-size="12" text-anchor="middle" fill="#ffffff">-8</text>
+<rect x="262" y="276" width="49" height="49" fill="#a4442f" fill-opacity="0.36"><title>Animal Farm — Orwell vs The Great Gatsby — Fitzgera…: -2</title></rect>
+<text x="286.5" y="305.0" font-size="12" text-anchor="middle" fill="#214d35">-2</text>
+<rect x="314" y="276" width="49" height="49" fill="#a4442f" fill-opacity="0.57"><title>Animal Farm — Orwell vs To Kill a Mockingbird — Har…: -6</title></rect>
+<text x="338.5" y="305.0" font-size="12" text-anchor="middle" fill="#ffffff">-6</text>
+<rect x="366" y="276" width="49" height="49" fill="#eef5f0"/>
+<rect x="418" y="276" width="49" height="49" fill="#c9d4cc" fill-opacity="1.00"><title>Animal Farm — Orwell vs Of Mice and Men — Steinbeck: +0</title></rect>
+<text x="442.5" y="305.0" font-size="12" text-anchor="middle" fill="#214d35">+0</text>
+<rect x="470" y="276" width="49" height="49" fill="#2e6b4f" fill-opacity="0.68"><title>Animal Farm — Orwell vs Lord of the Flies — Golding: +8</title></rect>
+<text x="494.5" y="305.0" font-size="12" text-anchor="middle" fill="#ffffff">+8</text>
+<rect x="522" y="276" width="49" height="49" fill="#2e6b4f" fill-opacity="0.36"><title>Animal Farm — Orwell vs The Catcher in the Rye — Sa…: +2</title></rect>
+<text x="546.5" y="305.0" font-size="12" text-anchor="middle" fill="#214d35">+2</text>
+<rect x="574" y="276" width="49" height="49" fill="#2e6b4f" fill-opacity="0.46"><title>Animal Farm — Orwell vs The Scarlet Letter — Hawtho…: +4</title></rect>
+<text x="598.5" y="305.0" font-size="12" text-anchor="middle" fill="#214d35">+4</text>
+<text x="200" y="358.0" font-size="12" text-anchor="end" fill="#214d35">Of Mice and Men — Steinb</text>
+<rect x="210" y="328" width="49" height="49" fill="#a4442f" fill-opacity="0.68"><title>Of Mice and Men — Steinbeck vs 1984 — Orwell: -8</title></rect>
+<text x="234.5" y="357.0" font-size="12" text-anchor="middle" fill="#ffffff">-8</text>
+<rect x="262" y="328" width="49" height="49" fill="#a4442f" fill-opacity="0.36"><title>Of Mice and Men — Steinbeck vs The Great Gatsby — Fitzgera…: -2</title></rect>
+<text x="286.5" y="357.0" font-size="12" text-anchor="middle" fill="#214d35">-2</text>
+<rect x="314" y="328" width="49" height="49" fill="#a4442f" fill-opacity="0.36"><title>Of Mice and Men — Steinbeck vs To Kill a Mockingbird — Har…: -2</title></rect>
+<text x="338.5" y="357.0" font-size="12" text-anchor="middle" fill="#214d35">-2</text>
+<rect x="366" y="328" width="49" height="49" fill="#c9d4cc" fill-opacity="1.00"><title>Of Mice and Men — Steinbeck vs Animal Farm — Orwell: +0</title></rect>
+<text x="390.5" y="357.0" font-size="12" text-anchor="middle" fill="#214d35">+0</text>
+<rect x="418" y="328" width="49" height="49" fill="#eef5f0"/>
+<rect x="470" y="328" width="49" height="49" fill="#2e6b4f" fill-opacity="0.68"><title>Of Mice and Men — Steinbeck vs Lord of the Flies — Golding: +8</title></rect>
+<text x="494.5" y="357.0" font-size="12" text-anchor="middle" fill="#ffffff">+8</text>
+<rect x="522" y="328" width="49" height="49" fill="#2e6b4f" fill-opacity="0.46"><title>Of Mice and Men — Steinbeck vs The Catcher in the Rye — Sa…: +4</title></rect>
+<text x="546.5" y="357.0" font-size="12" text-anchor="middle" fill="#214d35">+4</text>
+<rect x="574" y="328" width="49" height="49" fill="#2e6b4f" fill-opacity="0.46"><title>Of Mice and Men — Steinbeck vs The Scarlet Letter — Hawtho…: +4</title></rect>
+<text x="598.5" y="357.0" font-size="12" text-anchor="middle" fill="#214d35">+4</text>
+<text x="200" y="410.0" font-size="12" text-anchor="end" fill="#214d35">Lord of the Flies — Gold</text>
+<rect x="210" y="380" width="49" height="49" fill="#a4442f" fill-opacity="1.00"><title>Lord of the Flies — Golding vs 1984 — Orwell: -14</title></rect>
+<text x="234.5" y="409.0" font-size="12" text-anchor="middle" fill="#ffffff">-14</text>
+<rect x="262" y="380" width="49" height="49" fill="#a4442f" fill-opacity="0.57"><title>Lord of the Flies — Golding vs The Great Gatsby — Fitzgera…: -6</title></rect>
+<text x="286.5" y="409.0" font-size="12" text-anchor="middle" fill="#ffffff">-6</text>
+<rect x="314" y="380" width="49" height="49" fill="#a4442f" fill-opacity="0.79"><title>Lord of the Flies — Golding vs To Kill a Mockingbird — Har…: -10</title></rect>
+<text x="338.5" y="409.0" font-size="12" text-anchor="middle" fill="#ffffff">-10</text>
+<rect x="366" y="380" width="49" height="49" fill="#a4442f" fill-opacity="0.68"><title>Lord of the Flies — Golding vs Animal Farm — Orwell: -8</title></rect>
+<text x="390.5" y="409.0" font-size="12" text-anchor="middle" fill="#ffffff">-8</text>
+<rect x="418" y="380" width="49" height="49" fill="#a4442f" fill-opacity="0.68"><title>Lord of the Flies — Golding vs Of Mice and Men — Steinbeck: -8</title></rect>
+<text x="442.5" y="409.0" font-size="12" text-anchor="middle" fill="#ffffff">-8</text>
+<rect x="470" y="380" width="49" height="49" fill="#eef5f0"/>
+<rect x="522" y="380" width="49" height="49" fill="#c9d4cc" fill-opacity="1.00"><title>Lord of the Flies — Golding vs The Catcher in the Rye — Sa…: +0</title></rect>
+<text x="546.5" y="409.0" font-size="12" text-anchor="middle" fill="#214d35">+0</text>
+<rect x="574" y="380" width="49" height="49" fill="#2e6b4f" fill-opacity="0.36"><title>Lord of the Flies — Golding vs The Scarlet Letter — Hawtho…: +2</title></rect>
+<text x="598.5" y="409.0" font-size="12" text-anchor="middle" fill="#214d35">+2</text>
+<text x="200" y="462.0" font-size="12" text-anchor="end" fill="#214d35">The Catcher in the Rye —</text>
+<rect x="210" y="432" width="49" height="49" fill="#a4442f" fill-opacity="0.57"><title>The Catcher in the Rye — Sa… vs 1984 — Orwell: -6</title></rect>
+<text x="234.5" y="461.0" font-size="12" text-anchor="middle" fill="#ffffff">-6</text>
+<rect x="262" y="432" width="49" height="49" fill="#a4442f" fill-opacity="0.46"><title>The Catcher in the Rye — Sa… vs The Great Gatsby — Fitzgera…: -4</title></rect>
+<text x="286.5" y="461.0" font-size="12" text-anchor="middle" fill="#214d35">-4</text>
+<rect x="314" y="432" width="49" height="49" fill="#a4442f" fill-opacity="0.68"><title>The Catcher in the Rye — Sa… vs To Kill a Mockingbird — Har…: -8</title></rect>
+<text x="338.5" y="461.0" font-size="12" text-anchor="middle" fill="#ffffff">-8</text>
+<rect x="366" y="432" width="49" height="49" fill="#a4442f" fill-opacity="0.36"><title>The Catcher in the Rye — Sa… vs Animal Farm — Orwell: -2</title></rect>
+<text x="390.5" y="461.0" font-size="12" text-anchor="middle" fill="#214d35">-2</text>
+<rect x="418" y="432" width="49" height="49" fill="#a4442f" fill-opacity="0.46"><title>The Catcher in the Rye — Sa… vs Of Mice and Men — Steinbeck: -4</title></rect>
+<text x="442.5" y="461.0" font-size="12" text-anchor="middle" fill="#214d35">-4</text>
+<rect x="470" y="432" width="49" height="49" fill="#c9d4cc" fill-opacity="1.00"><title>The Catcher in the Rye — Sa… vs Lord of the Flies — Golding: +0</title></rect>
+<text x="494.5" y="461.0" font-size="12" text-anchor="middle" fill="#214d35">+0</text>
+<rect x="522" y="432" width="49" height="49" fill="#eef5f0"/>
+<rect x="574" y="432" width="49" height="49" fill="#c9d4cc" fill-opacity="1.00"><title>The Catcher in the Rye — Sa… vs The Scarlet Letter — Hawtho…: +0</title></rect>
+<text x="598.5" y="461.0" font-size="12" text-anchor="middle" fill="#214d35">+0</text>
+<text x="200" y="514.0" font-size="12" text-anchor="end" fill="#214d35">The Scarlet Letter — Haw</text>
+<rect x="210" y="484" width="49" height="49" fill="#a4442f" fill-opacity="1.00"><title>The Scarlet Letter — Hawtho… vs 1984 — Orwell: -14</title></rect>
+<text x="234.5" y="513.0" font-size="12" text-anchor="middle" fill="#ffffff">-14</text>
+<rect x="262" y="484" width="49" height="49" fill="#a4442f" fill-opacity="0.89"><title>The Scarlet Letter — Hawtho… vs The Great Gatsby — Fitzgera…: -12</title></rect>
+<text x="286.5" y="513.0" font-size="12" text-anchor="middle" fill="#ffffff">-12</text>
+<rect x="314" y="484" width="49" height="49" fill="#a4442f" fill-opacity="0.79"><title>The Scarlet Letter — Hawtho… vs To Kill a Mockingbird — Har…: -10</title></rect>
+<text x="338.5" y="513.0" font-size="12" text-anchor="middle" fill="#ffffff">-10</text>
+<rect x="366" y="484" width="49" height="49" fill="#a4442f" fill-opacity="0.46"><title>The Scarlet Letter — Hawtho… vs Animal Farm — Orwell: -4</title></rect>
+<text x="390.5" y="513.0" font-size="12" text-anchor="middle" fill="#214d35">-4</text>
+<rect x="418" y="484" width="49" height="49" fill="#a4442f" fill-opacity="0.46"><title>The Scarlet Letter — Hawtho… vs Of Mice and Men — Steinbeck: -4</title></rect>
+<text x="442.5" y="513.0" font-size="12" text-anchor="middle" fill="#214d35">-4</text>
+<rect x="470" y="484" width="49" height="49" fill="#a4442f" fill-opacity="0.36"><title>The Scarlet Letter — Hawtho… vs Lord of the Flies — Golding: -2</title></rect>
+<text x="494.5" y="513.0" font-size="12" text-anchor="middle" fill="#214d35">-2</text>
+<rect x="522" y="484" width="49" height="49" fill="#c9d4cc" fill-opacity="1.00"><title>The Scarlet Letter — Hawtho… vs The Catcher in the Rye — Sa…: +0</title></rect>
+<text x="546.5" y="513.0" font-size="12" text-anchor="middle" fill="#214d35">+0</text>
+<rect x="574" y="484" width="49" height="49" fill="#eef5f0"/>
+</svg>
+<figcaption>Every head-to-head from the real ballots: a cell is the row's margin over the column. nineteen_eighty_four's top row is solid green — it beats all seven rivals directly, which is why every Condorcet method must elect it.</figcaption></figure>
     <p><strong>Copeland</strong> scores the same pairings bluntly — wins minus losses:</p>
     <pre class="command"><code>voting count run book_preference --method copeland</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
@@ -1047,7 +1366,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   &quot;data&quot;: {
     &quot;election_id&quot;: &quot;book_preference&quot;,
     &quot;method&quot;: &quot;copeland&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T12:01:39&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:50:25&quot;,
     &quot;settings&quot;: {
       &quot;seats&quot;: 1,
       &quot;tie_policy&quot;: &quot;lexicographic&quot;,
@@ -1124,12 +1443,12 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     ],
     &quot;rounds&quot;: [],
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T160139322917Z_16846526_book_preference_copeland&quot;
+    &quot;id&quot;: &quot;20260728T165025171967Z_d1ecd0e3_book_preference_copeland&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T160139322917Z_16846526_book_preference_copeland&quot;,
+    &quot;voting count show 20260728T165025171967Z_d1ecd0e3_book_preference_copeland&quot;,
     &quot;voting count list&quot;
   ]
 }</code></pre></details>
@@ -1150,7 +1469,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   &quot;data&quot;: {
     &quot;election_id&quot;: &quot;book_preference&quot;,
     &quot;method&quot;: &quot;kemeny_young&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T12:01:39&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:50:25&quot;,
     &quot;settings&quot;: {
       &quot;seats&quot;: 1,
       &quot;tie_policy&quot;: &quot;lexicographic&quot;,
@@ -1210,12 +1529,12 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     &quot;kemeny_score&quot;: 329.0,
     &quot;rounds&quot;: [],
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T160139455312Z_b44921cd_book_preference_kemeny_young&quot;
+    &quot;id&quot;: &quot;20260728T165025301228Z_7f0e884e_book_preference_kemeny_young&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T160139455312Z_b44921cd_book_preference_kemeny_young&quot;,
+    &quot;voting count show 20260728T165025301228Z_7f0e884e_book_preference_kemeny_young&quot;,
     &quot;voting count list&quot;
   ]
 }</code></pre></details>
@@ -1236,7 +1555,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   &quot;data&quot;: {
     &quot;election_id&quot;: &quot;book_preference&quot;,
     &quot;method&quot;: &quot;bucklin&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T12:01:39&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:50:25&quot;,
     &quot;settings&quot;: {
       &quot;seats&quot;: 1,
       &quot;tie_policy&quot;: &quot;lexicographic&quot;,
@@ -1321,12 +1640,12 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
       }
     ],
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T160139541764Z_2b0c489f_book_preference_bucklin&quot;
+    &quot;id&quot;: &quot;20260728T165025387279Z_bb8d2213_book_preference_bucklin&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T160139541764Z_2b0c489f_book_preference_bucklin&quot;,
+    &quot;voting count show 20260728T165025387279Z_bb8d2213_book_preference_bucklin&quot;,
     &quot;voting count list&quot;
   ]
 }</code></pre></details>
@@ -1347,7 +1666,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   &quot;data&quot;: {
     &quot;election_id&quot;: &quot;book_preference&quot;,
     &quot;method&quot;: &quot;fptp&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T12:01:39&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:50:25&quot;,
     &quot;settings&quot;: {
       &quot;seats&quot;: 1,
       &quot;tie_policy&quot;: &quot;lexicographic&quot;,
@@ -1400,12 +1719,12 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     ],
     &quot;rounds&quot;: [],
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T160139632058Z_87034275_book_preference_fptp&quot;
+    &quot;id&quot;: &quot;20260728T165025480618Z_877ad387_book_preference_fptp&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T160139632058Z_87034275_book_preference_fptp&quot;,
+    &quot;voting count show 20260728T165025480618Z_877ad387_book_preference_fptp&quot;,
     &quot;voting count list&quot;
   ]
 }</code></pre></details>
@@ -1423,23 +1742,23 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   &quot;data&quot;: {
     &quot;results&quot;: [
       {
-        &quot;created_at&quot;: &quot;2026-07-28T12:01:38&quot;,
+        &quot;created_at&quot;: &quot;2026-07-28T12:50:24&quot;,
         &quot;election_id&quot;: &quot;book_preference&quot;,
-        &quot;id&quot;: &quot;20260728T160138958420Z_4c8d389d_book_preference_borda&quot;,
+        &quot;id&quot;: &quot;20260728T165024622599Z_743044e6_book_preference_borda&quot;,
         &quot;method&quot;: &quot;borda&quot;,
         &quot;…&quot;: &quot;7 further keys elided&quot;
       },
       {
-        &quot;created_at&quot;: &quot;2026-07-28T12:01:39&quot;,
+        &quot;created_at&quot;: &quot;2026-07-28T12:50:24&quot;,
         &quot;election_id&quot;: &quot;book_preference&quot;,
         &quot;exhausted_weight&quot;: 0.0,
-        &quot;id&quot;: &quot;20260728T160139152982Z_c9a82b98_book_preference_irv&quot;,
+        &quot;id&quot;: &quot;20260728T165024885951Z_b549d21b_book_preference_irv&quot;,
         &quot;…&quot;: &quot;8 further keys elided&quot;
       },
       {
-        &quot;created_at&quot;: &quot;2026-07-28T12:01:39&quot;,
+        &quot;created_at&quot;: &quot;2026-07-28T12:50:25&quot;,
         &quot;election_id&quot;: &quot;book_preference&quot;,
-        &quot;id&quot;: &quot;20260728T160139239480Z_d4e34f24_book_preference_schulze&quot;,
+        &quot;id&quot;: &quot;20260728T165025035231Z_b707a4ea_book_preference_schulze&quot;,
         &quot;method&quot;: &quot;schulze&quot;,
         &quot;…&quot;: &quot;8 further keys elided&quot;
       },
@@ -1455,14 +1774,178 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
 ┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
 ┃ method       ┃ winner(s)            ┃ runner-up    ┃ created             ┃
 ┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
-│ borda        │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 12:01:38 │
-│ irv          │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 12:01:39 │
-│ schulze      │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 12:01:39 │
-│ copeland     │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 12:01:39 │
-│ kemeny_young │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 12:01:39 │
-│ bucklin      │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 12:01:39 │
-│ fptp         │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 12:01:39 │
+│ borda        │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 12:50:24 │
+│ irv          │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 12:50:24 │
+│ schulze      │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 12:50:25 │
+│ copeland     │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 12:50:25 │
+│ kemeny_young │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 12:50:25 │
+│ bucklin      │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 12:50:25 │
+│ fptp         │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 12:50:25 │
 └──────────────┴──────────────────────┴──────────────┴─────────────────────┘</code></pre><figcaption>Every saved count, side by side: seven methods, one winner.</figcaption></figure>
+    <p>And the thesis of this whole page, as one picture — <code>voting plot methods</code> grids every option's finishing position under every saved count:</p>
+    <pre class="command"><code>voting plot methods --election book_preference</code></pre>
+    <details class="output"><summary>Show command output</summary><pre><code>{
+  &quot;schema_version&quot;: &quot;1.0&quot;,
+  &quot;command&quot;: &quot;plot methods&quot;,
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;argv&quot;: [
+    &quot;voting&quot;,
+    &quot;plot&quot;,
+    &quot;methods&quot;,
+    &quot;--election&quot;,
+    &quot;book_preference&quot;
+  ],
+  &quot;data&quot;: {
+    &quot;election&quot;: &quot;book_preference&quot;,
+    &quot;results&quot;: 7,
+    &quot;methods&quot;: [
+      &quot;borda&quot;,
+      &quot;bucklin&quot;,
+      &quot;copeland&quot;,
+      &quot;… 4 further entries elided …&quot;
+    ],
+    &quot;path&quot;: &quot;.voting/output/plots/methods_book_preference.svg&quot;,
+    &quot;format&quot;: &quot;svg&quot;
+  },
+  &quot;warnings&quot;: [],
+  &quot;errors&quot;: [],
+  &quot;next_steps&quot;: [
+    &quot;open .voting/output/plots/methods_book_preference.svg&quot;
+  ]
+}</code></pre></details>
+    <figure class="plot"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 906 460" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif" role="img" aria-label="Finishing positions across counting methods">
+<rect width="906" height="460" fill="#ffffff"/>
+<text x="20" y="30" font-size="17" font-weight="700" fill="#214d35">Finishing positions across counting methods</text>
+<text x="20" y="52" font-size="12" fill="#5b665e">Cell = finishing position under that method (1 = winner). A solid top row means the method does not change the outcome.</text>
+<text x="294.0" y="88" font-size="12" font-weight="700" text-anchor="middle" fill="#214d35">borda</text>
+<text x="382.0" y="88" font-size="12" font-weight="700" text-anchor="middle" fill="#214d35">irv</text>
+<text x="470.0" y="88" font-size="12" font-weight="700" text-anchor="middle" fill="#214d35">schulze</text>
+<text x="558.0" y="88" font-size="12" font-weight="700" text-anchor="middle" fill="#214d35">copeland</text>
+<text x="646.0" y="88" font-size="12" font-weight="700" text-anchor="middle" fill="#214d35">kemeny_young</text>
+<text x="734.0" y="88" font-size="12" font-weight="700" text-anchor="middle" fill="#214d35">bucklin</text>
+<text x="822.0" y="88" font-size="12" font-weight="700" text-anchor="middle" fill="#214d35">fptp</text>
+<text x="240" y="124.0" font-size="13" text-anchor="end" fill="#214d35">1984 — Orwell</text>
+<rect x="250" y="100" width="84" height="36" rx="4" fill="#214d35"/>
+<text x="292.0" y="124.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="338" y="100" width="84" height="36" rx="4" fill="#214d35"/>
+<text x="380.0" y="124.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="426" y="100" width="84" height="36" rx="4" fill="#214d35"/>
+<text x="468.0" y="124.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="514" y="100" width="84" height="36" rx="4" fill="#214d35"/>
+<text x="556.0" y="124.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="602" y="100" width="84" height="36" rx="4" fill="#214d35"/>
+<text x="644.0" y="124.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="690" y="100" width="84" height="36" rx="4" fill="#214d35"/>
+<text x="732.0" y="124.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="778" y="100" width="84" height="36" rx="4" fill="#214d35"/>
+<text x="820.0" y="124.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<text x="240" y="164.0" font-size="13" text-anchor="end" fill="#214d35">To Kill a Mockingbird — Har…</text>
+<rect x="250" y="140" width="84" height="36" rx="4" fill="#2e6b4f"/>
+<text x="292.0" y="164.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="338" y="140" width="84" height="36" rx="4" fill="#2e6b4f"/>
+<text x="380.0" y="164.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="426" y="140" width="84" height="36" rx="4" fill="#4d8a6a"/>
+<text x="468.0" y="164.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="514" y="140" width="84" height="36" rx="4" fill="#4d8a6a"/>
+<text x="556.0" y="164.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="602" y="140" width="84" height="36" rx="4" fill="#4d8a6a"/>
+<text x="644.0" y="164.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="690" y="140" width="84" height="36" rx="4" fill="#71a888"/>
+<text x="732.0" y="164.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="778" y="140" width="84" height="36" rx="4" fill="#2e6b4f"/>
+<text x="820.0" y="164.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<text x="240" y="204.0" font-size="13" text-anchor="end" fill="#214d35">The Great Gatsby — Fitzgera…</text>
+<rect x="250" y="180" width="84" height="36" rx="4" fill="#4d8a6a"/>
+<text x="292.0" y="204.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="338" y="180" width="84" height="36" rx="4" fill="#f2f8f4"/>
+<text x="380.0" y="204.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="426" y="180" width="84" height="36" rx="4" fill="#2e6b4f"/>
+<text x="468.0" y="204.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="514" y="180" width="84" height="36" rx="4" fill="#2e6b4f"/>
+<text x="556.0" y="204.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="602" y="180" width="84" height="36" rx="4" fill="#2e6b4f"/>
+<text x="644.0" y="204.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="690" y="180" width="84" height="36" rx="4" fill="#2e6b4f"/>
+<text x="732.0" y="204.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="778" y="180" width="84" height="36" rx="4" fill="#71a888"/>
+<text x="820.0" y="204.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<text x="240" y="244.0" font-size="13" text-anchor="end" fill="#214d35">Animal Farm — Orwell</text>
+<rect x="250" y="220" width="84" height="36" rx="4" fill="#97c2a8"/>
+<text x="292.0" y="244.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="338" y="220" width="84" height="36" rx="4" fill="#97c2a8"/>
+<text x="380.0" y="244.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="426" y="220" width="84" height="36" rx="4" fill="#71a888"/>
+<text x="468.0" y="244.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="514" y="220" width="84" height="36" rx="4" fill="#71a888"/>
+<text x="556.0" y="244.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="602" y="220" width="84" height="36" rx="4" fill="#71a888"/>
+<text x="644.0" y="244.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="690" y="220" width="84" height="36" rx="4" fill="#4d8a6a"/>
+<text x="732.0" y="244.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="778" y="220" width="84" height="36" rx="4" fill="#97c2a8"/>
+<text x="820.0" y="244.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<text x="240" y="284.0" font-size="13" text-anchor="end" fill="#214d35">Of Mice and Men — Steinbeck</text>
+<rect x="250" y="260" width="84" height="36" rx="4" fill="#71a888"/>
+<text x="292.0" y="284.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="338" y="260" width="84" height="36" rx="4" fill="#71a888"/>
+<text x="380.0" y="284.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="426" y="260" width="84" height="36" rx="4" fill="#97c2a8"/>
+<text x="468.0" y="284.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="514" y="260" width="84" height="36" rx="4" fill="#97c2a8"/>
+<text x="556.0" y="284.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="602" y="260" width="84" height="36" rx="4" fill="#97c2a8"/>
+<text x="644.0" y="284.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="690" y="260" width="84" height="36" rx="4" fill="#bcd8c7"/>
+<text x="732.0" y="284.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="778" y="260" width="84" height="36" rx="4" fill="#bcd8c7"/>
+<text x="820.0" y="284.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<text x="240" y="324.0" font-size="13" text-anchor="end" fill="#214d35">The Catcher in the Rye — Sa…</text>
+<rect x="250" y="300" width="84" height="36" rx="4" fill="#bcd8c7"/>
+<text x="292.0" y="324.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="338" y="300" width="84" height="36" rx="4" fill="#4d8a6a"/>
+<text x="380.0" y="324.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="426" y="300" width="84" height="36" rx="4" fill="#dcebe2"/>
+<text x="468.0" y="324.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="514" y="300" width="84" height="36" rx="4" fill="#dcebe2"/>
+<text x="556.0" y="324.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="602" y="300" width="84" height="36" rx="4" fill="#bcd8c7"/>
+<text x="644.0" y="324.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="690" y="300" width="84" height="36" rx="4" fill="#97c2a8"/>
+<text x="732.0" y="324.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="778" y="300" width="84" height="36" rx="4" fill="#4d8a6a"/>
+<text x="820.0" y="324.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<text x="240" y="364.0" font-size="13" text-anchor="end" fill="#214d35">Lord of the Flies — Golding</text>
+<rect x="250" y="340" width="84" height="36" rx="4" fill="#dcebe2"/>
+<text x="292.0" y="364.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="338" y="340" width="84" height="36" rx="4" fill="#dcebe2"/>
+<text x="380.0" y="364.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="426" y="340" width="84" height="36" rx="4" fill="#bcd8c7"/>
+<text x="468.0" y="364.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="514" y="340" width="84" height="36" rx="4" fill="#bcd8c7"/>
+<text x="556.0" y="364.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="602" y="340" width="84" height="36" rx="4" fill="#dcebe2"/>
+<text x="644.0" y="364.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="690" y="340" width="84" height="36" rx="4" fill="#f2f8f4"/>
+<text x="732.0" y="364.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="778" y="340" width="84" height="36" rx="4" fill="#dcebe2"/>
+<text x="820.0" y="364.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<text x="240" y="404.0" font-size="13" text-anchor="end" fill="#214d35">The Scarlet Letter — Hawtho…</text>
+<rect x="250" y="380" width="84" height="36" rx="4" fill="#f2f8f4"/>
+<text x="292.0" y="404.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="338" y="380" width="84" height="36" rx="4" fill="#bcd8c7"/>
+<text x="380.0" y="404.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="426" y="380" width="84" height="36" rx="4" fill="#f2f8f4"/>
+<text x="468.0" y="404.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="514" y="380" width="84" height="36" rx="4" fill="#f2f8f4"/>
+<text x="556.0" y="404.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="602" y="380" width="84" height="36" rx="4" fill="#f2f8f4"/>
+<text x="644.0" y="404.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="690" y="380" width="84" height="36" rx="4" fill="#dcebe2"/>
+<text x="732.0" y="404.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="778" y="380" width="84" height="36" rx="4" fill="#f2f8f4"/>
+<text x="820.0" y="404.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+</svg>
+<figcaption>The answer to the tutorial's question. The unbroken dark top row is the finding: no counting method changes the winner. The shuffling in the middle rows is where method choice does matter.</figcaption></figure>
     <p><strong>All seven agree: <em>1984</em> wins.</strong> That unanimity is itself the finding. Orwell's novel holds 8 of 18 first preferences, the top Borda score, and — as Schulze, Copeland, and Kemeny–Young confirm — beats every rival head-to-head. When a candidate dominates like this, the choice of method cannot change the outcome; method choice matters exactly when support is fragmented, and these ballots are not fragmented at the top. (Beneath the winner the orderings do shuffle — compare the full <code>ranking</code> arrays across the envelopes above.)</p>
     <div class="callout"><strong>What this page cannot claim.</strong> Eighteen self-selected respondents are a poll of those eighteen people, not of readers in general. The demonstration is methodological — one auditable dataset, many counting rules, disclosed outputs — not a literary verdict.</div>
   </section>
@@ -1509,7 +1992,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
       <tr><td>Import and audit</td><td><code>ballot import --from|--from-results|--from-coop [--register-voters]</code>, <code>ballot validate</code>, <code>ballot list</code></td></tr>
       <tr><td>Count and compare</td><td><code>count run [--method]</code>, <code>count list</code>, <code>count show</code></td></tr>
     </tbody></table>
-    <p>Exact options and defaults belong to <code>voting &lt;command&gt; --help</code>; the README's generated command reference lists all 47 commands and is enforced against the CLI by <code>tests/test_contract_sync.py</code>.</p>
+    <p>Exact options and defaults belong to <code>voting &lt;command&gt; --help</code>; the README's generated command reference lists all 51 commands and is enforced against the CLI by <code>tests/test_contract_sync.py</code>.</p>
     <p>That is the whole loop. The natural next step is to run it on a question you actually care about: define your options, publish the survey to the people whose answer matters (or let AI personas vote via <code>survey generate</code> and <code>ep run</code>), and — before believing any winner — check <code>ballot validate</code>, then count it more than one way. If all the methods agree, you have a robust answer. If they disagree, you have something more interesting.</p>
   </section>
 

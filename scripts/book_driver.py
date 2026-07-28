@@ -128,6 +128,7 @@ def main() -> None:
     voting("ballot", "validate", "book_preference", capture="09-validate")
     voting("ballot", "list", "--election", "book_preference", "--latest",
            capture="10-ballots", human=True)
+    voting("plot", "ranks", "book_preference", capture="11b-plot-ranks")
     voting("status", capture="11-status")
 
     # ── Count the same ballots under many methods ─────────────────────────
@@ -135,11 +136,15 @@ def main() -> None:
     assert validated["data"].get("valid_ballots") == imported["data"]["cast"], validated["data"]
     borda = voting("count", "run", "book_preference", capture="12-count-borda")
     voting("count", "show", borda["data"]["id"], capture="12h-count-borda", human=True)
+    voting("plot", "scores", borda["data"]["id"], capture="12p-plot-scores")
+    runs = {"borda": borda}
     for method in METHODS[1:]:
-        voting("count", "run", "book_preference", "--method", method,
-               capture=f"13-count-{method}")
+        runs[method] = voting("count", "run", "book_preference", "--method", method,
+                              capture=f"13-count-{method}")
+    voting("plot", "pairwise", runs["schulze"]["data"]["id"], capture="13p-plot-pairwise")
     voting("count", "list", capture="14-count-list")
     voting("count", "list", capture="14h-count-list", human=True)
+    voting("plot", "methods", "--election", "book_preference", capture="14p-plot-methods")
     voting("next", capture="15-next-final")
 
     print("captures:", len(list(CAPTURES.iterdir())))

@@ -91,6 +91,16 @@ def cmdcap_auto(name: str) -> str:
     return cmdcap(load(name)["argv_display"], name)
 
 
+def svgfig(capture_name: str, caption: str) -> str:
+    """Inline the SVG a captured `voting plot ...` command wrote, with its command."""
+    payload = load(capture_name)
+    svg = Path(payload["payload"]["data"]["path"]).read_text()
+    return (
+        cmdcap_auto(capture_name)
+        + f'\n    <figure class="plot">{svg}<figcaption>{caption}</figcaption></figure>'
+    )
+
+
 def hcap(name: str, caption: str) -> str:
     text = (CAPTURES / f"{name}.txt").read_text()
     body = html.escape(text.rstrip())
@@ -161,6 +171,8 @@ add("""<!doctype html>
     details.output[open] summary{margin-bottom:8px}
     details.output pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;max-height:480px;overflow:auto}
     figure{margin:30px 0 36px;padding:0;border:0}
+    figure.plot{max-width:820px}
+    figure.plot svg{width:100%;height:auto;border:1px solid var(--rule);border-radius:8px}
     figure.human pre.human{margin:0 0 8px;color:var(--ink);background:#fbfdfb;border:1px solid var(--rule);border-left:4px solid #9fd3b2;overflow:auto}
     figcaption{color:var(--muted);font-size:13px}
     .callout{margin:24px 0;padding:18px 22px;background:linear-gradient(135deg,#f9fbf9,var(--light));border-left:4px solid var(--green);border-radius:0 8px 8px 0}
@@ -261,6 +273,8 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     {cmdcap_auto("09-validate")}
     <p>Eighteen registered voters, eighteen valid ballots. Here is what actually came back from real people — one row per respondent, top choices first (<code>--latest</code> shows the ballots a count would use; without it, the append-only record also lists the eighteen superseded ballots from the first import):</p>
     {hcap("10-ballots", "The countable ballots: eighteen anonymous respondents at weight 1.0, top three choices shown; full rankings live in the ballot records and drive every count.")}
+    <p>Eighteen full rankings are hard to eyeball. The built-in plots turn them into a picture — <code>voting plot ranks</code> shows, for each book, how many voters placed it first, second, and so on (hover any segment for the exact count):</p>
+    {svgfig("11b-plot-ranks", f"Position distributions from the real ballots. {WINNER}'s long dark leading edge is its {FPTP_TOTALS[0]['total']:.0f} first-place votes; books lower down live mostly in the pale right-hand (late-rank) end of the bar.")}
     <p><code>voting status</code> is the project's dashboard. Note the ballot count: {STATUS_COUNTS["ballots"]} records, not {N_BALLOTS} — the superseded first import is still in the append-only log (an audit trail, never silently rewritten), while counting uses each voter's latest ballot. The phase says exactly what remains:</p>
     {cmdcap_auto("11-status")}
   </section>
@@ -270,11 +284,14 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     <p>Now the point of the exercise. The same eighteen ballots, counted seven ways — the election's default first:</p>
     {cmdcap_auto("12-count-borda")}
     {hcap("12h-count-borda", "The saved Borda count rendered for people: full ranking, scores, and the winner.")}
+    <p>Any saved count can also be plotted — the winner's bar in green:</p>
+    {svgfig("12p-plot-scores", "Borda totals as a picture: every ballot position contributes points, so the gaps show breadth of support, not just first choices.")}
     <p>Borda gives <em>{html.escape(BORDA_SCORES[0]["option_id"])}</em> {BORDA_SCORES[0]["total"]:.0f} points against {html.escape(BORDA_SCORES[1]["option_id"])}'s {BORDA_SCORES[1]["total"]:.0f}. Now the other six. Each envelope records how its method actually reasoned, so they are worth opening for different things:</p>
     <p><strong>Instant-runoff</strong> eliminates the weakest option and retries until someone holds a majority — the <code>rounds</code> array is the elimination story, round by round:</p>
     {cmdcap_auto("13-count-irv")}
-    <p><strong>Schulze</strong> (a Condorcet method) plays every option against every other; the <code>pairwise</code> matrix holds all 28 head-to-head margins:</p>
+    <p><strong>Schulze</strong> (a Condorcet method) plays every option against every other; the <code>pairwise</code> matrix holds all 28 head-to-head margins — and <code>voting plot pairwise</code> makes it legible at a glance:</p>
     {cmdcap_auto("13-count-schulze")}
+    {svgfig("13p-plot-pairwise", f"Every head-to-head from the real ballots: a cell is the row's margin over the column. {WINNER}'s top row is solid green — it beats all seven rivals directly, which is why every Condorcet method must elect it.")}
     <p><strong>Copeland</strong> scores the same pairings bluntly — wins minus losses:</p>
     {cmdcap_auto("13-count-copeland")}
     <p><strong>Kemeny–Young</strong> searches for the full ordering that agrees with as many pairwise ballot judgments as possible — <code>kemeny_score</code> counts the agreements:</p>
@@ -286,6 +303,8 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     <p>Every run was saved, so the comparison is one command:</p>
     {cmdcap_auto("14-count-list")}
     {hcap("14h-count-list", "Every saved count, side by side: seven methods, one winner.")}
+    <p>And the thesis of this whole page, as one picture — <code>voting plot methods</code> grids every option's finishing position under every saved count:</p>
+    {svgfig("14p-plot-methods", "The answer to the tutorial's question. The unbroken dark top row is the finding: no counting method changes the winner. The shuffling in the middle rows is where method choice does matter.")}
     <p><strong>All seven agree: <em>1984</em> wins.</strong> That unanimity is itself the finding. Orwell's novel holds {FPTP_TOTALS[0]["total"]:.0f} of {N_BALLOTS} first preferences, the top Borda score, and — as Schulze, Copeland, and Kemeny–Young confirm — beats every rival head-to-head. When a candidate dominates like this, the choice of method cannot change the outcome; method choice matters exactly when support is fragmented, and these ballots are not fragmented at the top. (Beneath the winner the orderings do shuffle — compare the full <code>ranking</code> arrays across the envelopes above.)</p>
     <div class="callout"><strong>What this page cannot claim.</strong> Eighteen self-selected respondents are a poll of those eighteen people, not of readers in general. The demonstration is methodological — one auditable dataset, many counting rules, disclosed outputs — not a literary verdict.</div>
   </section>

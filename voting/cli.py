@@ -9,7 +9,7 @@ import typer
 from rich.console import Console
 
 from voting.commands import agent_bootstrap, ballot, count, election, info, init, option, voter
-from voting.commands import docs_cmd, meta, status, survey
+from voting.commands import docs_cmd, meta, plot, status, survey
 from voting.core.errors import VotingError
 from voting.output import ENVELOPE_SCHEMA_VERSION, canonical_command
 
@@ -48,6 +48,7 @@ app.add_typer(ballot.app, name="ballot")
 app.add_typer(count.app, name="count")
 app.add_typer(docs_cmd.app, name="docs")
 app.add_typer(survey.app, name="survey")
+app.add_typer(plot.app, name="plot")
 
 
 def main() -> None:
