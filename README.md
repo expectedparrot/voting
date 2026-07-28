@@ -21,10 +21,10 @@ It can:
   (counting methods are chosen at count time, never fixed on the election).
 - Record ballots directly or import them from another system.
 - Validate ballots before counting.
-- Run 28 method names and aliases — one at a time (`count run`) or every
+- Run 32 method names and aliases — one at a time (`count run`) or every
   compatible method at once (`count compare`) — including FPTP, approval, score, STAR, IRV,
   STV, Borda, Schulze, ranked pairs, Copeland, Kemeny–Young, Bucklin, runoff,
-  cumulative voting, and majority judgment.
+  cumulative, quadratic voting, Method of Equal Shares, and majority judgment.
 - Save every count so results from different methods can be inspected and
   compared.
 - Generate synthetic EDSL preference studies or publish Humanize surveys for
@@ -42,8 +42,9 @@ It can:
   read the rank-distribution plot ("broadly liked" vs "polarizing").
 - **AI-persona pretesting** — pilot the question against synthetic voter
   personas via `survey generate` + `ep run` before spending respondent budget.
-- **Budget allocation** — "split 100 points across these initiatives" maps
-  directly to allocated ballots and cumulative counting.
+- **Budget allocation** — "split 100 points across these initiatives" maps to
+  allocated ballots; compare cumulative, quadratic, and Method of Equal Shares
+  to see the utilitarian/proportional trade-off in your own data.
 
 Each of these is a worked six-command recipe in `voting docs show recipes`.
 
@@ -103,7 +104,7 @@ Each project stores its state under `.voting/`:
 ├── meta.json
 ├── options/       candidates or proposals
 ├── voters/        voters, weights, eligibility, and traits
-├── elections/     method, ballot type, seats, and eligible options
+├── elections/     ballot type, seats, and eligible options
 ├── ballots/       append-only ballot records
 ├── results/       saved count runs
 └── output/        survey job packages and manifests
@@ -162,7 +163,7 @@ voting count list
 | `approval` | Any number of approved options | Approval, block, limited voting |
 | `score` | Numeric scores by option | Score, STAR |
 | `grade` | Ordered labels such as good or fair | Majority judgment |
-| `allocated` | A point budget distributed across options | Cumulative voting |
+| `allocated` | A point budget distributed across options | Cumulative, quadratic, equal shares |
 
 Ballot type determines what preference information is available. A
 single-choice ballot cannot recover second preferences, and an approval ballot

@@ -31,7 +31,7 @@ DOCS: dict[str, dict] = {
     },
     "voting-methods": {
         "title": "Voting Methods",
-        "summary": "All 28 supported counting methods grouped by category, with selection guidance.",
+        "summary": "All 32 supported method names and aliases grouped by category, with selection guidance.",
         "file": "voting-methods.md",
     },
     "data-model": {

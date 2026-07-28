@@ -174,3 +174,66 @@ def test_condorcet_stv_majority_judgment_bucklin_runoff(tmp_path: Path) -> None:
     for voter_id, ranking in zip(voters5, rankings5, strict=True):
         invoke(["ballot", "rank", "council_stv", voter_id, *ranking], project5)
     assert count(project5, "council_stv", "stv")["winners"] == ["ada", "ben"]
+
+
+def test_quadratic_rewards_spread_intensity_over_dumping(tmp_path: Path) -> None:
+    """One voter dumps the whole budget on a; two voters split across b and c.
+
+    Cumulative sums the raw points (a=b=c=100, lexicographic tie -> a);
+    quadratic takes sqrt of each voter's spend, so spread support beats a
+    single all-in voter.
+    """
+    project = init_project(tmp_path, "qv_demo")
+    add_options(project, "a", "b", "c")
+    add_voters(project, 3)
+    add_election(project, "budget", "cumulative", "allocated", ["a", "b", "c"])
+    invoke(["ballot", "allocate", "budget", "v1", "a=100"], project)
+    invoke(["ballot", "allocate", "budget", "v2", "b=64", "c=36"], project)
+    invoke(["ballot", "allocate", "budget", "v3", "b=36", "c=64"], project)
+
+    cumulative_result = count(project, "budget", "cumulative")
+    assert cumulative_result["winners"] == ["a"]  # 100 vs 100 vs 100, tiebreak
+
+    quadratic_result = count(project, "budget", "quadratic")
+    assert quadratic_result["winners"] == ["b"]  # sqrt: a=10, b=14, c=14
+    assert quadratic_result["scores"][0]["total"] == 14.0
+
+
+def test_equal_shares_gives_cohesive_minority_a_seat(tmp_path: Path) -> None:
+    """Six voters, three seats. Four majority voters spread over a1-a3; two
+    minority voters concentrate on b1/b2. Utilitarian counting elects three
+    majority options; MES budgets (0.5 per voter) let the minority's combined
+    1.0 afford exactly one seat.
+    """
+    project = init_project(tmp_path, "mes_demo")
+    options = ["a1", "a2", "a3", "b1", "b2"]
+    add_options(project, *options)
+    add_voters(project, 6)
+    add_election(project, "committee", "cumulative", "allocated", options, seats=3)
+    for voter in ["v1", "v2", "v3", "v4"]:
+        invoke(["ballot", "allocate", "committee", voter, "a1=34", "a2=33", "a3=33"], project)
+    for voter in ["v5", "v6"]:
+        invoke(["ballot", "allocate", "committee", voter, "b1=50", "b2=50"], project)
+
+    cumulative_result = count(project, "committee", "cumulative")
+    assert cumulative_result["winners"] == ["a1", "a2", "a3"]  # minority shut out
+
+    mes = count(project, "committee", "equal_shares")
+    assert len(mes["winners"]) == 3
+    assert "b1" in mes["winners"] or "b2" in mes["winners"]
+    assert {"a1", "a2"} <= set(mes["winners"])
+    assert mes["completed_seats"] == []
+    assert all(r.get("price_per_utility") for r in mes["rounds"])
+
+
+def test_equal_shares_completes_unfillable_seats(tmp_path: Path) -> None:
+    project = init_project(tmp_path, "mes_complete")
+    add_options(project, "a", "b", "c")
+    add_voters(project, 2)
+    add_election(project, "committee", "cumulative", "allocated", ["a", "b", "c"], seats=3)
+    # Both voters only value a and b: c is unaffordable for MES.
+    invoke(["ballot", "allocate", "committee", "v1", "a=70", "b=30"], project)
+    invoke(["ballot", "allocate", "committee", "v2", "a=30", "b=70"], project)
+    mes = count(project, "committee", "equal_shares")
+    assert len(mes["winners"]) == 3
+    assert mes["completed_seats"] == ["c"]

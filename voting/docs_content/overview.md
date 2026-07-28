@@ -7,7 +7,7 @@ The `voting` package is a JSON-first CLI for building voting scenarios, recordin
 - Create local voting projects with a `.voting/` hidden directory
 - Register options (candidates, proposals, etc.) and voters
 - Cast ballots in six formats: single choice, ranked, approval, score, grade, allocated
-- Run any of 28 counting methods against the same set of ballots
+- Run any of 32 method names and aliases against the same set of ballots
 - Compare how outcomes change across methods — the core value of the tool
 
 ## When to Use It

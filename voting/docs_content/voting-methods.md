@@ -1,6 +1,6 @@
 # Voting Methods
 
-28 counting methods across six categories. All take the same stored ballots — run any combination after the fact.
+32 method names and aliases across six categories. All take the same stored ballots — run any combination after the fact.
 
 ## Quick Selection Guide
 
@@ -87,7 +87,13 @@ Find the ranking that disagrees least with all pairwise preferences. Computation
 ## Other Methods
 
 ### cumulative
-Multi-seat: voters distribute a fixed vote budget. Allows strategic concentration; good for minority representation research.
+Multi-seat: voters distribute a fixed vote budget; raw points are summed. Allows strategic concentration (rational voters dump their budget); good for minority representation research.
+
+### quadratic (alias: qv)
+Budget allocation with square-root scoring: a voter's effective support for an option is sqrt(points spent), so the marginal price of influence rises with intensity and allocating in proportion to true utility is the rational strategy. The closest practical approximation to utility-maximizing selection under a forced budget. Deterministic; supports seats for top-K.
+
+### equal_shares (alias: mes)
+Method of Equal Shares (Peters-Skowron) over allocated points as cardinal utilities. Every voter controls an equal share of a virtual budget — allocations steer how the share is spent, never how large it is — and a cohesive group of n/k voters can always afford one of k seats. Choose this when the top-K should *represent* the group (proportionality) rather than maximize summed points; seats MES cannot fill are completed utilitarian-style and marked `completed_seats` in the result.
 
 ## Method Comparison Tips
 

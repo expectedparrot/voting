@@ -9,6 +9,7 @@ from voting.core.errors import UserError
 from voting.core.ids import local_iso_now
 from voting.core.methods.approval import approval, block_voting, limited_voting
 from voting.core.methods.borda import borda
+from voting.core.methods.budget import equal_shares, quadratic
 from voting.core.methods.condorcet import copeland, kemeny_young, minimax, ranked_pairs, schulze
 from voting.core.methods.irv import irv
 from voting.core.methods.other import bucklin, cumulative, majority_judgment, runoff
@@ -49,6 +50,10 @@ METHODS = {
     "limited_voting": limited_voting,
     "sntv": sntv,
     "cumulative": cumulative,
+    "quadratic": quadratic,
+    "qv": quadratic,
+    "equal_shares": equal_shares,
+    "mes": equal_shares,
     "runoff": runoff,
     "two_round": runoff,
     "bucklin": bucklin,
@@ -65,7 +70,7 @@ COMPATIBLE_METHODS = {
     "approval": ["approval", "block_voting", "limited_voting"],
     "score": ["score", "star"],
     "grade": ["majority_judgment"],
-    "allocated": ["cumulative"],
+    "allocated": ["cumulative", "quadratic", "equal_shares"],
 }
 
 

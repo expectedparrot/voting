@@ -90,15 +90,23 @@ voting count compare pricing
 ## 5. Budget allocation
 
 "Distribute 100 points across these initiatives" maps directly to allocated
-ballots and cumulative counting.
+ballots — and three counting rules with different philosophies.
 
 ```bash
-voting election add budget "Team budget split" --ballot-type allocated
+voting election add budget "Team budget split" --ballot-type allocated --seats 3
 voting ballot allocate budget alice infra=40 tooling=35 docs=25
 voting ballot allocate budget bob infra=20 tooling=50 docs=30
-voting count run budget --method cumulative
+voting count compare budget
 voting plot scores <result_id>
 ```
+
+**What to look at:** `count compare` runs all three allocation methods, and
+they answer different questions — `cumulative` sums raw points (utility-max if
+allocations are honest, but rewards dumping), `quadratic` takes the square
+root of each spend so honest intensity is the rational strategy, and
+`equal_shares` guarantees a cohesive minority its proportional share of the
+top-K. If they pick different sets, the difference is the utilitarian /
+proportional trade-off made visible.
 
 ## Delegating the loop to an agent
 
