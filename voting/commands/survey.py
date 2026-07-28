@@ -9,37 +9,36 @@ import typer
 from voting.commands.common import ctx_project, output
 from voting.core.errors import UserError
 from voting.core.store import list_entities, read_entity
-from voting.humanize import build_humanize_job, run_ep
-from voting.surveygen import generate_survey_script
+from voting.humanize import build_humanize_job, build_simulation_job, run_ep
 
 app = typer.Typer(help="Create synthetic or hosted human surveys for preference elicitation.", no_args_is_help=True, add_completion=False)
 
 
-def survey_script_path(project, election_id: str) -> Path:
-    """Return the conventional generated-script path for an election."""
-    return project.path("output", f"survey_{election_id}.py")
+def survey_job_path(project, election_id: str) -> Path:
+    """Return the conventional generated Jobs-package path for an election."""
+    return project.path("output", f"survey_{election_id}.jobs.ep")
+
+
+def survey_manifest_path(project, election_id: str) -> Path:
+    return project.path("output", f"survey_{election_id}.json")
+
+
+def survey_results_path(project, election_id: str) -> Path:
+    return project.path("output", f"survey_{election_id}.results.ep")
 
 
 @app.command("generate")
 def generate(
     ctx: typer.Context,
     election_id: str = typer.Argument(..., help="Election ID to generate a survey for."),
-    model: str = typer.Option("claude-opus-4-6", "--model", "-m", help="EDSL model name."),
-    output_path: Optional[Path] = typer.Option(None, "--output", "-o", help="Override output path for the script."),
+    model: str = typer.Option("gpt-5.5", "--model", "-m", help="EDSL model name."),
+    service: Optional[str] = typer.Option("openai", "--service", help="EDSL inference service name."),
+    output_path: Optional[Path] = typer.Option(None, "--output", "-o", help="Override output path for the Jobs package."),
 ) -> None:
-    """Generate a standalone EDSL Python script that elicits voter preferences."""
+    """Build an EDSL Jobs package (.jobs.ep) that elicits AI voter preferences via `ep run`."""
     project = ctx_project(ctx)
 
     election = read_entity(project, "elections", election_id)
-    ballot_type = election.get("ballot_type", "ranked")
-
-    if ballot_type not in {"ranked", "single_choice", "approval", "score"}:
-        raise UserError(
-            f"Survey generation does not support ballot_type '{ballot_type}'.",
-            {"ballot_type": ballot_type, "supported": ["ranked", "single_choice", "approval", "score"]},
-            hint="Change the election ballot type or cast ballots directly.",
-        )
-
     option_ids = election.get("options", [])
     if not option_ids:
         raise UserError(
@@ -50,46 +49,36 @@ def generate(
 
     options = [read_entity(project, "options", oid) for oid in option_ids]
     voters = list_entities(project, "voters")
-    if not voters:
-        raise UserError(
-            "No voters registered.",
-            {"election_id": election_id},
-            hint="Add voters with `voting voter add <id> <name>` before generating a survey.",
-        )
 
-    output_dir = project.path("output")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    job_path = output_path or survey_job_path(project, election_id)
+    manifest_path = survey_manifest_path(project, election_id)
+    results_path = survey_results_path(project, election_id)
 
-    results_path = output_dir / f"results_{election_id}.json"
-    script_path = output_path or survey_script_path(project, election_id)
-
-    script = generate_survey_script(
-        election=election,
-        options=options,
-        voters=voters,
-        output_path=results_path,
+    manifest = build_simulation_job(
+        election,
+        options,
+        voters,
+        job_path,
         model_name=model,
+        service_name=service,
     )
-
-    script_path.write_text(script, encoding="utf-8")
+    manifest["results_path"] = str(results_path)
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    manifest["manifest_path"] = str(manifest_path)
 
     output(
         ctx,
         "survey generate",
-        {
-            "election_id": election_id,
-            "ballot_type": ballot_type,
-            "options": len(options),
-            "voters": len(voters),
-            "model": model,
-            "script_path": str(script_path),
-            "results_path": str(results_path),
-        },
-        human_message=f"Generated survey script: {script_path}",
+        manifest,
+        human_message=(
+            f"Generated Jobs package: {manifest['job_path']}\n"
+            f"Expected model calls: {manifest['expected_model_calls']} "
+            f"({manifest['voter_count']} voters x {len(manifest['question_names'])} questions)"
+        ),
         next_steps=[
             f"voting --human survey show {election_id}",
-            f"python {script_path}",
-            f"voting ballot import --election {election_id} --from {results_path}",
+            f"ep run --jobs {manifest['job_path']} --output {results_path}",
+            f"voting ballot import --election {election_id} --from-results {results_path}",
         ],
     )
 
@@ -97,28 +86,46 @@ def generate(
 @app.command("show")
 def show(
     ctx: typer.Context,
-    election_id: str = typer.Argument(..., help="Election ID whose generated survey script should be shown."),
+    election_id: str = typer.Argument(..., help="Election ID whose generated survey should be shown."),
 ) -> None:
-    """Display a generated EDSL survey script for inspection."""
+    """Display a generated survey job's manifest for inspection before `ep run`."""
     project = ctx_project(ctx)
     read_entity(project, "elections", election_id)
-    script_path = survey_script_path(project, election_id)
-    if not script_path.exists():
+    manifest_path = survey_manifest_path(project, election_id)
+    if not manifest_path.exists():
         raise UserError(
-            "Generated survey script not found.",
-            {"election_id": election_id, "script_path": str(script_path)},
+            "Generated survey not found.",
+            {"election_id": election_id, "manifest_path": str(manifest_path)},
             hint=f"Run `voting survey generate {election_id}` first.",
         )
 
-    source = script_path.read_text(encoding="utf-8")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    results_path = manifest.get("results_path") or str(survey_results_path(project, election_id))
+    lines = [
+        f"Survey job for election: {manifest.get('election_id', election_id)}",
+        f"Ballot type: {manifest.get('ballot_type')}",
+        f"Model: {manifest.get('model')}" + (f" ({manifest['service']})" if manifest.get("service") else ""),
+        f"Voters (agents): {manifest.get('voter_count')}",
+        f"Expected model calls: {manifest.get('expected_model_calls')}",
+        f"Jobs package: {manifest.get('job_path')}",
+        "",
+        "Questions:",
+    ]
+    for name, text in (manifest.get("question_texts") or {}).items():
+        lines.append(f"  [{name}] {text}")
+    lines += [
+        "",
+        "Options:",
+        *[f"  {option['id']}: {option['name']}" for option in manifest.get("options", [])],
+    ]
     output(
         ctx,
         "survey show",
-        {"election_id": election_id, "script_path": str(script_path), "source": source},
-        human_message=source,
+        {"election_id": election_id, "manifest_path": str(manifest_path), **manifest},
+        human_message="\n".join(lines),
         next_steps=[
-            f"python {script_path}",
-            f"voting ballot import --election {election_id} --from {project.path('output', f'results_{election_id}.json')}",
+            f"ep run --jobs {manifest.get('job_path')} --output {results_path}",
+            f"voting ballot import --election {election_id} --from-results {results_path}",
         ],
     )
 

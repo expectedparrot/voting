@@ -83,7 +83,7 @@ Each project stores its state under `.voting/`:
 ├── elections/     method, ballot type, seats, and eligible options
 ├── ballots/       append-only ballot records
 ├── results/       saved count runs
-└── output/        generated survey artifacts
+└── output/        survey job packages and manifests
 ```
 
 The normal lifecycle is:
@@ -170,8 +170,16 @@ voting survey generate projects
 voting --human survey show projects
 ```
 
-The generated Python script is saved under `.voting/output/` for inspection
-before it is run and imported.
+This builds `.voting/output/survey_projects.jobs.ep` — an EDSL Jobs package
+carrying the survey, one agent per voter, and the model. voting never executes
+model calls; run the job externally and import the results:
+
+```bash
+ep run --jobs .voting/output/survey_projects.jobs.ep \
+    --output .voting/output/survey_projects.results.ep
+voting ballot import --election projects \
+    --from-results .voting/output/survey_projects.results.ep
+```
 
 ### Publish a survey for people
 
@@ -247,11 +255,11 @@ Every registered command (options and defaults live in `voting <command> --help`
 | `voting option show` |  |
 | `voting status` | Show current project phase, counts, and recommended next steps. |
 | `voting survey email` | Email unique Humanize voting links to configured voters. |
-| `voting survey generate` | Generate a standalone EDSL Python script that elicits voter preferences. |
+| `voting survey generate` | Build an EDSL Jobs package (.jobs.ep) that elicits AI voter preferences via `ep run`. |
 | `voting survey humanize` | Generate a model-free EDSL job for a Humanize voting survey. |
 | `voting survey publish` | Create a hosted Humanize survey through the ep CLI and save its URLs. |
 | `voting survey responses` | Download Humanize responses as an EDSL Results package. |
-| `voting survey show` | Display a generated EDSL survey script for inspection. |
+| `voting survey show` | Display a generated survey job's manifest for inspection before `ep run`. |
 | `voting version` | Report the installed build and envelope schema version. |
 | `voting voter add` |  |
 | `voting voter list` |  |

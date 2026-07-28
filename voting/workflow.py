@@ -31,7 +31,7 @@ CHECKLISTS: dict[str, list[str]] = {
     ],
     Phase.BALLOTING: [
         "Cast ballots directly:  `voting ballot rank|cast|approve|score <election_id> <voter_id> ...`",
-        "Or generate a survey:   `voting survey generate <election_id>` → run the script → `voting ballot import`",
+        "Or generate a survey:   `voting survey generate <election_id>` → `ep run` the .jobs.ep → `voting ballot import --from-results`",
         "Validate ballots:       `voting ballot validate <election_id>`",
     ],
     Phase.COUNTING: [

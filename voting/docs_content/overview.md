@@ -30,10 +30,10 @@ voting ballot rank <election_id> <voter_id> opt_a opt_b opt_c
 
 **Survey generation** — use EDSL AI agents to elicit preferences:
 ```
-voting survey generate <election_id>   # generates a runnable Python script
+voting survey generate <election_id>   # builds an EDSL Jobs package (.jobs.ep)
 voting --human survey show <election_id>
-python .voting/output/survey_<id>.py  # runs EDSL survey, saves results
-voting ballot import --election <id> --from .voting/output/results_<id>.json
+ep run --jobs .voting/output/survey_<id>.jobs.ep --output .voting/output/survey_<id>.results.ep
+voting ballot import --election <id> --from-results .voting/output/survey_<id>.results.ep
 ```
 
 **Humanize web survey** — collect preferences from real people at a hosted URL:

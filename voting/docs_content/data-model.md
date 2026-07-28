@@ -66,7 +66,7 @@ Types: `candidate`, `proposal`, `reference`, `write_in`
 }
 ```
 
-Traits are arbitrary key/value pairs. The `persona` trait is used by `voting survey generate` to build EDSL agent descriptions. A trait selected with `voting survey humanize --email-trait` supplies Humanize delivery addresses.
+Traits are arbitrary key/value pairs. Traits (such as `persona`) become EDSL agent traits in `voting survey generate` jobs. A trait selected with `voting survey humanize --email-trait` supplies Humanize delivery addresses.
 
 ## elections/<id>.json
 
@@ -160,20 +160,21 @@ Ballot records are append-only. If a voter casts multiple times, the latest supe
 
 `voting survey generate` writes two files here:
 
-- `survey_<election_id>.py` — the generated EDSL script (inspect before running)
-- `results_<election_id>.json` — written by the script after running; ingested by `voting ballot import`
+- `survey_<election_id>.jobs.ep` — an EDSL Jobs package carrying the survey, one
+  agent per registered voter, and the model. voting never executes it; run it
+  externally with `ep run --jobs ... --output survey_<election_id>.results.ep`.
+- `survey_<election_id>.json` — manifest (questions, options, expected model calls)
 
-The results file format:
+The `ep run` output is an EDSL Results package ingested with
+`voting ballot import --election <id> --from-results survey_<election_id>.results.ep`.
+Hand-written ballots can still be imported from a JSON file via `--from`:
 ```json
 {
-  "voting_version": "0.1.0",
   "election_id": "city_council",
   "ballot_type": "ranked",
-  "generated_at": "2026-04-21T12:00:00Z",
   "rows": [
     {
       "voter_id": "voter_1",
-      "voter_name": "Voter One",
       "answer": { "ranking": ["alice", "carol", "bob"] }
     }
   ]

@@ -138,6 +138,58 @@ def test_ballot_import_from_edsl_results(tmp_path: Path) -> None:
     assert count_payload["status"] == "ok"
 
 
+def test_survey_generate_emits_executable_jobs_package(tmp_path: Path) -> None:
+    steps = [
+        ("init", "books"),
+        ("option", "add", "gatsby", "The Great Gatsby"),
+        ("option", "add", "orwell", "1984"),
+        ("voter", "add", "v1", "Voter One"),
+        ("voter", "add", "v2", "Voter Two"),
+        ("election", "add", "favorite", "Favorite book", "--method", "borda",
+         "--ballot-type", "ranked"),
+        ("election", "add-option", "favorite", "gatsby"),
+        ("election", "add-option", "favorite", "orwell"),
+        ("election", "open", "favorite"),
+    ]
+    cwd = tmp_path
+    for index, step in enumerate(steps):
+        completed = run_voting(*step, cwd=cwd)
+        assert completed.returncode == 0, (step, completed.stdout, completed.stderr)
+        if index == 0:
+            cwd = tmp_path / "books"
+
+    generated = subprocess.run(
+        [sys.executable, "-m", "voting", "survey", "generate", "favorite"],
+        cwd=cwd, text=True, capture_output=True,
+        env={"PYTHONPATH": str(REPO), "PATH": "/usr/bin:/bin", "HOME": str(tmp_path)},
+    )
+    assert generated.returncode == 0, generated.stdout + generated.stderr
+    payload = json.loads(generated.stdout)
+    data = payload["data"]
+    job_path = Path(data["job_path"])
+    assert job_path.name == "survey_favorite.jobs.ep"
+    assert job_path.exists()
+    assert data["expected_model_calls"] == 2  # 2 voters x 1 ranked question
+    assert any(step.startswith("ep run --jobs") for step in payload["next_steps"])
+    assert any("--from-results" in step for step in payload["next_steps"])
+
+    # The package must carry everything ep run needs: survey, agents, model.
+    from edsl import Jobs
+
+    jobs = Jobs.git.load(str(job_path))
+    assert sorted(agent.name for agent in jobs.agents) == ["v1", "v2"]
+    assert [question.question_name for question in jobs.survey.questions] == ["ranking"]
+    assert len(jobs.models) == 1
+
+    shown = subprocess.run(
+        [sys.executable, "-m", "voting", "--human", "survey", "show", "favorite"],
+        cwd=cwd, text=True, capture_output=True,
+        env={"PYTHONPATH": str(REPO), "PATH": "/usr/bin:/bin", "HOME": str(tmp_path)},
+    )
+    assert shown.returncode == 0, shown.stdout + shown.stderr
+    assert "Expected model calls: 2" in shown.stdout
+
+
 def test_ballot_import_from_results_unknown_label_itemized(tmp_path: Path) -> None:
     steps = [
         ("init", "books2"),

@@ -206,6 +206,13 @@ def _rows_from_edsl_results(results_dict: dict, election: dict, options: list[di
                 else:
                     issues.append({"voter_id": voter_id, "reason": "no ranking answer"})
                     continue
+                # QuestionRank sometimes answers with integer positions into
+                # question_options (which follow the election's option order).
+                if ordered and all(isinstance(item, int) for item in ordered):
+                    if any(index < 0 or index >= len(options) for index in ordered):
+                        issues.append({"voter_id": voter_id, "reason": "ranking index out of range", "labels": ordered})
+                        continue
+                    ordered = [options[index]["id"] for index in ordered]
                 unknown = [label for label in ordered if label not in label_to_id]
                 if unknown:
                     issues.append({"voter_id": voter_id, "reason": "unknown option labels", "labels": unknown})
@@ -226,6 +233,14 @@ def _rows_from_edsl_results(results_dict: dict, election: dict, options: list[di
                 rows.append({"voter_id": voter_id, "answer": {"approved": [label_to_id[label] for label in labels]}, "respondent": respondent})
             elif ballot_type == "score":
                 raw = answer.get("scores") or answer.get("score") or {}
+                if not raw:
+                    # Score surveys ask one QuestionLinearScale per option,
+                    # named score_<option_id>.
+                    raw = {
+                        key[len("score_"):]: value
+                        for key, value in answer.items()
+                        if key.startswith("score_") and isinstance(value, (int, float))
+                    }
                 unknown = [label for label in raw if label not in label_to_id]
                 if unknown:
                     issues.append({"voter_id": voter_id, "reason": "unknown option labels", "labels": unknown})
@@ -242,18 +257,18 @@ def _rows_from_edsl_results(results_dict: dict, election: dict, options: list[di
 def import_ballots(
     ctx: typer.Context,
     election_id: str = typer.Option(..., "--election", help="Election ID to import ballots into."),
-    from_file: Optional[Path] = typer.Option(None, "--from", help="Path to results file written by a generated survey script."),
+    from_file: Optional[Path] = typer.Option(None, "--from", help="Path to a ballots JSON file ({election_id, ballot_type, rows})."),
     from_results: Optional[Path] = typer.Option(None, "--from-results", help="Path to an EDSL Results .ep package (e.g. downloaded Humanize responses)."),
     from_coop: Optional[str] = typer.Option(None, "--from-coop", help="Coop UUID of an EDSL Results object to pull (network read; requires EDSL auth)."),
     register_voters: bool = typer.Option(False, "--register-voters", help="Register unknown respondents as voters (weight 1.0) instead of importing their ballots as unregistered."),
 ) -> None:
-    """Import ballots from a generated-script results file or an EDSL Results object."""
+    """Import ballots from a ballots JSON file or an EDSL Results object."""
     project = ctx_project(ctx)
     sources = [value for value in (from_file, from_results, from_coop) if value]
     if len(sources) != 1:
         raise UserError(
             "Provide exactly one of --from, --from-results, or --from-coop.",
-            hint="--from reads generated-script JSON; --from-results reads a local Results .ep; --from-coop pulls a Results object by UUID.",
+            hint="--from reads a ballots JSON file; --from-results reads a local Results .ep; --from-coop pulls a Results object by UUID.",
         )
 
     election = read_entity(project, "elections", election_id)
@@ -263,7 +278,7 @@ def import_ballots(
             raise UserError(
                 f"Results file not found: {from_file}",
                 {"path": str(from_file)},
-                hint="Run the generated survey script first, then re-run this command.",
+                hint="Check the path, or use --from-results for an EDSL Results .ep package.",
             )
         try:
             results = json.loads(from_file.read_text(encoding="utf-8"))

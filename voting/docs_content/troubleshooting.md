@@ -51,16 +51,16 @@ Ballot warnings appear in `voting ballot validate` and `voting count run` output
 
 ## Survey Generation Issues
 
-### Generated script fails with `ModuleNotFoundError: edsl`
-**Fix:** Install EDSL in your environment: `pip install edsl`
+### `voting survey generate` fails with `EDSL is required to build a survey job`
+**Fix:** Install EDSL in your environment: `pip install -e '.[humanize]'`
 
 ### `voting ballot import` fails with "Results file is for election X, not Y"
 **Cause:** The `--election` flag doesn't match the `election_id` baked into the results file.
-**Fix:** Use the election ID shown in the error, or regenerate the survey script.
+**Fix:** Use the election ID shown in the error, or regenerate the survey job.
 
 ### Import succeeds but ballots show `unknown_voter` warnings
-**Cause:** The EDSL agent names (voter IDs in the generated script) don't match registered voter IDs.
-**Fix:** Voter IDs in `voting voter add` should match what you used in the generated script. The generated script uses voter IDs from the registry, so this should not happen unless voters were added after the script was generated. Regenerate with `voting survey generate`.
+**Cause:** The EDSL agent names in the Results don't match registered voter IDs.
+**Fix:** Generated survey jobs name each agent after a registered voter ID, so this should not happen unless voters were added after the job was generated. Regenerate with `voting survey generate`. For Humanize responses from anonymous respondents, re-import with `voting ballot import --register-voters`.
 
 ## Humanize Issues
 

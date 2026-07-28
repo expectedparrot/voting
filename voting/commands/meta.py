@@ -43,8 +43,9 @@ def capabilities_command(ctx: typer.Context) -> None:
                 "to stdout by default; --human is an opt-in presentation mode."
             ),
             "execution_boundary": (
-                "voting never executes model calls. `survey generate` writes elicitation "
-                "artifacts that the user runs externally; counting and analysis are local."
+                "voting never executes model calls. `survey generate` builds a .jobs.ep "
+                "package the user executes externally with `ep run`; counting and "
+                "analysis are local."
             ),
             "external_service_actions": {
                 "survey publish": "Creates a hosted Humanize survey via the ep CLI (outward-facing).",

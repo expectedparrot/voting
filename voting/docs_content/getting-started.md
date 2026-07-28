@@ -64,15 +64,16 @@ If you want EDSL AI agents to supply preferences instead:
 
 ```bash
 voting survey generate city_council
-# Inspect the generated script:
+# Inspect the survey job before executing anything:
 voting --human survey show city_council
 
-# Run it (requires edsl to be installed):
-python .voting/output/survey_city_council.py
+# Execute the model calls externally (requires edsl and credentials):
+ep run --jobs .voting/output/survey_city_council.jobs.ep \
+    --output .voting/output/survey_city_council.results.ep
 
 # Import the results as ballots:
 voting ballot import --election city_council \
-    --from .voting/output/results_city_council.json
+    --from-results .voting/output/survey_city_council.results.ep
 ```
 
 ## 5. Collect Ballots from Humans (Hosted Path)

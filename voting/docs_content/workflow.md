@@ -67,21 +67,22 @@ voting ballot score   <election_id> <voter_id> opt1=8 opt2=5 opt3=9
 Use when you want AI agents to elicit preferences. Voter traits become agent personas.
 
 ```bash
-# Step 1: generate a runnable Python script
-voting survey generate <election_id> [--model claude-opus-4-6]
+# Step 1: build an EDSL Jobs package (survey + voter agents + model; no execution)
+voting survey generate <election_id> [--model gpt-5.5 --service openai]
 
-# Step 2: inspect the script
+# Step 2: inspect the job
 voting --human survey show <election_id>
 
-# Step 3: run it (requires edsl installed in your environment)
-python .voting/output/survey_<election_id>.py
+# Step 3: execute it externally (requires edsl and credentials)
+ep run --jobs .voting/output/survey_<election_id>.jobs.ep \
+    --output .voting/output/survey_<election_id>.results.ep
 
 # Step 4: import results as ballots
 voting ballot import --election <election_id> \
-    --from .voting/output/results_<election_id>.json
+    --from-results .voting/output/survey_<election_id>.results.ep
 ```
 
-The generated script bakes in your project's options and voters. Voters with `persona` traits produce richer agent responses.
+The Jobs package bakes in your project's options and voters. Voters with `persona` traits produce richer agent responses.
 
 ### Hosted ballots for real people (Humanize path)
 
