@@ -2,8 +2,23 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 
 import typer
+
+ENVELOPE_SCHEMA_VERSION = "1.0"
+
+_COMMAND_GROUPS = {"election", "option", "voter", "ballot", "count", "docs", "survey"}
+
+
+def canonical_command(argv: list[str] | None = None) -> str:
+    """Derive `group sub` (or a flat command) from the actual invocation."""
+    raw = argv if argv is not None else sys.argv[1:]
+    words = [arg for arg in raw if not arg.startswith("-")]
+    if not words:
+        return ""
+    depth = 2 if words[0] in _COMMAND_GROUPS and len(words) > 1 else 1
+    return " ".join(words[:depth])
 
 
 def should_emit_json(human_flag: bool) -> bool:
@@ -19,8 +34,10 @@ def finish(
     next_steps: list | None = None,
 ) -> None:
     payload = {
+        "schema_version": ENVELOPE_SCHEMA_VERSION,
         "command": command,
         "status": "ok",
+        "argv": ["voting", *sys.argv[1:]],
         "data": data,
         "warnings": warnings or [],
         "errors": [],
@@ -50,8 +67,10 @@ def fail(command: str, error: Exception) -> None:
         exit_code = 1
 
     payload = {
-        "command": command,
+        "schema_version": ENVELOPE_SCHEMA_VERSION,
+        "command": command or canonical_command(),
         "status": "error",
+        "argv": ["voting", *sys.argv[1:]],
         "data": {},
         "warnings": [],
         "errors": [err_dict],

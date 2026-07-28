@@ -9,8 +9,9 @@ import typer
 from rich.console import Console
 
 from voting.commands import agent_bootstrap, ballot, count, election, info, init, option, voter
-from voting.commands import docs_cmd, status, survey
+from voting.commands import docs_cmd, meta, status, survey
 from voting.core.errors import VotingError
+from voting.output import ENVELOPE_SCHEMA_VERSION, canonical_command
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 console = Console()
@@ -37,6 +38,9 @@ app.command("init")(init.command)
 app.command("agent-bootstrap")(agent_bootstrap.command)
 app.command("info")(info.command)
 app.command("status")(status.command)
+app.command("version")(meta.version_command)
+app.command("capabilities")(meta.capabilities_command)
+app.command("next")(meta.next_command)
 app.add_typer(election.app, name="election")
 app.add_typer(option.app, name="option")
 app.add_typer(voter.app, name="voter")
@@ -51,7 +55,9 @@ def main() -> None:
         app()
     except VotingError as exc:
         payload = {
-            "command": "",
+            "schema_version": ENVELOPE_SCHEMA_VERSION,
+            "command": canonical_command(),
+            "argv": ["voting", *sys.argv[1:]],
             "status": "error",
             "data": {},
             "warnings": [],
@@ -64,7 +70,9 @@ def main() -> None:
         raise
     except Exception as exc:
         payload = {
-            "command": "",
+            "schema_version": ENVELOPE_SCHEMA_VERSION,
+            "command": canonical_command(),
+            "argv": ["voting", *sys.argv[1:]],
             "status": "error",
             "data": {},
             "warnings": [],
