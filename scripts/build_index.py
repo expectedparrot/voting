@@ -113,6 +113,7 @@ assert all(load(f"13-count-{m}")["payload"]["data"]["winners"] == [WINNER]
            for m in ["irv", "schulze", "copeland", "kemeny_young", "bucklin", "fptp"]), \
     "prose assumes a unanimous winner; the data changed"
 HUMANIZE = load("07-humanize")["payload"]["data"]
+STATUS_COUNTS = load("11-status")["payload"]["data"]["counts"]
 QUESTION_TEXT = HUMANIZE["question_texts"]["ranking"]
 BOOKS_JSON = (WORK / "books.json").read_text().rstrip()
 N_COMMANDS = (REPO / "README.md").read_text().count("| `voting ")
@@ -206,8 +207,10 @@ add(f"""
   <section id="install">
     <h2><span class="chapter">02</span> Installation and the output contract</h2>
     {cmd("uv tool install git+https://github.com/expectedparrot/voting.git")}
-    <p>(<code>uv tool</code> gives <code>voting</code> its own isolated environment on your PATH; plain <code>pip install</code> works too.) Every command prints exactly one JSON envelope to stdout — <code>schema_version</code>, <code>command</code>, <code>status</code>, <code>argv</code>, <code>data</code>, <code>warnings</code>, <code>errors</code>, <code>next_steps</code> — with failures as structured errors and nonzero exits. Add <code>--human</code> to any command for tables meant for people instead. <code>voting capabilities</code> states the contract machine-readably:</p>
+    <p>(<code>uv tool</code> gives <code>voting</code> its own isolated environment on your PATH; plain <code>pip install</code> works too.) Confirm the install:</p>
     {cmdcap_auto("01-version")}
+    <p>That envelope is the whole interface. Every command prints exactly one JSON envelope to stdout — <code>schema_version</code>, <code>command</code>, <code>status</code>, <code>argv</code>, <code>data</code>, <code>warnings</code>, <code>errors</code>, <code>next_steps</code> — with failures as structured errors and nonzero exits. Add <code>--human</code> to any command for tables meant for people instead. <code>voting capabilities</code> states the contract machine-readably, including which commands touch the outside world:</p>
+    {cmdcap_auto("01b-capabilities")}
     <div class="callout">Longer envelopes on this page are elided — lists cut to a few entries, repeated warnings summarized — so the shape stays readable. The first few outputs are shown complete; the full captures live in <code>build/tutorial/captures/</code> when you regenerate the page.</div>
   </section>
 
@@ -225,6 +228,7 @@ add(f"""
     <p>An <em>election</em> is the central object here: it names the contest, fixes the <strong>ballot type</strong> (ranked, in this case — voters order all options; other types are single choice, approval, and score), sets a default <strong>counting method</strong> (Borda — though any method can be run against the stored ballots later), and holds the list of eligible options. It starts as a draft and only accepts ballots once opened:</p>
     {cmdcap_auto("04-election-add")}
     <p>The eight books load in one step from a JSON file — id plus display name each. The display names matter: when ballots arrive from a survey, answers reference options by these exact labels, and the importer maps labels back to ids. An unknown label skips that row and reports it; nothing is ever silently guessed. (<code>voting option add</code> exists for adding one at a time.)</p>
+    <p>Alongside options, a project also keeps a <strong>voter registry</strong> — who may vote, at what weight, with what traits. Ours is deliberately still empty; that becomes the crux of chapter 6.</p>
     <pre class="command"><code>cat books.json</code></pre>
     <details class="output"><summary>Show books.json</summary><pre><code>{html.escape(BOOKS_JSON)}</code></pre></details>
     {cmdcap_auto("05-option-import")}
@@ -235,24 +239,29 @@ add(f"""
 
   <section id="survey">
     <h2><span class="chapter">05</span> The hosted human survey</h2>
-    <p><code>voting survey humanize</code> packages the election as a model-free EDSL job for Expected Parrot's Humanize platform — a web survey real people answer. The question wording is generated from the election definition itself (name, description, ballot type), and the manifest records it. This election produced exactly one question:</p>
+    <p><code>voting survey humanize</code> packages the election for Expected Parrot's Humanize platform — a hosted web survey that real people answer. (Technically it is an EDSL survey job with no AI model attached: the questions are for humans.) The question wording is generated from the election definition itself — name, description, ballot type — and the manifest records it. This election produced exactly one question:</p>
     <div class="callout"><em>{html.escape(QUESTION_TEXT)}</em><br><small>— followed by the eight book titles, in randomized order per respondent.</small></div>
     <p>The build is local and writes every artifact (job package, manifest with the question text, response schema):</p>
     {cmdcap_auto("07-humanize")}
-    <div class="callout"><strong>Publishing happened once, for real.</strong> <code>voting survey publish</code> creates the hosted survey through the ep CLI, <code>voting survey email</code> sends invitation links, and <code>voting survey responses</code> downloads the answers — all outward-facing service actions, declared as such in <code>voting capabilities</code>. This tutorial's survey was published from the original project and left open; eighteen people responded. This page does not republish it — the next chapter pulls the responses that run collected.</div>
+    <div class="callout"><strong>Publishing happened once, for real.</strong> <code>voting survey publish</code> creates the hosted survey through the ep CLI, <code>voting survey email</code> sends invitation links, and <code>voting survey responses</code> downloads the answers — all outward-facing service actions, declared as such in <code>voting capabilities</code>. This tutorial's survey was published from the original project and left open; eighteen people responded. This page does not republish it — the next chapter pulls the responses that survey collected.</div>
   </section>
 
   <section id="ballots">
     <h2><span class="chapter">06</span> Ballots that don't count (yet)</h2>
     <p>The eighteen responses live in a production EDSL <code>Results</code> object. <code>ballot import</code> can read a local <code>.ep</code> package (<code>--from-results</code>) or pull one by UUID (<code>--from-coop</code>, a network read using your EDSL credentials). Watch what happens on a first, naive import:</p>
+    <div class="callout"><strong>Following along without a survey?</strong> This is the one place you cannot use this page's data (the Results object belongs to its owner). Cast a few ballots yourself instead and rejoin at chapter 7 — every count works the same:
+<pre class="command"><code>voting voter add v1 'Voter One'
+voting ballot rank book_preference v1 nineteen_eighty_four mockingbird great_gatsby</code></pre>
+Or run your own survey (<code>voting survey publish</code>) — or have AI personas vote: <code>voting survey generate</code> builds a job you execute with <code>ep run</code> and import with <code>--from-results</code>.</div>
     {cmdcap_auto("08a-import-unregistered")}
     <p>All {N_BALLOTS} ballots recorded — with a warning per ballot: the respondents are anonymous survey takers, not registered voters. When something is off, <code>voting</code>'s policy is to record the problem and refuse to count, rather than guess. Validation makes that concrete:</p>
     {cmdcap_auto("08b-validate-unregistered")}
     <p><strong>Zero valid ballots.</strong> Recorded is not the same as countable: a ballot from an unregistered voter is preserved but excluded from every count until you decide it belongs. This is the check to run before believing any result — a count over invalid ballots will happily report a "winner" that is nothing but a tiebreak among zeros. The deliberate fix is <code>--register-voters</code>, which registers each unknown respondent as a weight-1.0 voter (keeping the original respondent id as provenance on the ballot) and replaces the earlier ballots:</p>
     {cmdcap_auto("08-import")}
     {cmdcap_auto("09-validate")}
-    <p>Eighteen registered voters, eighteen valid ballots. Here is what actually came back from real people — each row one respondent's full ranking:</p>
-    {hcap("10-ballots", "The imported ballots: eighteen anonymous respondents, each with a complete ranking of the eight books, imported at weight 1.0.")}
+    <p>Eighteen registered voters, eighteen valid ballots. Here is what actually came back from real people — one row per respondent, top choices first (<code>--latest</code> shows the ballots a count would use; without it, the append-only record also lists the eighteen superseded ballots from the first import):</p>
+    {hcap("10-ballots", "The countable ballots: eighteen anonymous respondents at weight 1.0, top three choices shown; full rankings live in the ballot records and drive every count.")}
+    <p><code>voting status</code> is the project's dashboard. Note the ballot count: {STATUS_COUNTS["ballots"]} records, not {N_BALLOTS} — the superseded first import is still in the append-only log (an audit trail, never silently rewritten), while counting uses each voter's latest ballot. The phase says exactly what remains:</p>
     {cmdcap_auto("11-status")}
   </section>
 
@@ -261,13 +270,20 @@ add(f"""
     <p>Now the point of the exercise. The same eighteen ballots, counted seven ways — the election's default first:</p>
     {cmdcap_auto("12-count-borda")}
     {hcap("12h-count-borda", "The saved Borda count rendered for people: full ranking, scores, and the winner.")}
-    <p>Borda gives <em>{html.escape(BORDA_SCORES[0]["option_id"])}</em> {BORDA_SCORES[0]["total"]:.0f} points against {html.escape(BORDA_SCORES[1]["option_id"])}'s {BORDA_SCORES[1]["total"]:.0f}. Then the rest — instant-runoff, two Condorcet methods, Kemeny–Young, Bucklin, and bare plurality on first preferences:</p>
+    <p>Borda gives <em>{html.escape(BORDA_SCORES[0]["option_id"])}</em> {BORDA_SCORES[0]["total"]:.0f} points against {html.escape(BORDA_SCORES[1]["option_id"])}'s {BORDA_SCORES[1]["total"]:.0f}. Now the other six. Each envelope records how its method actually reasoned, so they are worth opening for different things:</p>
+    <p><strong>Instant-runoff</strong> eliminates the weakest option and retries until someone holds a majority — the <code>rounds</code> array is the elimination story, round by round:</p>
     {cmdcap_auto("13-count-irv")}
+    <p><strong>Schulze</strong> (a Condorcet method) plays every option against every other; the <code>pairwise</code> matrix holds all 28 head-to-head margins:</p>
     {cmdcap_auto("13-count-schulze")}
+    <p><strong>Copeland</strong> scores the same pairings bluntly — wins minus losses:</p>
     {cmdcap_auto("13-count-copeland")}
+    <p><strong>Kemeny–Young</strong> searches for the full ordering that agrees with as many pairwise ballot judgments as possible — <code>kemeny_score</code> counts the agreements:</p>
     {cmdcap_auto("13-count-kemeny_young")}
+    <p><strong>Bucklin</strong> keeps adding voters' next choices until someone crosses a majority — the <code>rounds</code> array shows when that happens:</p>
     {cmdcap_auto("13-count-bucklin")}
+    <p>And <strong>plurality</strong> (first-past-the-post) throws every ranking away except the first line:</p>
     {cmdcap_auto("13-count-fptp")}
+    <p>Every run was saved, so the comparison is one command:</p>
     {cmdcap_auto("14-count-list")}
     {hcap("14h-count-list", "Every saved count, side by side: seven methods, one winner.")}
     <p><strong>All seven agree: <em>1984</em> wins.</strong> That unanimity is itself the finding. Orwell's novel holds {FPTP_TOTALS[0]["total"]:.0f} of {N_BALLOTS} first preferences, the top Borda score, and — as Schulze, Copeland, and Kemeny–Young confirm — beats every rival head-to-head. When a candidate dominates like this, the choice of method cannot change the outcome; method choice matters exactly when support is fragmented, and these ballots are not fragmented at the top. (Beneath the winner the orderings do shuffle — compare the full <code>ranking</code> arrays across the envelopes above.)</p>
@@ -286,6 +302,7 @@ add(f"""
       <tr><td>Count and compare</td><td><code>count run [--method]</code>, <code>count list</code>, <code>count show</code></td></tr>
     </tbody></table>
     <p>Exact options and defaults belong to <code>voting &lt;command&gt; --help</code>; the README's generated command reference lists all {N_COMMANDS} commands and is enforced against the CLI by <code>tests/test_contract_sync.py</code>.</p>
+    <p>That is the whole loop. The natural next step is to run it on a question you actually care about: define your options, publish the survey to the people whose answer matters (or let AI personas vote via <code>survey generate</code> and <code>ep run</code>), and — before believing any winner — check <code>ballot validate</code>, then count it more than one way. If all the methods agree, you have a robust answer. If they disagree, you have something more interesting.</p>
   </section>
 
   <footer>

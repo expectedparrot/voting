@@ -183,13 +183,21 @@ def test_human_mode_renders_rich_tables(tmp_path: Path) -> None:
     ]:
         assert run_voting(*step, cwd=cwd).returncode == 0, step
 
+    # recast: the log keeps both records; --latest resolves to one per voter
+    assert run_voting("ballot", "rank", "drink", "v1", "coffee", "tea", cwd=cwd).returncode == 0
+    all_records = json.loads(run_voting("ballot", "list", "--election", "drink", cwd=cwd).stdout)
+    assert len(all_records["data"]["ballots"]) == 2
+    latest = json.loads(run_voting("ballot", "list", "--election", "drink", "--latest", cwd=cwd).stdout)
+    assert len(latest["data"]["ballots"]) == 1
+    assert latest["data"]["ballots"][0]["ranking"] == ["coffee", "tea"]
+
     shown = run_voting("--human", "election", "show", "drink", cwd=cwd)
     assert shown.returncode == 0, shown.stderr
     assert "{" not in shown.stdout  # a panel, not a JSON dump
     assert "tea — Tea" in shown.stdout
 
     ballots = run_voting("--human", "ballot", "list", "--election", "drink", cwd=cwd)
-    assert "tea > coffee" in ballots.stdout
+    assert "coffee > tea" in ballots.stdout
 
     counts = run_voting("--human", "count", "list", cwd=cwd)
     assert "borda" in counts.stdout

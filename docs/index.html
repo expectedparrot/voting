@@ -82,7 +82,7 @@
   <section id="install">
     <h2><span class="chapter">02</span> Installation and the output contract</h2>
     <pre class="command"><code>uv tool install git+https://github.com/expectedparrot/voting.git</code></pre>
-    <p>(<code>uv tool</code> gives <code>voting</code> its own isolated environment on your PATH; plain <code>pip install</code> works too.) Every command prints exactly one JSON envelope to stdout — <code>schema_version</code>, <code>command</code>, <code>status</code>, <code>argv</code>, <code>data</code>, <code>warnings</code>, <code>errors</code>, <code>next_steps</code> — with failures as structured errors and nonzero exits. Add <code>--human</code> to any command for tables meant for people instead. <code>voting capabilities</code> states the contract machine-readably:</p>
+    <p>(<code>uv tool</code> gives <code>voting</code> its own isolated environment on your PATH; plain <code>pip install</code> works too.) Confirm the install:</p>
     <pre class="command"><code>voting version</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
@@ -96,6 +96,35 @@
     &quot;version&quot;: &quot;0.1.0&quot;,
     &quot;package_path&quot;: &quot;~/voting/voting&quot;,
     &quot;envelope_schema_version&quot;: &quot;1.0&quot;
+  },
+  &quot;warnings&quot;: [],
+  &quot;errors&quot;: [],
+  &quot;next_steps&quot;: []
+}</code></pre></details>
+    <p>That envelope is the whole interface. Every command prints exactly one JSON envelope to stdout — <code>schema_version</code>, <code>command</code>, <code>status</code>, <code>argv</code>, <code>data</code>, <code>warnings</code>, <code>errors</code>, <code>next_steps</code> — with failures as structured errors and nonzero exits. Add <code>--human</code> to any command for tables meant for people instead. <code>voting capabilities</code> states the contract machine-readably, including which commands touch the outside world:</p>
+    <pre class="command"><code>voting capabilities</code></pre>
+    <details class="output"><summary>Show command output</summary><pre><code>{
+  &quot;schema_version&quot;: &quot;1.0&quot;,
+  &quot;command&quot;: &quot;capabilities&quot;,
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;argv&quot;: [
+    &quot;voting&quot;,
+    &quot;capabilities&quot;
+  ],
+  &quot;data&quot;: {
+    &quot;envelope_schema_version&quot;: &quot;1.0&quot;,
+    &quot;output_contract&quot;: &quot;Every command prints one JSON envelope {schema_version, command, status, argv, data, warnings, errors, next_steps} to stdout by default; --human is an opt-in presentation mode.&quot;,
+    &quot;execution_boundary&quot;: &quot;voting never executes model calls. `survey generate` builds a .jobs.ep package the user executes externally with `ep run`; counting and analysis are local.&quot;,
+    &quot;external_service_actions&quot;: {
+      &quot;survey publish&quot;: &quot;Creates a hosted Humanize survey via the ep CLI (outward-facing).&quot;,
+      &quot;survey email&quot;: &quot;Sends invitation emails to configured voters via the ep CLI (outward-facing).&quot;,
+      &quot;survey responses&quot;: &quot;Downloads Humanize responses via the ep CLI (network read).&quot;
+    },
+    &quot;workflow_commands&quot;: [
+      &quot;voting status&quot;,
+      &quot;voting next&quot;,
+      &quot;voting docs list&quot;
+    ]
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
@@ -124,7 +153,7 @@
       &quot;id&quot;: &quot;classic_books&quot;,
       &quot;title&quot;: &quot;Classic Books&quot;,
       &quot;description&quot;: &quot;&quot;,
-      &quot;created_at&quot;: &quot;2026-07-28T10:59:58&quot;,
+      &quot;created_at&quot;: &quot;2026-07-28T12:01:33&quot;,
       &quot;settings&quot;: {
         &quot;default_tie_policy&quot;: &quot;lexicographic&quot;,
         &quot;allow_unregistered_voters&quot;: false
@@ -199,7 +228,7 @@
     &quot;id&quot;: &quot;book_preference&quot;,
     &quot;name&quot;: &quot;Classic book preference&quot;,
     &quot;description&quot;: &quot;&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T10:59:58&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:01:34&quot;,
     &quot;method&quot;: &quot;borda&quot;,
     &quot;ballot_type&quot;: &quot;ranked&quot;,
     &quot;seats&quot;: 1,
@@ -218,6 +247,7 @@
   ]
 }</code></pre></details>
     <p>The eight books load in one step from a JSON file — id plus display name each. The display names matter: when ballots arrive from a survey, answers reference options by these exact labels, and the importer maps labels back to ids. An unknown label skips that row and reports it; nothing is ever silently guessed. (<code>voting option add</code> exists for adding one at a time.)</p>
+    <p>Alongside options, a project also keeps a <strong>voter registry</strong> — who may vote, at what weight, with what traits. Ours is deliberately still empty; that becomes the crux of chapter 6.</p>
     <pre class="command"><code>cat books.json</code></pre>
     <details class="output"><summary>Show books.json</summary><pre><code>[
   {
@@ -313,7 +343,7 @@
   ],
   &quot;data&quot;: {
     &quot;ballot_type&quot;: &quot;ranked&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T10:59:58&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:01:34&quot;,
     &quot;description&quot;: &quot;&quot;,
     &quot;id&quot;: &quot;book_preference&quot;,
     &quot;method&quot;: &quot;borda&quot;,
@@ -334,7 +364,7 @@
       &quot;tie_policy&quot;: &quot;lexicographic&quot;
     },
     &quot;status&quot;: &quot;open&quot;,
-    &quot;open_at&quot;: &quot;2026-07-28T10:59:58&quot;
+    &quot;open_at&quot;: &quot;2026-07-28T12:01:34&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
@@ -363,7 +393,7 @@
 
   <section id="survey">
     <h2><span class="chapter">05</span> The hosted human survey</h2>
-    <p><code>voting survey humanize</code> packages the election as a model-free EDSL job for Expected Parrot's Humanize platform — a web survey real people answer. The question wording is generated from the election definition itself (name, description, ballot type), and the manifest records it. This election produced exactly one question:</p>
+    <p><code>voting survey humanize</code> packages the election for Expected Parrot's Humanize platform — a hosted web survey that real people answer. (Technically it is an EDSL survey job with no AI model attached: the questions are for humans.) The question wording is generated from the election definition itself — name, description, ballot type — and the manifest records it. This election produced exactly one question:</p>
     <div class="callout"><em>Classic book preference
 
 Rank the options from most to least preferred.</em><br><small>— followed by the eight book titles, in randomized order per respondent.</small></div>
@@ -416,12 +446,16 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
     &quot;voting survey publish book_preference&quot;
   ]
 }</code></pre></details>
-    <div class="callout"><strong>Publishing happened once, for real.</strong> <code>voting survey publish</code> creates the hosted survey through the ep CLI, <code>voting survey email</code> sends invitation links, and <code>voting survey responses</code> downloads the answers — all outward-facing service actions, declared as such in <code>voting capabilities</code>. This tutorial's survey was published from the original project and left open; eighteen people responded. This page does not republish it — the next chapter pulls the responses that run collected.</div>
+    <div class="callout"><strong>Publishing happened once, for real.</strong> <code>voting survey publish</code> creates the hosted survey through the ep CLI, <code>voting survey email</code> sends invitation links, and <code>voting survey responses</code> downloads the answers — all outward-facing service actions, declared as such in <code>voting capabilities</code>. This tutorial's survey was published from the original project and left open; eighteen people responded. This page does not republish it — the next chapter pulls the responses that survey collected.</div>
   </section>
 
   <section id="ballots">
     <h2><span class="chapter">06</span> Ballots that don't count (yet)</h2>
     <p>The eighteen responses live in a production EDSL <code>Results</code> object. <code>ballot import</code> can read a local <code>.ep</code> package (<code>--from-results</code>) or pull one by UUID (<code>--from-coop</code>, a network read using your EDSL credentials). Watch what happens on a first, naive import:</p>
+    <div class="callout"><strong>Following along without a survey?</strong> This is the one place you cannot use this page's data (the Results object belongs to its owner). Cast a few ballots yourself instead and rejoin at chapter 7 — every count works the same:
+<pre class="command"><code>voting voter add v1 'Voter One'
+voting ballot rank book_preference v1 nineteen_eighty_four mockingbird great_gatsby</code></pre>
+Or run your own survey (<code>voting survey publish</code>) — or have AI personas vote: <code>voting survey generate</code> builds a job you execute with <code>ep run</code> and import with <code>--from-results</code>.</div>
     <pre class="command"><code>voting ballot import --election book_preference --from-coop 917f9e19-d477-43cf-bdf0-664a1592400f</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
@@ -478,17 +512,17 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
     &quot;warnings&quot;: [
       {
         &quot;code&quot;: &quot;unknown_voter&quot;,
-        &quot;ballot_id&quot;: &quot;20260728T150001523310Z_2b913954_r_95fa122e_8606_4b48_8903_a342103fedb3_book_preference&quot;,
+        &quot;ballot_id&quot;: &quot;20260728T160136917386Z_29a1719b_r_95fa122e_8606_4b48_8903_a342103fedb3_book_preference&quot;,
         &quot;voter_id&quot;: &quot;r_95fa122e_8606_4b48_8903_a342103fedb3&quot;
       },
       {
         &quot;code&quot;: &quot;unknown_voter&quot;,
-        &quot;ballot_id&quot;: &quot;20260728T150001523579Z_909feee4_r_02a2ae52_9765_414d_9d2e_9cfc19942690_book_preference&quot;,
+        &quot;ballot_id&quot;: &quot;20260728T160136917624Z_bb0439b7_r_02a2ae52_9765_414d_9d2e_9cfc19942690_book_preference&quot;,
         &quot;voter_id&quot;: &quot;r_02a2ae52_9765_414d_9d2e_9cfc19942690&quot;
       },
       {
         &quot;code&quot;: &quot;unknown_voter&quot;,
-        &quot;ballot_id&quot;: &quot;20260728T150001523885Z_2f9da189_r_6785ca96_b4ae_482d_a397_1f78214cb69d_book_preference&quot;,
+        &quot;ballot_id&quot;: &quot;20260728T160136917739Z_c6ca502d_r_6785ca96_b4ae_482d_a397_1f78214cb69d_book_preference&quot;,
         &quot;voter_id&quot;: &quot;r_6785ca96_b4ae_482d_a397_1f78214cb69d&quot;
       },
       &quot;… 15 further entries elided …&quot;
@@ -561,183 +595,41 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
     &quot;voting count run book_preference&quot;
   ]
 }</code></pre></details>
-    <p>Eighteen registered voters, eighteen valid ballots. Here is what actually came back from real people — each row one respondent's full ranking:</p>
-    <figure class="human"><pre class="human"><code>$ voting --human ballot list --election book_preference
-                                            Ballots (36)                                            
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
-┃ voter                                  ┃ ballot                            ┃ recorded            ┃
-┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
-│ r_95fa122e_8606_4b48_8903_a342103fedb3 │ nineteen_eighty_four &gt; lord_flies │ 2026-07-28 11:00:01 │
-│                                        │ &gt; scarlet_letter &gt; mice_men &gt;     │                     │
-│                                        │ mockingbird &gt; catcher_rye &gt;       │                     │
-│                                        │ great_gatsby &gt; animal_farm        │                     │
-│ r_02a2ae52_9765_414d_9d2e_9cfc19942690 │ catcher_rye &gt;                     │ 2026-07-28 11:00:01 │
-│                                        │ nineteen_eighty_four &gt;            │                     │
-│                                        │ great_gatsby &gt; mockingbird &gt;      │                     │
-│                                        │ scarlet_letter &gt; mice_men &gt;       │                     │
-│                                        │ animal_farm &gt; lord_flies          │                     │
-│ r_6785ca96_b4ae_482d_a397_1f78214cb69d │ nineteen_eighty_four &gt;            │ 2026-07-28 11:00:01 │
-│                                        │ animal_farm &gt; great_gatsby &gt;      │                     │
-│                                        │ mockingbird &gt; mice_men &gt;          │                     │
-│                                        │ catcher_rye &gt; scarlet_letter &gt;    │                     │
-│                                        │ lord_flies                        │                     │
-│ r_253c40f1_328a_471f_9615_c26904f2714a │ nineteen_eighty_four &gt; mice_men &gt; │ 2026-07-28 11:00:01 │
-│                                        │ mockingbird &gt; animal_farm &gt;       │                     │
-│                                        │ great_gatsby &gt; scarlet_letter &gt;   │                     │
-│                                        │ lord_flies &gt; catcher_rye          │                     │
-│ r_2fbe4384_33b3_4705_807f_c35df9371b02 │ mice_men &gt; great_gatsby &gt;         │ 2026-07-28 11:00:01 │
-│                                        │ lord_flies &gt; mockingbird &gt;        │                     │
-│                                        │ animal_farm &gt; catcher_rye &gt;       │                     │
-│                                        │ nineteen_eighty_four &gt;            │                     │
-│                                        │ scarlet_letter                    │                     │
-│ r_0f85628b_50ef_4998_b064_c8e143db2877 │ nineteen_eighty_four &gt;            │ 2026-07-28 11:00:01 │
-│                                        │ scarlet_letter &gt; catcher_rye &gt;    │                     │
-│                                        │ mockingbird &gt; great_gatsby &gt;      │                     │
-│                                        │ animal_farm &gt; lord_flies &gt;        │                     │
-│                                        │ mice_men                          │                     │
-│ b29fe300_0612_4b9c_b242_74856ef3a111   │ nineteen_eighty_four &gt;            │ 2026-07-28 11:00:01 │
-│                                        │ animal_farm &gt; mice_men &gt;          │                     │
-│                                        │ mockingbird &gt; lord_flies &gt;        │                     │
-│                                        │ great_gatsby &gt; scarlet_letter &gt;   │                     │
-│                                        │ catcher_rye                       │                     │
-│ r_60abb9b9_1c0d_482c_ab45_f0de269db983 │ nineteen_eighty_four &gt;            │ 2026-07-28 11:00:01 │
-│                                        │ animal_farm &gt; catcher_rye &gt;       │                     │
-│                                        │ great_gatsby &gt; mice_men &gt;         │                     │
-│                                        │ scarlet_letter &gt; mockingbird &gt;    │                     │
-│                                        │ lord_flies                        │                     │
-│ r_4e8ddeca_81fa_469f_9d43_f2ba511f31b8 │ mockingbird &gt; mice_men &gt;          │ 2026-07-28 11:00:01 │
-│                                        │ nineteen_eighty_four &gt; lord_flies │                     │
-│                                        │ &gt; great_gatsby &gt; scarlet_letter &gt; │                     │
-│                                        │ catcher_rye &gt; animal_farm         │                     │
-│ r_51e15daa_72bd_4ea3_b7c4_994539ecc600 │ mockingbird &gt;                     │ 2026-07-28 11:00:01 │
-│                                        │ nineteen_eighty_four &gt; lord_flies │                     │
-│                                        │ &gt; animal_farm &gt; mice_men &gt;        │                     │
-│                                        │ great_gatsby &gt; catcher_rye &gt;      │                     │
-│                                        │ scarlet_letter                    │                     │
-│ b2d6c619_8c5e_45b1_aac2_ec4ad7dcabce   │ nineteen_eighty_four &gt;            │ 2026-07-28 11:00:01 │
-│                                        │ great_gatsby &gt; mockingbird &gt;      │                     │
-│                                        │ catcher_rye &gt; scarlet_letter &gt;    │                     │
-│                                        │ animal_farm &gt; mice_men &gt;          │                     │
-│                                        │ lord_flies                        │                     │
-│ r_2dcf9550_88ef_4c51_be51_d7d95c6ae505 │ catcher_rye &gt; great_gatsby &gt;      │ 2026-07-28 11:00:01 │
-│                                        │ mice_men &gt; mockingbird &gt;          │                     │
-│                                        │ animal_farm &gt; lord_flies &gt;        │                     │
-│                                        │ nineteen_eighty_four &gt;            │                     │
-│                                        │ scarlet_letter                    │                     │
-│ r_866b5ae1_22c4_4100_bbe1_9a16c3cad405 │ mockingbird &gt; great_gatsby &gt;      │ 2026-07-28 11:00:01 │
-│                                        │ scarlet_letter &gt; catcher_rye &gt;    │                     │
-│                                        │ mice_men &gt; animal_farm &gt;          │                     │
-│                                        │ nineteen_eighty_four &gt; lord_flies │                     │
-│ abb414e9_cd1e_4469_855e_b508e42478c8   │ nineteen_eighty_four &gt;            │ 2026-07-28 11:00:01 │
-│                                        │ animal_farm &gt; lord_flies &gt;        │                     │
-│                                        │ mice_men &gt; mockingbird &gt;          │                     │
-│                                        │ great_gatsby &gt; catcher_rye &gt;      │                     │
-│                                        │ scarlet_letter                    │                     │
-│ r_7cb11170_5af9_4229_b22d_8ac81d146d31 │ mockingbird &gt;                     │ 2026-07-28 11:00:01 │
-│                                        │ nineteen_eighty_four &gt; mice_men &gt; │                     │
-│                                        │ animal_farm &gt; lord_flies &gt;        │                     │
-│                                        │ scarlet_letter &gt; catcher_rye &gt;    │                     │
-│                                        │ great_gatsby                      │                     │
-│ r_5b8d9c86_19aa_4ec2_80dd_aa8609193d64 │ great_gatsby &gt; scarlet_letter &gt;   │ 2026-07-28 11:00:01 │
-│                                        │ mockingbird &gt; mice_men &gt;          │                     │
-│                                        │ catcher_rye &gt; animal_farm &gt;       │                     │
-│                                        │ nineteen_eighty_four &gt; lord_flies │                     │
-│ r_7df8a708_8ee2_4e8f_b924_c053729623f4 │ great_gatsby &gt;                    │ 2026-07-28 11:00:01 │
-│                                        │ nineteen_eighty_four &gt; lord_flies │                     │
-│                                        │ &gt; animal_farm &gt; mockingbird &gt;     │                     │
-│                                        │ scarlet_letter &gt; mice_men &gt;       │                     │
-│                                        │ catcher_rye                       │                     │
-│ cd27fba8_b7ee_42f1_8977_bf252a49a748   │ animal_farm &gt; catcher_rye &gt;       │ 2026-07-28 11:00:01 │
-│                                        │ great_gatsby &gt;                    │                     │
-│                                        │ nineteen_eighty_four &gt; mice_men &gt; │                     │
-│                                        │ mockingbird &gt; lord_flies &gt;        │                     │
-│                                        │ scarlet_letter                    │                     │
-│ r_95fa122e_8606_4b48_8903_a342103fedb3 │ nineteen_eighty_four &gt; lord_flies │ 2026-07-28 11:00:03 │
-│                                        │ &gt; scarlet_letter &gt; mice_men &gt;     │                     │
-│                                        │ mockingbird &gt; catcher_rye &gt;       │                     │
-│                                        │ great_gatsby &gt; animal_farm        │                     │
-│ r_02a2ae52_9765_414d_9d2e_9cfc19942690 │ catcher_rye &gt;                     │ 2026-07-28 11:00:03 │
-│                                        │ nineteen_eighty_four &gt;            │                     │
-│                                        │ great_gatsby &gt; mockingbird &gt;      │                     │
-│                                        │ scarlet_letter &gt; mice_men &gt;       │                     │
-│                                        │ animal_farm &gt; lord_flies          │                     │
-│ r_6785ca96_b4ae_482d_a397_1f78214cb69d │ nineteen_eighty_four &gt;            │ 2026-07-28 11:00:03 │
-│                                        │ animal_farm &gt; great_gatsby &gt;      │                     │
-│                                        │ mockingbird &gt; mice_men &gt;          │                     │
-│                                        │ catcher_rye &gt; scarlet_letter &gt;    │                     │
-│                                        │ lord_flies                        │                     │
-│ r_253c40f1_328a_471f_9615_c26904f2714a │ nineteen_eighty_four &gt; mice_men &gt; │ 2026-07-28 11:00:03 │
-│                                        │ mockingbird &gt; animal_farm &gt;       │                     │
-│                                        │ great_gatsby &gt; scarlet_letter &gt;   │                     │
-│                                        │ lord_flies &gt; catcher_rye          │                     │
-│ r_2fbe4384_33b3_4705_807f_c35df9371b02 │ mice_men &gt; great_gatsby &gt;         │ 2026-07-28 11:00:03 │
-│                                        │ lord_flies &gt; mockingbird &gt;        │                     │
-│                                        │ animal_farm &gt; catcher_rye &gt;       │                     │
-│                                        │ nineteen_eighty_four &gt;            │                     │
-│                                        │ scarlet_letter                    │                     │
-│ r_0f85628b_50ef_4998_b064_c8e143db2877 │ nineteen_eighty_four &gt;            │ 2026-07-28 11:00:03 │
-│                                        │ scarlet_letter &gt; catcher_rye &gt;    │                     │
-│                                        │ mockingbird &gt; great_gatsby &gt;      │                     │
-│                                        │ animal_farm &gt; lord_flies &gt;        │                     │
-│                                        │ mice_men                          │                     │
-│ b29fe300_0612_4b9c_b242_74856ef3a111   │ nineteen_eighty_four &gt;            │ 2026-07-28 11:00:03 │
-│                                        │ animal_farm &gt; mice_men &gt;          │                     │
-│                                        │ mockingbird &gt; lord_flies &gt;        │                     │
-│                                        │ great_gatsby &gt; scarlet_letter &gt;   │                     │
-│                                        │ catcher_rye                       │                     │
-│ r_60abb9b9_1c0d_482c_ab45_f0de269db983 │ nineteen_eighty_four &gt;            │ 2026-07-28 11:00:03 │
-│                                        │ animal_farm &gt; catcher_rye &gt;       │                     │
-│                                        │ great_gatsby &gt; mice_men &gt;         │                     │
-│                                        │ scarlet_letter &gt; mockingbird &gt;    │                     │
-│                                        │ lord_flies                        │                     │
-│ r_4e8ddeca_81fa_469f_9d43_f2ba511f31b8 │ mockingbird &gt; mice_men &gt;          │ 2026-07-28 11:00:03 │
-│                                        │ nineteen_eighty_four &gt; lord_flies │                     │
-│                                        │ &gt; great_gatsby &gt; scarlet_letter &gt; │                     │
-│                                        │ catcher_rye &gt; animal_farm         │                     │
-│ r_51e15daa_72bd_4ea3_b7c4_994539ecc600 │ mockingbird &gt;                     │ 2026-07-28 11:00:03 │
-│                                        │ nineteen_eighty_four &gt; lord_flies │                     │
-│                                        │ &gt; animal_farm &gt; mice_men &gt;        │                     │
-│                                        │ great_gatsby &gt; catcher_rye &gt;      │                     │
-│                                        │ scarlet_letter                    │                     │
-│ b2d6c619_8c5e_45b1_aac2_ec4ad7dcabce   │ nineteen_eighty_four &gt;            │ 2026-07-28 11:00:03 │
-│                                        │ great_gatsby &gt; mockingbird &gt;      │                     │
-│                                        │ catcher_rye &gt; scarlet_letter &gt;    │                     │
-│                                        │ animal_farm &gt; mice_men &gt;          │                     │
-│                                        │ lord_flies                        │                     │
-│ r_2dcf9550_88ef_4c51_be51_d7d95c6ae505 │ catcher_rye &gt; great_gatsby &gt;      │ 2026-07-28 11:00:03 │
-│                                        │ mice_men &gt; mockingbird &gt;          │                     │
-│                                        │ animal_farm &gt; lord_flies &gt;        │                     │
-│                                        │ nineteen_eighty_four &gt;            │                     │
-│                                        │ scarlet_letter                    │                     │
-│ r_866b5ae1_22c4_4100_bbe1_9a16c3cad405 │ mockingbird &gt; great_gatsby &gt;      │ 2026-07-28 11:00:03 │
-│                                        │ scarlet_letter &gt; catcher_rye &gt;    │                     │
-│                                        │ mice_men &gt; animal_farm &gt;          │                     │
-│                                        │ nineteen_eighty_four &gt; lord_flies │                     │
-│ abb414e9_cd1e_4469_855e_b508e42478c8   │ nineteen_eighty_four &gt;            │ 2026-07-28 11:00:03 │
-│                                        │ animal_farm &gt; lord_flies &gt;        │                     │
-│                                        │ mice_men &gt; mockingbird &gt;          │                     │
-│                                        │ great_gatsby &gt; catcher_rye &gt;      │                     │
-│                                        │ scarlet_letter                    │                     │
-│ r_7cb11170_5af9_4229_b22d_8ac81d146d31 │ mockingbird &gt;                     │ 2026-07-28 11:00:03 │
-│                                        │ nineteen_eighty_four &gt; mice_men &gt; │                     │
-│                                        │ animal_farm &gt; lord_flies &gt;        │                     │
-│                                        │ scarlet_letter &gt; catcher_rye &gt;    │                     │
-│                                        │ great_gatsby                      │                     │
-│ r_5b8d9c86_19aa_4ec2_80dd_aa8609193d64 │ great_gatsby &gt; scarlet_letter &gt;   │ 2026-07-28 11:00:03 │
-│                                        │ mockingbird &gt; mice_men &gt;          │                     │
-│                                        │ catcher_rye &gt; animal_farm &gt;       │                     │
-│                                        │ nineteen_eighty_four &gt; lord_flies │                     │
-│ r_7df8a708_8ee2_4e8f_b924_c053729623f4 │ great_gatsby &gt;                    │ 2026-07-28 11:00:03 │
-│                                        │ nineteen_eighty_four &gt; lord_flies │                     │
-│                                        │ &gt; animal_farm &gt; mockingbird &gt;     │                     │
-│                                        │ scarlet_letter &gt; mice_men &gt;       │                     │
-│                                        │ catcher_rye                       │                     │
-│ cd27fba8_b7ee_42f1_8977_bf252a49a748   │ animal_farm &gt; catcher_rye &gt;       │ 2026-07-28 11:00:03 │
-│                                        │ great_gatsby &gt;                    │                     │
-│                                        │ nineteen_eighty_four &gt; mice_men &gt; │                     │
-│                                        │ mockingbird &gt; lord_flies &gt;        │                     │
-│                                        │ scarlet_letter                    │                     │
-└────────────────────────────────────────┴───────────────────────────────────┴─────────────────────┘</code></pre><figcaption>The imported ballots: eighteen anonymous respondents, each with a complete ranking of the eight books, imported at weight 1.0.</figcaption></figure>
+    <p>Eighteen registered voters, eighteen valid ballots. Here is what actually came back from real people — one row per respondent, top choices first (<code>--latest</code> shows the ballots a count would use; without it, the append-only record also lists the eighteen superseded ballots from the first import):</p>
+    <figure class="human"><pre class="human"><code>$ voting --human ballot list --election book_preference --latest
+                                            Ballots (18)                                            
+┏━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+┃ voter          ┃ ballot                                                    ┃ recorded            ┃
+┡━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+│ r_95fa122e_86… │ nineteen_eighty_four &gt; lord_flies &gt; scarlet_letter … (+5  │ 2026-07-28 12:01:38 │
+│                │ more)                                                     │                     │
+│ r_02a2ae52_97… │ catcher_rye &gt; nineteen_eighty_four &gt; great_gatsby … (+5   │ 2026-07-28 12:01:38 │
+│                │ more)                                                     │                     │
+│ r_6785ca96_b4… │ nineteen_eighty_four &gt; animal_farm &gt; great_gatsby … (+5   │ 2026-07-28 12:01:38 │
+│                │ more)                                                     │                     │
+│ r_253c40f1_32… │ nineteen_eighty_four &gt; mice_men &gt; mockingbird … (+5 more) │ 2026-07-28 12:01:38 │
+│ r_2fbe4384_33… │ mice_men &gt; great_gatsby &gt; lord_flies … (+5 more)          │ 2026-07-28 12:01:38 │
+│ r_0f85628b_50… │ nineteen_eighty_four &gt; scarlet_letter &gt; catcher_rye … (+5 │ 2026-07-28 12:01:38 │
+│                │ more)                                                     │                     │
+│ b29fe300_0612… │ nineteen_eighty_four &gt; animal_farm &gt; mice_men … (+5 more) │ 2026-07-28 12:01:38 │
+│ r_60abb9b9_1c… │ nineteen_eighty_four &gt; animal_farm &gt; catcher_rye … (+5    │ 2026-07-28 12:01:38 │
+│                │ more)                                                     │                     │
+│ r_4e8ddeca_81… │ mockingbird &gt; mice_men &gt; nineteen_eighty_four … (+5 more) │ 2026-07-28 12:01:38 │
+│ r_51e15daa_72… │ mockingbird &gt; nineteen_eighty_four &gt; lord_flies … (+5     │ 2026-07-28 12:01:38 │
+│                │ more)                                                     │                     │
+│ b2d6c619_8c5e… │ nineteen_eighty_four &gt; great_gatsby &gt; mockingbird … (+5   │ 2026-07-28 12:01:38 │
+│                │ more)                                                     │                     │
+│ r_2dcf9550_88… │ catcher_rye &gt; great_gatsby &gt; mice_men … (+5 more)         │ 2026-07-28 12:01:38 │
+│ r_866b5ae1_22… │ mockingbird &gt; great_gatsby &gt; scarlet_letter … (+5 more)   │ 2026-07-28 12:01:38 │
+│ abb414e9_cd1e… │ nineteen_eighty_four &gt; animal_farm &gt; lord_flies … (+5     │ 2026-07-28 12:01:38 │
+│                │ more)                                                     │                     │
+│ r_7cb11170_5a… │ mockingbird &gt; nineteen_eighty_four &gt; mice_men … (+5 more) │ 2026-07-28 12:01:38 │
+│ r_5b8d9c86_19… │ great_gatsby &gt; scarlet_letter &gt; mockingbird … (+5 more)   │ 2026-07-28 12:01:38 │
+│ r_7df8a708_8e… │ great_gatsby &gt; nineteen_eighty_four &gt; lord_flies … (+5    │ 2026-07-28 12:01:38 │
+│                │ more)                                                     │                     │
+│ cd27fba8_b7ee… │ animal_farm &gt; catcher_rye &gt; great_gatsby … (+5 more)      │ 2026-07-28 12:01:38 │
+└────────────────┴───────────────────────────────────────────────────────────┴─────────────────────┘</code></pre><figcaption>The countable ballots: eighteen anonymous respondents at weight 1.0, top three choices shown; full rankings live in the ballot records and drive every count.</figcaption></figure>
+    <p><code>voting status</code> is the project's dashboard. Note the ballot count: 36 records, not 18 — the superseded first import is still in the append-only log (an audit trail, never silently rewritten), while counting uses each voter's latest ballot. The phase says exactly what remains:</p>
     <pre class="command"><code>voting status</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
@@ -793,7 +685,7 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
   &quot;data&quot;: {
     &quot;election_id&quot;: &quot;book_preference&quot;,
     &quot;method&quot;: &quot;borda&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T11:00:03&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:01:38&quot;,
     &quot;settings&quot;: {
       &quot;seats&quot;: 1,
       &quot;tie_policy&quot;: &quot;lexicographic&quot;,
@@ -846,18 +738,17 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
     ],
     &quot;rounds&quot;: [],
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T150003670954Z_3ea0fabe_book_preference_borda&quot;
+    &quot;id&quot;: &quot;20260728T160138958420Z_4c8d389d_book_preference_borda&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T150003670954Z_3ea0fabe_book_preference_borda&quot;,
+    &quot;voting count show 20260728T160138958420Z_4c8d389d_book_preference_borda&quot;,
     &quot;voting count list&quot;
   ]
 }</code></pre></details>
-    <figure class="human"><pre class="human"><code>$ voting --human count show 20260728T150003670954Z_3ea0fabe_book_preference_borda
-     borda count — book_preference  (winner:      
-              nineteen_eighty_four)               
+    <figure class="human"><pre class="human"><code>$ voting --human count show 20260728T160138958420Z_4c8d389d_book_preference_borda
+          borda count — book_preference           
 ┏━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━┓
 ┃ rank ┃ option               ┃ score ┃ status   ┃
 ┡━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━┩
@@ -869,8 +760,10 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
 │    6 │ catcher_rye          │    51 │ defeated │
 │    7 │ lord_flies           │    41 │ defeated │
 │    8 │ scarlet_letter       │    40 │ defeated │
-└──────┴──────────────────────┴───────┴──────────┘</code></pre><figcaption>The saved Borda count rendered for people: full ranking, scores, and the winner.</figcaption></figure>
-    <p>Borda gives <em>nineteen_eighty_four</em> 93 points against mockingbird's 79. Then the rest — instant-runoff, two Condorcet methods, Kemeny–Young, Bucklin, and bare plurality on first preferences:</p>
+└──────┴──────────────────────┴───────┴──────────┘
+           winner: nineteen_eighty_four</code></pre><figcaption>The saved Borda count rendered for people: full ranking, scores, and the winner.</figcaption></figure>
+    <p>Borda gives <em>nineteen_eighty_four</em> 93 points against mockingbird's 79. Now the other six. Each envelope records how its method actually reasoned, so they are worth opening for different things:</p>
+    <p><strong>Instant-runoff</strong> eliminates the weakest option and retries until someone holds a majority — the <code>rounds</code> array is the elimination story, round by round:</p>
     <pre class="command"><code>voting count run book_preference --method irv</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
@@ -887,7 +780,7 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
   &quot;data&quot;: {
     &quot;election_id&quot;: &quot;book_preference&quot;,
     &quot;method&quot;: &quot;irv&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T11:00:03&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:01:39&quot;,
     &quot;settings&quot;: {
       &quot;seats&quot;: 1,
       &quot;tie_policy&quot;: &quot;lexicographic&quot;,
@@ -985,15 +878,16 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
     ],
     &quot;exhausted_weight&quot;: 0.0,
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T150003835473Z_0c618d07_book_preference_irv&quot;
+    &quot;id&quot;: &quot;20260728T160139152982Z_c9a82b98_book_preference_irv&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T150003835473Z_0c618d07_book_preference_irv&quot;,
+    &quot;voting count show 20260728T160139152982Z_c9a82b98_book_preference_irv&quot;,
     &quot;voting count list&quot;
   ]
 }</code></pre></details>
+    <p><strong>Schulze</strong> (a Condorcet method) plays every option against every other; the <code>pairwise</code> matrix holds all 28 head-to-head margins:</p>
     <pre class="command"><code>voting count run book_preference --method schulze</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
@@ -1010,7 +904,7 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
   &quot;data&quot;: {
     &quot;election_id&quot;: &quot;book_preference&quot;,
     &quot;method&quot;: &quot;schulze&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T11:00:03&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:01:39&quot;,
     &quot;settings&quot;: {
       &quot;seats&quot;: 1,
       &quot;tie_policy&quot;: &quot;lexicographic&quot;,
@@ -1127,15 +1021,16 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
     },
     &quot;rounds&quot;: [],
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T150003920059Z_937dccf0_book_preference_schulze&quot;
+    &quot;id&quot;: &quot;20260728T160139239480Z_d4e34f24_book_preference_schulze&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T150003920059Z_937dccf0_book_preference_schulze&quot;,
+    &quot;voting count show 20260728T160139239480Z_d4e34f24_book_preference_schulze&quot;,
     &quot;voting count list&quot;
   ]
 }</code></pre></details>
+    <p><strong>Copeland</strong> scores the same pairings bluntly — wins minus losses:</p>
     <pre class="command"><code>voting count run book_preference --method copeland</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
@@ -1152,7 +1047,7 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
   &quot;data&quot;: {
     &quot;election_id&quot;: &quot;book_preference&quot;,
     &quot;method&quot;: &quot;copeland&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T11:00:04&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:01:39&quot;,
     &quot;settings&quot;: {
       &quot;seats&quot;: 1,
       &quot;tie_policy&quot;: &quot;lexicographic&quot;,
@@ -1229,15 +1124,16 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
     ],
     &quot;rounds&quot;: [],
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T150004003778Z_cdf48e4c_book_preference_copeland&quot;
+    &quot;id&quot;: &quot;20260728T160139322917Z_16846526_book_preference_copeland&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T150004003778Z_cdf48e4c_book_preference_copeland&quot;,
+    &quot;voting count show 20260728T160139322917Z_16846526_book_preference_copeland&quot;,
     &quot;voting count list&quot;
   ]
 }</code></pre></details>
+    <p><strong>Kemeny–Young</strong> searches for the full ordering that agrees with as many pairwise ballot judgments as possible — <code>kemeny_score</code> counts the agreements:</p>
     <pre class="command"><code>voting count run book_preference --method kemeny_young</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
@@ -1254,7 +1150,7 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
   &quot;data&quot;: {
     &quot;election_id&quot;: &quot;book_preference&quot;,
     &quot;method&quot;: &quot;kemeny_young&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T11:00:04&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:01:39&quot;,
     &quot;settings&quot;: {
       &quot;seats&quot;: 1,
       &quot;tie_policy&quot;: &quot;lexicographic&quot;,
@@ -1314,15 +1210,16 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
     &quot;kemeny_score&quot;: 329.0,
     &quot;rounds&quot;: [],
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T150004141482Z_4332f0f2_book_preference_kemeny_young&quot;
+    &quot;id&quot;: &quot;20260728T160139455312Z_b44921cd_book_preference_kemeny_young&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T150004141482Z_4332f0f2_book_preference_kemeny_young&quot;,
+    &quot;voting count show 20260728T160139455312Z_b44921cd_book_preference_kemeny_young&quot;,
     &quot;voting count list&quot;
   ]
 }</code></pre></details>
+    <p><strong>Bucklin</strong> keeps adding voters' next choices until someone crosses a majority — the <code>rounds</code> array shows when that happens:</p>
     <pre class="command"><code>voting count run book_preference --method bucklin</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
@@ -1339,7 +1236,7 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
   &quot;data&quot;: {
     &quot;election_id&quot;: &quot;book_preference&quot;,
     &quot;method&quot;: &quot;bucklin&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T11:00:04&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:01:39&quot;,
     &quot;settings&quot;: {
       &quot;seats&quot;: 1,
       &quot;tie_policy&quot;: &quot;lexicographic&quot;,
@@ -1424,15 +1321,16 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
       }
     ],
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T150004225826Z_d0f6306d_book_preference_bucklin&quot;
+    &quot;id&quot;: &quot;20260728T160139541764Z_2b0c489f_book_preference_bucklin&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T150004225826Z_d0f6306d_book_preference_bucklin&quot;,
+    &quot;voting count show 20260728T160139541764Z_2b0c489f_book_preference_bucklin&quot;,
     &quot;voting count list&quot;
   ]
 }</code></pre></details>
+    <p>And <strong>plurality</strong> (first-past-the-post) throws every ranking away except the first line:</p>
     <pre class="command"><code>voting count run book_preference --method fptp</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
@@ -1449,7 +1347,7 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
   &quot;data&quot;: {
     &quot;election_id&quot;: &quot;book_preference&quot;,
     &quot;method&quot;: &quot;fptp&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T11:00:04&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T12:01:39&quot;,
     &quot;settings&quot;: {
       &quot;seats&quot;: 1,
       &quot;tie_policy&quot;: &quot;lexicographic&quot;,
@@ -1502,15 +1400,16 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
     ],
     &quot;rounds&quot;: [],
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T150004313394Z_838d71b8_book_preference_fptp&quot;
+    &quot;id&quot;: &quot;20260728T160139632058Z_87034275_book_preference_fptp&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T150004313394Z_838d71b8_book_preference_fptp&quot;,
+    &quot;voting count show 20260728T160139632058Z_87034275_book_preference_fptp&quot;,
     &quot;voting count list&quot;
   ]
 }</code></pre></details>
+    <p>Every run was saved, so the comparison is one command:</p>
     <pre class="command"><code>voting count list</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
@@ -1524,23 +1423,23 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
   &quot;data&quot;: {
     &quot;results&quot;: [
       {
-        &quot;created_at&quot;: &quot;2026-07-28T11:00:03&quot;,
+        &quot;created_at&quot;: &quot;2026-07-28T12:01:38&quot;,
         &quot;election_id&quot;: &quot;book_preference&quot;,
-        &quot;id&quot;: &quot;20260728T150003670954Z_3ea0fabe_book_preference_borda&quot;,
+        &quot;id&quot;: &quot;20260728T160138958420Z_4c8d389d_book_preference_borda&quot;,
         &quot;method&quot;: &quot;borda&quot;,
         &quot;…&quot;: &quot;7 further keys elided&quot;
       },
       {
-        &quot;created_at&quot;: &quot;2026-07-28T11:00:03&quot;,
+        &quot;created_at&quot;: &quot;2026-07-28T12:01:39&quot;,
         &quot;election_id&quot;: &quot;book_preference&quot;,
         &quot;exhausted_weight&quot;: 0.0,
-        &quot;id&quot;: &quot;20260728T150003835473Z_0c618d07_book_preference_irv&quot;,
+        &quot;id&quot;: &quot;20260728T160139152982Z_c9a82b98_book_preference_irv&quot;,
         &quot;…&quot;: &quot;8 further keys elided&quot;
       },
       {
-        &quot;created_at&quot;: &quot;2026-07-28T11:00:03&quot;,
+        &quot;created_at&quot;: &quot;2026-07-28T12:01:39&quot;,
         &quot;election_id&quot;: &quot;book_preference&quot;,
-        &quot;id&quot;: &quot;20260728T150003920059Z_937dccf0_book_preference_schulze&quot;,
+        &quot;id&quot;: &quot;20260728T160139239480Z_d4e34f24_book_preference_schulze&quot;,
         &quot;method&quot;: &quot;schulze&quot;,
         &quot;…&quot;: &quot;8 further keys elided&quot;
       },
@@ -1556,13 +1455,13 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
 ┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
 ┃ method       ┃ winner(s)            ┃ runner-up    ┃ created             ┃
 ┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
-│ borda        │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 11:00:03 │
-│ irv          │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 11:00:03 │
-│ schulze      │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 11:00:03 │
-│ copeland     │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 11:00:04 │
-│ kemeny_young │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 11:00:04 │
-│ bucklin      │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 11:00:04 │
-│ fptp         │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 11:00:04 │
+│ borda        │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 12:01:38 │
+│ irv          │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 12:01:39 │
+│ schulze      │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 12:01:39 │
+│ copeland     │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 12:01:39 │
+│ kemeny_young │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 12:01:39 │
+│ bucklin      │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 12:01:39 │
+│ fptp         │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 12:01:39 │
 └──────────────┴──────────────────────┴──────────────┴─────────────────────┘</code></pre><figcaption>Every saved count, side by side: seven methods, one winner.</figcaption></figure>
     <p><strong>All seven agree: <em>1984</em> wins.</strong> That unanimity is itself the finding. Orwell's novel holds 8 of 18 first preferences, the top Borda score, and — as Schulze, Copeland, and Kemeny–Young confirm — beats every rival head-to-head. When a candidate dominates like this, the choice of method cannot change the outcome; method choice matters exactly when support is fragmented, and these ballots are not fragmented at the top. (Beneath the winner the orderings do shuffle — compare the full <code>ranking</code> arrays across the envelopes above.)</p>
     <div class="callout"><strong>What this page cannot claim.</strong> Eighteen self-selected respondents are a poll of those eighteen people, not of readers in general. The demonstration is methodological — one auditable dataset, many counting rules, disclosed outputs — not a literary verdict.</div>
@@ -1611,6 +1510,7 @@ Rank the options from most to least preferred.</em><br><small>— followed by th
       <tr><td>Count and compare</td><td><code>count run [--method]</code>, <code>count list</code>, <code>count show</code></td></tr>
     </tbody></table>
     <p>Exact options and defaults belong to <code>voting &lt;command&gt; --help</code>; the README's generated command reference lists all 47 commands and is enforced against the CLI by <code>tests/test_contract_sync.py</code>.</p>
+    <p>That is the whole loop. The natural next step is to run it on a question you actually care about: define your options, publish the survey to the people whose answer matters (or let AI personas vote via <code>survey generate</code> and <code>ep run</code>), and — before believing any winner — check <code>ballot validate</code>, then count it more than one way. If all the methods agree, you have a robust answer. If they disagree, you have something more interesting.</p>
   </section>
 
   <footer>

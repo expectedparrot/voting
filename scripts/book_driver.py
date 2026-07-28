@@ -92,6 +92,7 @@ def main() -> None:
     CAPTURES.mkdir(parents=True)
 
     voting("version", capture="01-version", cwd=TUTORIAL)
+    voting("capabilities", capture="01b-capabilities", cwd=TUTORIAL)
     voting("init", "classic_books", capture="02-init", cwd=TUTORIAL)
     voting("next", capture="03-next")
 
@@ -125,7 +126,8 @@ def main() -> None:
     assert imported["data"]["cast"] > 0, "no ballots imported"
     assert imported["data"]["skipped"] == 0, imported["data"]
     voting("ballot", "validate", "book_preference", capture="09-validate")
-    voting("ballot", "list", "--election", "book_preference", capture="10-ballots", human=True)
+    voting("ballot", "list", "--election", "book_preference", "--latest",
+           capture="10-ballots", human=True)
     voting("status", capture="11-status")
 
     # ── Count the same ballots under many methods ─────────────────────────

@@ -65,7 +65,10 @@ def voters_table(voters: list[dict]):
 
 def _ballot_choice(ballot: dict) -> str:
     if ballot.get("ranking") is not None:
-        return " > ".join(ballot["ranking"])
+        ranking = ballot["ranking"]
+        if len(ranking) > 4:
+            return " > ".join(ranking[:3]) + f" … (+{len(ranking) - 3} more)"
+        return " > ".join(ranking)
     if ballot.get("choice") is not None:
         return str(ballot["choice"])
     if ballot.get("approved") is not None:
@@ -85,7 +88,10 @@ def ballots_table(ballots: list[dict]):
     table.add_column("ballot", overflow="fold")
     table.add_column("recorded", no_wrap=True)
     for ballot in ballots:
-        table.add_row(ballot.get("voter_id", ""), _ballot_choice(ballot),
+        voter_id = ballot.get("voter_id", "")
+        if len(voter_id) > 14:
+            voter_id = voter_id[:13] + "…"
+        table.add_row(voter_id, _ballot_choice(ballot),
                       (ballot.get("recorded_at") or "").replace("T", " "))
     return table
 

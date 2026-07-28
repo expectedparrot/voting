@@ -141,10 +141,22 @@ def list_cmd(
     ctx: typer.Context,
     election: Optional[str] = typer.Option(None, "--election"),
     voter: Optional[str] = typer.Option(None, "--voter"),
+    latest: bool = typer.Option(False, "--latest", help="Show only each voter's latest ballot (the ones a count would use) instead of the full append-only record."),
 ) -> None:
-    records = [record for _, record in list_records(ctx_project(ctx), "ballots")]
-    if election:
-        records = [r for r in records if r.get("election_id") == election]
+    project = ctx_project(ctx)
+    if latest:
+        if not election:
+            raise UserError(
+                "--latest requires --election.",
+                hint="Latest-ballot resolution is per election; pass --election <id>.",
+            )
+        from voting.core.ballots import latest_ballots
+
+        records = latest_ballots(project, election)
+    else:
+        records = [record for _, record in list_records(project, "ballots")]
+        if election:
+            records = [r for r in records if r.get("election_id") == election]
     if voter:
         records = [r for r in records if r.get("voter_id") == voter]
 
