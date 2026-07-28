@@ -64,23 +64,22 @@
   <div class="part">Worked run</div>
   <a class="item" href="#setup">3. Set up the project</a>
   <a class="item" href="#election">4. Define the election</a>
-  <a class="item" href="#survey">5. The hosted human survey</a>
-  <a class="item" href="#ballots">6. The responses, as data</a>
-  <a class="item" href="#methods">7. Every method, one answer</a>
+  <a class="item" href="#ballots">5. Import real ballots</a>
+  <a class="item" href="#methods">6. Every method, one answer</a>
   <div class="part">Practice</div>
-  <a class="item" href="#practice">8. Where everything lives</a>
-  <div class="small">Every output on this page is a real captured envelope; the ballots are 18 real human responses from a production Expected Parrot Humanize survey.</div>
+  <a class="item" href="#practice">7. Where everything lives</a>
+  <div class="small">Every output on this page is a real captured envelope; the ballots are 18 real human rankings imported from a production dataset.</div>
 </nav>
 <main><article>
   <div class="eyebrow">Expected Parrot · a practical, evidence-first tutorial</div>
   <h1>Counting real ballots under twelve voting methods</h1>
-  <p class="dek">Eighteen people ranked eight classic novels in a hosted survey on Expected Parrot. This tutorial shows how the <code>voting</code> package works with those votes — and how different ways of tallying them do (or don't) change the outcome.</p>
+  <p class="dek">Eighteen people each ranked eight classic novels. This tutorial imports their ballots as a dataset and shows how different ways of tallying them do (or don't) change the outcome.</p>
 
   <section id="question">
     <h2><span class="chapter">01</span> The question and the data</h2>
     <p>Different voting methods can elect different winners from the same ballots — that is the entire reason this tool exists. Plurality rewards first-place strength; Borda rewards broad support; Condorcet methods reward head-to-head dominance; IRV rewards surviving eliminations. <code>voting</code> stores one set of inputs — options, voters, ballots — and lets any of 28 method names and aliases count them, so the comparison is always apples to apples.</p>
     <p>To be clear about what this is: <code>voting</code> is a research instrument — for studying group preferences, comparing counting rules, teaching social choice, and settling low-stakes group decisions (which book, which logo, which restaurant). The vocabulary is the social-choice literature's — elections, voters, ballots — but nothing here administers civic elections, and nothing should be read as claiming to.</p>
-    <p>The worked example is real: an Expected Parrot <em>Humanize</em> survey titled "Classic book preference" asked respondents to rank eight classic novels. Eighteen people completed it. Their full rankings live in a production EDSL <code>Results</code> object, and this page imports them — actual human preferences, not synthetic data.</p>
+    <p>The worked example uses real data: eighteen people each ranked the eight novels, and their full rankings live in a production EDSL <code>Results</code> object that this page imports — actual human preferences, not synthetic data. (How you collect such a dataset — hosted surveys, email invitations, AI personas — is its own topic: <code>voting docs show humanize</code> and <code>voting docs show recipes</code>.)</p>
     <div class="callout"><strong>If you follow along, expect small differences.</strong> Every command output on this page is a real captured envelope from one worked run. Ballot and result ids are generated per run, and timestamps will differ. The one step you cannot reproduce byte-for-byte is the data itself: the production Results object belongs to its owner's account, so substitute your own survey results (or cast ballots directly with <code>voting ballot rank</code>). Everything else — every command and the shape of every output — is what you will see. Outputs are JSON envelopes by default; add <code>--human</code> for a readable rendering.</div>
   </section>
 
@@ -158,7 +157,7 @@
       &quot;id&quot;: &quot;classic_books&quot;,
       &quot;title&quot;: &quot;Classic Books&quot;,
       &quot;description&quot;: &quot;&quot;,
-      &quot;created_at&quot;: &quot;2026-07-28T14:11:30&quot;,
+      &quot;created_at&quot;: &quot;2026-07-28T14:34:15&quot;,
       &quot;settings&quot;: {
         &quot;default_tie_policy&quot;: &quot;lexicographic&quot;,
         &quot;allow_unregistered_voters&quot;: false
@@ -212,7 +211,7 @@
 
   <section id="election">
     <h2><span class="chapter">04</span> Define the election</h2>
-    <p>An <em>election</em> is the central object here: it names the contest, fixes the <strong>ballot type</strong> (ranked, in this case — voters order all options; other types are single choice, approval, and score), and holds the list of eligible options. Deliberately absent: a counting method. The ballot type determines what voters are asked; <em>how the ballots are counted is a lens you apply afterwards</em> — as many lenses as you like, which is the whole point of chapter 7. An election starts as a draft and only accepts ballots once opened:</p>
+    <p>An <em>election</em> is the central object here: it names the contest, fixes the <strong>ballot type</strong> (ranked, in this case — voters order all options; other types are single choice, approval, and score), and holds the list of eligible options. Deliberately absent: a counting method. The ballot type determines what voters are asked; <em>how the ballots are counted is a lens you apply afterwards</em> — as many lenses as you like, which is the whole point of chapter 6. An election starts as a draft and only accepts ballots once opened:</p>
     <pre class="command"><code>voting election add book_preference &#x27;Classic book preference&#x27; --ballot-type ranked</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
@@ -231,7 +230,7 @@
     &quot;id&quot;: &quot;book_preference&quot;,
     &quot;name&quot;: &quot;Classic book preference&quot;,
     &quot;description&quot;: &quot;&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T14:11:30&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T14:34:15&quot;,
     &quot;ballot_type&quot;: &quot;ranked&quot;,
     &quot;seats&quot;: 1,
     &quot;status&quot;: &quot;draft&quot;,
@@ -249,7 +248,7 @@
   ]
 }</code></pre></details>
     <p>The eight books load in one step from a JSON file — id plus display name each. The display names matter: when ballots arrive from a survey, answers reference options by these exact labels, and the importer maps labels back to ids. An unknown label skips that row and reports it; nothing is ever silently guessed. (<code>voting option add</code> exists for adding one at a time.)</p>
-    <p>Alongside options, a project also keeps a <strong>voter roster</strong> — who is in your panel, at what weight, with what traits (personas for AI studies, emails for invitations). Ours starts empty — the survey respondents join it automatically at import time in chapter 6.</p>
+    <p>Alongside options, a project also keeps a <strong>voter roster</strong> — who is in your panel, at what weight, with what traits (personas for AI studies, emails for invitations). Ours starts empty — the respondents in the imported dataset join it automatically in chapter 5.</p>
     <pre class="command"><code>cat books.json</code></pre>
     <details class="output"><summary>Show books.json</summary><pre><code>[
   {
@@ -345,7 +344,7 @@
   ],
   &quot;data&quot;: {
     &quot;ballot_type&quot;: &quot;ranked&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T14:11:30&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T14:34:15&quot;,
     &quot;description&quot;: &quot;&quot;,
     &quot;id&quot;: &quot;book_preference&quot;,
     &quot;name&quot;: &quot;Classic book preference&quot;,
@@ -365,7 +364,7 @@
       &quot;tie_policy&quot;: &quot;lexicographic&quot;
     },
     &quot;status&quot;: &quot;open&quot;,
-    &quot;open_at&quot;: &quot;2026-07-28T14:11:30&quot;
+    &quot;open_at&quot;: &quot;2026-07-28T14:34:15&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
@@ -378,67 +377,9 @@
     <figure class="table"><table><tbody><tr><td>Name</td><td>Classic book preference</td></tr><tr><td>Ballot type</td><td>ranked</td></tr><tr><td>Status</td><td>open</td></tr><tr><td>Seats</td><td>1</td></tr><tr><td>Options (8)</td><td>The Great Gatsby — Fitzgerald, To Kill a Mockingbird — Harper Lee, 1984 — Orwell, The Catcher in the Rye — Salinger, Lord of the Flies — Golding, Of Mice and Men — Steinbeck, Animal Farm — Orwell, The Scarlet Letter — Hawthorne</td></tr></tbody></table><figcaption>The election at a glance: eight options, ranked ballots, open for ballots — and no counting method, because that decision belongs to the count. (In a terminal, --human draws this same view; the page renders the captured envelope natively.)</figcaption></figure>
   </section>
 
-  <section id="survey">
-    <h2><span class="chapter">05</span> The hosted human survey</h2>
-    <p><code>voting survey humanize</code> packages the election for Expected Parrot's Humanize platform — a hosted web survey that real people answer. (Technically it is an EDSL survey job with no AI model attached: the questions are for humans.) The question wording is generated from the election definition itself — name, description, ballot type — and the manifest records it. This election produced exactly one question:</p>
-    <div class="callout"><em>Classic book preference
-
-Rank the options from most to least preferred.</em><br><small>— followed by the eight book titles, in randomized order per respondent.</small></div>
-    <p>The build is local and writes every artifact (job package, manifest with the question text, response schema):</p>
-    <pre class="command"><code>voting survey humanize book_preference</code></pre>
-    <details class="output"><summary>Show command output</summary><pre><code>{
-  &quot;schema_version&quot;: &quot;1.0&quot;,
-  &quot;command&quot;: &quot;survey humanize&quot;,
-  &quot;status&quot;: &quot;ok&quot;,
-  &quot;argv&quot;: [
-    &quot;voting&quot;,
-    &quot;survey&quot;,
-    &quot;humanize&quot;,
-    &quot;book_preference&quot;
-  ],
-  &quot;data&quot;: {
-    &quot;election_id&quot;: &quot;book_preference&quot;,
-    &quot;ballot_type&quot;: &quot;ranked&quot;,
-    &quot;options&quot;: [
-      {
-        &quot;id&quot;: &quot;great_gatsby&quot;,
-        &quot;name&quot;: &quot;The Great Gatsby — Fitzgerald&quot;
-      },
-      {
-        &quot;id&quot;: &quot;mockingbird&quot;,
-        &quot;name&quot;: &quot;To Kill a Mockingbird — Harper Lee&quot;
-      },
-      {
-        &quot;id&quot;: &quot;nineteen_eighty_four&quot;,
-        &quot;name&quot;: &quot;1984 — Orwell&quot;
-      },
-      &quot;… 5 further entries elided …&quot;
-    ],
-    &quot;question_names&quot;: [
-      &quot;ranking&quot;
-    ],
-    &quot;question_texts&quot;: {
-      &quot;ranking&quot;: &quot;Classic book preference\n\nRank the options from most to least preferred.&quot;
-    },
-    &quot;email_trait&quot;: null,
-    &quot;voter_count&quot;: 0,
-    &quot;randomize_options&quot;: true,
-    &quot;job_path&quot;: &quot;.voting/output/humanize_book_preference.ep&quot;,
-    &quot;schema_path&quot;: &quot;.voting/output/humanize_schema_book_preference.json&quot;
-  },
-  &quot;warnings&quot;: [],
-  &quot;errors&quot;: [],
-  &quot;next_steps&quot;: [
-    &quot;ep humanize create --jobs .voting/output/humanize_book_preference.ep --name \&quot;Classic book preference\&quot; --schema .voting/output/humanize_schema_book_preference.json&quot;,
-    &quot;voting survey publish book_preference&quot;
-  ]
-}</code></pre></details>
-    <div class="callout"><strong>Publishing happened once, for real.</strong> <code>voting survey publish</code> creates the hosted survey through the ep CLI, <code>voting survey email</code> sends invitation links, and <code>voting survey responses</code> downloads the answers — all outward-facing service actions, declared as such in <code>voting capabilities</code>. This tutorial's survey was published from the original project and left open; eighteen people responded. This page does not republish it — the next chapter pulls the responses that survey collected.</div>
-  </section>
-
   <section id="ballots">
-    <h2><span class="chapter">06</span> The responses, as data</h2>
-    <p>The eighteen responses are, from here on, simply a dataset: an EDSL <code>Results</code> object on the Expected Parrot platform. <code>ballot import</code> reads one directly — from a local <code>.ep</code> package (<code>--from-results</code>) or by UUID (<code>--from-coop</code>, a network read using your EDSL credentials) — and converts each response into a ballot: display labels map back to option ids (an unknown label is itemized, never guessed), and <code>--register-voters</code> adds each respondent to the project's voter roster at weight 1.0, keeping the original respondent id as provenance:</p>
+    <h2><span class="chapter">05</span> Import real ballots</h2>
+    <p>The eighteen rankings are a dataset: an EDSL <code>Results</code> object on the Expected Parrot platform. <code>ballot import</code> reads one directly — from a local <code>.ep</code> package (<code>--from-results</code>) or by UUID (<code>--from-coop</code>, a network read using your EDSL credentials) — and converts each response into a ballot: display labels map back to option ids (an unknown label is itemized, never guessed), and <code>--register-voters</code> adds each respondent to the project's voter roster at weight 1.0, keeping the original respondent id as provenance:</p>
     <pre class="command"><code>voting ballot import --election book_preference \
   --from-coop 917f9e19-d477-43cf-bdf0-664a1592400f --register-voters</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
@@ -506,7 +447,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
 }</code></pre></details>
     <p>Eighteen countable ballots. Here is the dataset — one row per respondent, top choices first:</p>
     <pre class="command"><code>voting --human ballot list --election book_preference</code></pre>
-    <figure class="table"><table><thead><tr><th>voter</th><th>ballot (top choices)</th><th>recorded</th></tr></thead><tbody><tr><td>r_95fa122e_86…</td><td>nineteen_eighty_four &gt; lord_flies &gt; scarlet_letter … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>r_02a2ae52_97…</td><td>catcher_rye &gt; nineteen_eighty_four &gt; great_gatsby … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>r_6785ca96_b4…</td><td>nineteen_eighty_four &gt; animal_farm &gt; great_gatsby … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>r_253c40f1_32…</td><td>nineteen_eighty_four &gt; mice_men &gt; mockingbird … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>r_2fbe4384_33…</td><td>mice_men &gt; great_gatsby &gt; lord_flies … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>r_0f85628b_50…</td><td>nineteen_eighty_four &gt; scarlet_letter &gt; catcher_rye … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>b29fe300_0612…</td><td>nineteen_eighty_four &gt; animal_farm &gt; mice_men … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>r_60abb9b9_1c…</td><td>nineteen_eighty_four &gt; animal_farm &gt; catcher_rye … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>r_4e8ddeca_81…</td><td>mockingbird &gt; mice_men &gt; nineteen_eighty_four … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>r_51e15daa_72…</td><td>mockingbird &gt; nineteen_eighty_four &gt; lord_flies … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>b2d6c619_8c5e…</td><td>nineteen_eighty_four &gt; great_gatsby &gt; mockingbird … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>r_2dcf9550_88…</td><td>catcher_rye &gt; great_gatsby &gt; mice_men … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>r_866b5ae1_22…</td><td>mockingbird &gt; great_gatsby &gt; scarlet_letter … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>abb414e9_cd1e…</td><td>nineteen_eighty_four &gt; animal_farm &gt; lord_flies … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>r_7cb11170_5a…</td><td>mockingbird &gt; nineteen_eighty_four &gt; mice_men … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>r_5b8d9c86_19…</td><td>great_gatsby &gt; scarlet_letter &gt; mockingbird … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>r_7df8a708_8e…</td><td>great_gatsby &gt; nineteen_eighty_four &gt; lord_flies … (+5 more)</td><td>2026-07-28 14:11:33</td></tr><tr><td>cd27fba8_b7ee…</td><td>animal_farm &gt; catcher_rye &gt; great_gatsby … (+5 more)</td><td>2026-07-28 14:11:33</td></tr></tbody></table><figcaption>The imported dataset: eighteen anonymous respondents at weight 1.0, top three choices shown; full rankings live in the ballot records and drive every count.</figcaption></figure>
+    <figure class="table"><table><thead><tr><th>voter</th><th>ballot (top choices)</th><th>recorded</th></tr></thead><tbody><tr><td>r_95fa122e_86…</td><td>nineteen_eighty_four &gt; lord_flies &gt; scarlet_letter … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>r_02a2ae52_97…</td><td>catcher_rye &gt; nineteen_eighty_four &gt; great_gatsby … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>r_6785ca96_b4…</td><td>nineteen_eighty_four &gt; animal_farm &gt; great_gatsby … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>r_253c40f1_32…</td><td>nineteen_eighty_four &gt; mice_men &gt; mockingbird … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>r_2fbe4384_33…</td><td>mice_men &gt; great_gatsby &gt; lord_flies … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>r_0f85628b_50…</td><td>nineteen_eighty_four &gt; scarlet_letter &gt; catcher_rye … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>b29fe300_0612…</td><td>nineteen_eighty_four &gt; animal_farm &gt; mice_men … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>r_60abb9b9_1c…</td><td>nineteen_eighty_four &gt; animal_farm &gt; catcher_rye … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>r_4e8ddeca_81…</td><td>mockingbird &gt; mice_men &gt; nineteen_eighty_four … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>r_51e15daa_72…</td><td>mockingbird &gt; nineteen_eighty_four &gt; lord_flies … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>b2d6c619_8c5e…</td><td>nineteen_eighty_four &gt; great_gatsby &gt; mockingbird … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>r_2dcf9550_88…</td><td>catcher_rye &gt; great_gatsby &gt; mice_men … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>r_866b5ae1_22…</td><td>mockingbird &gt; great_gatsby &gt; scarlet_letter … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>abb414e9_cd1e…</td><td>nineteen_eighty_four &gt; animal_farm &gt; lord_flies … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>r_7cb11170_5a…</td><td>mockingbird &gt; nineteen_eighty_four &gt; mice_men … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>r_5b8d9c86_19…</td><td>great_gatsby &gt; scarlet_letter &gt; mockingbird … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>r_7df8a708_8e…</td><td>great_gatsby &gt; nineteen_eighty_four &gt; lord_flies … (+5 more)</td><td>2026-07-28 14:34:17</td></tr><tr><td>cd27fba8_b7ee…</td><td>animal_farm &gt; catcher_rye &gt; great_gatsby … (+5 more)</td><td>2026-07-28 14:34:17</td></tr></tbody></table><figcaption>The imported dataset: eighteen anonymous respondents at weight 1.0, top three choices shown; full rankings live in the ballot records and drive every count.</figcaption></figure>
     <p>Eighteen full rankings are hard to eyeball. The built-in plots turn them into a picture — <code>voting plot ranks</code> shows, for each book, how many voters placed it first, second, and so on (hover any segment for the exact count):</p>
     <pre class="command"><code>voting plot ranks book_preference</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
@@ -646,7 +587,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   </section>
 
   <section id="methods">
-    <h2><span class="chapter">07</span> Every method, one answer</h2>
+    <h2><span class="chapter">06</span> Every method, one answer</h2>
     <p>Now the point of the exercise. Counts name their method explicitly (<code>voting count run &lt;id&gt; --method borda</code>) — there is no default, and that is a feature: a "winner" is always a <em>method's</em> winner. But nobody should have to type twelve commands to ask the obvious question. <code>voting count compare</code> counts the same ballots under <strong>every method that can read them</strong> — for ranked ballots, all 12 — and saves each result:</p>
     <pre class="command"><code>voting count compare book_preference</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
@@ -671,7 +612,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     &quot;results&quot;: [
       {
         &quot;method&quot;: &quot;borda&quot;,
-        &quot;result_id&quot;: &quot;20260728T181134426432Z_792e4094_book_preference_borda&quot;,
+        &quot;result_id&quot;: &quot;20260728T183418670409Z_f264c771_book_preference_borda&quot;,
         &quot;winners&quot;: [
           &quot;nineteen_eighty_four&quot;
         ],
@@ -679,7 +620,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
       },
       {
         &quot;method&quot;: &quot;irv&quot;,
-        &quot;result_id&quot;: &quot;20260728T181134427100Z_2759ad71_book_preference_irv&quot;,
+        &quot;result_id&quot;: &quot;20260728T183418670959Z_9235f748_book_preference_irv&quot;,
         &quot;winners&quot;: [
           &quot;nineteen_eighty_four&quot;
         ],
@@ -687,7 +628,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
       },
       {
         &quot;method&quot;: &quot;stv&quot;,
-        &quot;result_id&quot;: &quot;20260728T181134427495Z_92b9200b_book_preference_stv&quot;,
+        &quot;result_id&quot;: &quot;20260728T183418671304Z_3c6e721b_book_preference_stv&quot;,
         &quot;winners&quot;: [
           &quot;nineteen_eighty_four&quot;
         ],
@@ -710,14 +651,14 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
     &quot;voting plot methods --election book_preference&quot;,
-    &quot;voting count show 20260728T181134426432Z_792e4094_book_preference_borda&quot;
+    &quot;voting count show 20260728T183418670409Z_f264c771_book_preference_borda&quot;
   ]
 }</code></pre></details>
     <pre class="command"><code>voting --human count list --election book_preference</code></pre>
     <figure class="table"><table><thead><tr><th>method</th><th>winner</th><th>runner-up</th></tr></thead><tbody><tr><td>borda</td><td>nineteen_eighty_four</td><td>mockingbird</td></tr><tr><td>irv</td><td>nineteen_eighty_four</td><td>mockingbird</td></tr><tr><td>stv</td><td>nineteen_eighty_four</td><td>mockingbird</td></tr><tr><td>schulze</td><td>nineteen_eighty_four</td><td>great_gatsby</td></tr><tr><td>copeland</td><td>nineteen_eighty_four</td><td>great_gatsby</td></tr><tr><td>minimax</td><td>nineteen_eighty_four</td><td>mockingbird</td></tr><tr><td>ranked_pairs</td><td>nineteen_eighty_four</td><td>great_gatsby</td></tr><tr><td>kemeny_young</td><td>nineteen_eighty_four</td><td>great_gatsby</td></tr><tr><td>bucklin</td><td>nineteen_eighty_four</td><td>great_gatsby</td></tr><tr><td>runoff</td><td>nineteen_eighty_four</td><td>mockingbird</td></tr><tr><td>fptp</td><td>nineteen_eighty_four</td><td>mockingbird</td></tr><tr><td>simple_majority</td><td>(no winner)</td><td>mockingbird</td></tr></tbody></table><figcaption>Twelve methods, side by side. 11 elect nineteen_eighty_four; simple_majority declines.</figcaption></figure>
-    <p><strong>11 of 12 methods elect <em>1984</em>. The twelfth refuses to answer</strong> — and its refusal is worth reading. <code>simple_majority</code> requires an outright majority of first preferences; nineteen_eighty_four holds 8 of 18, a plurality but not a majority, so the method reports <code>winners: []</code> with the threshold it applied. Like the <code>valid_ballots</code> check in chapter 6, an honest refusal beats a fabricated answer.</p>
+    <p><strong>11 of 12 methods elect <em>1984</em>. The twelfth refuses to answer</strong> — and its refusal is worth reading. <code>simple_majority</code> requires an outright majority of first preferences; nineteen_eighty_four holds 8 of 18, a plurality but not a majority, so the method reports <code>winners: []</code> with the threshold it applied. Like the <code>valid_ballots</code> check in chapter 5, an honest refusal beats a fabricated answer.</p>
     <p>Every comparison run is a full saved record of how its method reasoned. Open a few with <code>count show</code>. Borda first — each ballot position contributes points, so it measures breadth of support:</p>
-    <pre class="command"><code>voting count show 20260728T181134426432Z_792e4094_book_preference_borda</code></pre>
+    <pre class="command"><code>voting count show 20260728T183418670409Z_f264c771_book_preference_borda</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
   &quot;command&quot;: &quot;count show&quot;,
@@ -726,12 +667,12 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     &quot;voting&quot;,
     &quot;count&quot;,
     &quot;show&quot;,
-    &quot;20260728T181134426432Z_792e4094_book_preference_borda&quot;
+    &quot;20260728T183418670409Z_f264c771_book_preference_borda&quot;
   ],
   &quot;data&quot;: {
-    &quot;created_at&quot;: &quot;2026-07-28T14:11:34&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T14:34:18&quot;,
     &quot;election_id&quot;: &quot;book_preference&quot;,
-    &quot;id&quot;: &quot;20260728T181134426432Z_792e4094_book_preference_borda&quot;,
+    &quot;id&quot;: &quot;20260728T183418670409Z_f264c771_book_preference_borda&quot;,
     &quot;method&quot;: &quot;borda&quot;,
     &quot;ranking&quot;: [
       {
@@ -790,9 +731,9 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: []
 }</code></pre></details>
-    <pre class="command"><code>voting --human count show 20260728T181134426432Z_792e4094_book_preference_borda</code></pre>
+    <pre class="command"><code>voting --human count show 20260728T183418670409Z_f264c771_book_preference_borda</code></pre>
     <figure class="table"><table><thead><tr><th>rank</th><th>option</th><th>score</th><th>status</th></tr></thead><tbody><tr><td>1</td><td>nineteen_eighty_four</td><td>93</td><td>elected</td></tr><tr><td>2</td><td>mockingbird</td><td>79</td><td>defeated</td></tr><tr><td>3</td><td>great_gatsby</td><td>73</td><td>defeated</td></tr><tr><td>4</td><td>mice_men</td><td>65</td><td>defeated</td></tr><tr><td>5</td><td>animal_farm</td><td>62</td><td>defeated</td></tr><tr><td>6</td><td>catcher_rye</td><td>51</td><td>defeated</td></tr><tr><td>7</td><td>lord_flies</td><td>41</td><td>defeated</td></tr><tr><td>8</td><td>scarlet_letter</td><td>40</td><td>defeated</td></tr></tbody></table><figcaption>The saved Borda count: full ranking, scores, and the winner.</figcaption></figure>
-    <pre class="command"><code>voting plot scores 20260728T181134426432Z_792e4094_book_preference_borda</code></pre>
+    <pre class="command"><code>voting plot scores 20260728T183418670409Z_f264c771_book_preference_borda</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
   &quot;command&quot;: &quot;plot scores&quot;,
@@ -801,18 +742,18 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     &quot;voting&quot;,
     &quot;plot&quot;,
     &quot;scores&quot;,
-    &quot;20260728T181134426432Z_792e4094_book_preference_borda&quot;
+    &quot;20260728T183418670409Z_f264c771_book_preference_borda&quot;
   ],
   &quot;data&quot;: {
-    &quot;result_id&quot;: &quot;20260728T181134426432Z_792e4094_book_preference_borda&quot;,
+    &quot;result_id&quot;: &quot;20260728T183418670409Z_f264c771_book_preference_borda&quot;,
     &quot;method&quot;: &quot;borda&quot;,
-    &quot;path&quot;: &quot;.voting/output/plots/scores_20260728T181134426432Z_792e4094_book_preference_borda.svg&quot;,
+    &quot;path&quot;: &quot;.voting/output/plots/scores_20260728T183418670409Z_f264c771_book_preference_borda.svg&quot;,
     &quot;format&quot;: &quot;svg&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;open .voting/output/plots/scores_20260728T181134426432Z_792e4094_book_preference_borda.svg&quot;
+    &quot;open .voting/output/plots/scores_20260728T183418670409Z_f264c771_book_preference_borda.svg&quot;
   ]
 }</code></pre></details>
     <figure class="plot"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 358" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif" role="img" aria-label="borda totals — book_preference">
@@ -845,7 +786,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
 </svg>
 <figcaption>Borda totals as a picture: the gaps show breadth of support, not just first choices.</figcaption></figure>
     <p>Borda gives <em>nineteen_eighty_four</em> 93 points against mockingbird's 79. <strong>Instant-runoff</strong> reasons completely differently — eliminate the weakest option, retry until someone holds a majority — and its <code>rounds</code> array is that elimination story:</p>
-    <pre class="command"><code>voting count show 20260728T181134427100Z_2759ad71_book_preference_irv</code></pre>
+    <pre class="command"><code>voting count show 20260728T183418670959Z_9235f748_book_preference_irv</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
   &quot;command&quot;: &quot;count show&quot;,
@@ -854,13 +795,13 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     &quot;voting&quot;,
     &quot;count&quot;,
     &quot;show&quot;,
-    &quot;20260728T181134427100Z_2759ad71_book_preference_irv&quot;
+    &quot;20260728T183418670959Z_9235f748_book_preference_irv&quot;
   ],
   &quot;data&quot;: {
-    &quot;created_at&quot;: &quot;2026-07-28T14:11:34&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T14:34:18&quot;,
     &quot;election_id&quot;: &quot;book_preference&quot;,
     &quot;exhausted_weight&quot;: 0.0,
-    &quot;id&quot;: &quot;20260728T181134427100Z_2759ad71_book_preference_irv&quot;,
+    &quot;id&quot;: &quot;20260728T183418670959Z_9235f748_book_preference_irv&quot;,
     &quot;method&quot;: &quot;irv&quot;,
     &quot;ranking&quot;: [
       {
@@ -964,7 +905,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   &quot;next_steps&quot;: []
 }</code></pre></details>
     <p><strong>Schulze</strong> (a Condorcet method) plays every option against every other; the <code>pairwise</code> matrix holds all 28 head-to-head margins, and <code>voting plot pairwise</code> makes it legible at a glance:</p>
-    <pre class="command"><code>voting count show 20260728T181134427946Z_951a4935_book_preference_schulze</code></pre>
+    <pre class="command"><code>voting count show 20260728T183418671779Z_78e228ae_book_preference_schulze</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
   &quot;command&quot;: &quot;count show&quot;,
@@ -973,12 +914,12 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     &quot;voting&quot;,
     &quot;count&quot;,
     &quot;show&quot;,
-    &quot;20260728T181134427946Z_951a4935_book_preference_schulze&quot;
+    &quot;20260728T183418671779Z_78e228ae_book_preference_schulze&quot;
   ],
   &quot;data&quot;: {
-    &quot;created_at&quot;: &quot;2026-07-28T14:11:34&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T14:34:18&quot;,
     &quot;election_id&quot;: &quot;book_preference&quot;,
-    &quot;id&quot;: &quot;20260728T181134427946Z_951a4935_book_preference_schulze&quot;,
+    &quot;id&quot;: &quot;20260728T183418671779Z_78e228ae_book_preference_schulze&quot;,
     &quot;method&quot;: &quot;schulze&quot;,
     &quot;pairwise&quot;: [
       {
@@ -1101,7 +1042,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: []
 }</code></pre></details>
-    <pre class="command"><code>voting plot pairwise 20260728T181134427946Z_951a4935_book_preference_schulze</code></pre>
+    <pre class="command"><code>voting plot pairwise 20260728T183418671779Z_78e228ae_book_preference_schulze</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
   &quot;command&quot;: &quot;plot pairwise&quot;,
@@ -1110,18 +1051,18 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     &quot;voting&quot;,
     &quot;plot&quot;,
     &quot;pairwise&quot;,
-    &quot;20260728T181134427946Z_951a4935_book_preference_schulze&quot;
+    &quot;20260728T183418671779Z_78e228ae_book_preference_schulze&quot;
   ],
   &quot;data&quot;: {
-    &quot;result_id&quot;: &quot;20260728T181134427946Z_951a4935_book_preference_schulze&quot;,
+    &quot;result_id&quot;: &quot;20260728T183418671779Z_78e228ae_book_preference_schulze&quot;,
     &quot;method&quot;: &quot;schulze&quot;,
-    &quot;path&quot;: &quot;.voting/output/plots/pairwise_20260728T181134427946Z_951a4935_book_preference_schulze.svg&quot;,
+    &quot;path&quot;: &quot;.voting/output/plots/pairwise_20260728T183418671779Z_78e228ae_book_preference_schulze.svg&quot;,
     &quot;format&quot;: &quot;svg&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;open .voting/output/plots/pairwise_20260728T181134427946Z_951a4935_book_preference_schulze.svg&quot;
+    &quot;open .voting/output/plots/pairwise_20260728T183418671779Z_78e228ae_book_preference_schulze.svg&quot;
   ]
 }</code></pre></details>
     <figure class="plot"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 666 576" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif" role="img" aria-label="Head-to-head margins — book_preference">
@@ -1280,24 +1221,24 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   &quot;data&quot;: {
     &quot;results&quot;: [
       {
-        &quot;created_at&quot;: &quot;2026-07-28T14:11:34&quot;,
+        &quot;created_at&quot;: &quot;2026-07-28T14:34:18&quot;,
         &quot;election_id&quot;: &quot;book_preference&quot;,
-        &quot;id&quot;: &quot;20260728T181134426432Z_792e4094_book_preference_borda&quot;,
+        &quot;id&quot;: &quot;20260728T183418670409Z_f264c771_book_preference_borda&quot;,
         &quot;method&quot;: &quot;borda&quot;,
         &quot;…&quot;: &quot;7 further keys elided&quot;
       },
       {
-        &quot;created_at&quot;: &quot;2026-07-28T14:11:34&quot;,
+        &quot;created_at&quot;: &quot;2026-07-28T14:34:18&quot;,
         &quot;election_id&quot;: &quot;book_preference&quot;,
         &quot;exhausted_weight&quot;: 0.0,
-        &quot;id&quot;: &quot;20260728T181134427100Z_2759ad71_book_preference_irv&quot;,
+        &quot;id&quot;: &quot;20260728T183418670959Z_9235f748_book_preference_irv&quot;,
         &quot;…&quot;: &quot;8 further keys elided&quot;
       },
       {
-        &quot;created_at&quot;: &quot;2026-07-28T14:11:34&quot;,
+        &quot;created_at&quot;: &quot;2026-07-28T14:34:18&quot;,
         &quot;election_id&quot;: &quot;book_preference&quot;,
         &quot;exhausted_weight&quot;: 0.0,
-        &quot;id&quot;: &quot;20260728T181134427495Z_92b9200b_book_preference_stv&quot;,
+        &quot;id&quot;: &quot;20260728T183418671304Z_3c6e721b_book_preference_stv&quot;,
         &quot;…&quot;: &quot;9 further keys elided&quot;
       },
       &quot;… 9 further entries elided …&quot;
@@ -1562,7 +1503,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   </section>
 
   <section id="practice">
-    <h2><span class="chapter">08</span> Where everything lives</h2>
+    <h2><span class="chapter">07</span> Where everything lives</h2>
     <p>Every entity the project holds is a small JSON file under the project's <code>.voting/</code> directory: options, voters, ballots (append-only records; re-imports warn <code>ballot_overwritten</code>), and one saved result per count, so comparisons never overwrite each other — all inspectable with nothing but <code>cat</code>. <code>next</code> closes the loop:</p>
     <pre class="command"><code>voting next</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
@@ -1608,7 +1549,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   </section>
 
   <footer>
-    <p><strong>voting</strong> is an open-source Expected Parrot research tool, released under the MIT License. Source and issue tracking on <a href="https://github.com/expectedparrot/voting">GitHub</a>. The ballots shown are real responses to a hosted Humanize survey, identified only by anonymous respondent ids; regenerate this page with <code>scripts/book_driver.py</code> and <code>scripts/build_index.py</code>.</p>
+    <p><strong>voting</strong> is an open-source Expected Parrot research tool, released under the MIT License. Source and issue tracking on <a href="https://github.com/expectedparrot/voting">GitHub</a>. The ballots are real rankings by eighteen people, identified only by anonymous ids; regenerate this page with <code>scripts/book_driver.py</code> and <code>scripts/build_index.py</code>.</p>
   </footer>
 </article></main>
 <script>

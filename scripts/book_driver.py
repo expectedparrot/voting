@@ -105,9 +105,6 @@ def main() -> None:
     voting("election", "open", "book_preference", capture="06-election-open")
     voting("election", "show", "book_preference", capture="06s-election-show")
 
-    # ── The hosted Humanize survey (build is local; publishing happened once) ─
-    voting("survey", "humanize", "book_preference", capture="07-humanize")
-
     # ── Real ballots: pull the production Results object and import ────────
     imported = voting("ballot", "import", "--election", "book_preference",
                       "--from-coop", RESULTS_UUID, "--register-voters",
