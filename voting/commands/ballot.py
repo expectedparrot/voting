@@ -185,11 +185,17 @@ def _rows_from_edsl_results(results_dict: dict, election: dict, options: list[di
     issues: list[dict] = []
     for result in results_dict.get("data", []):
         agent = result.get("agent", {}) or {}
-        voter_id = str(agent.get("name") or agent.get("traits", {}).get("voter_id") or "").strip()
+        respondent = str(agent.get("name") or agent.get("traits", {}).get("voter_id") or "").strip()
         answer = result.get("answer", {}) or {}
-        if not voter_id:
+        if not respondent:
             issues.append({"reason": "missing agent name (voter_id)", "answer_keys": sorted(answer)})
             continue
+        # Store ids must match ^[a-zA-Z_][a-zA-Z0-9_]*$; anonymous Humanize
+        # respondents arrive as hyphenated UUIDs. Sanitize deterministically
+        # and keep the original as provenance on the ballot.
+        voter_id = respondent.replace("-", "_")
+        if not voter_id[0].isalpha() and voter_id[0] != "_":
+            voter_id = f"r_{voter_id}"
         try:
             if ballot_type == "ranked":
                 raw = answer.get("ranking")
@@ -204,27 +210,27 @@ def _rows_from_edsl_results(results_dict: dict, election: dict, options: list[di
                 if unknown:
                     issues.append({"voter_id": voter_id, "reason": "unknown option labels", "labels": unknown})
                     continue
-                rows.append({"voter_id": voter_id, "answer": {"ranking": [label_to_id[label] for label in ordered]}})
+                rows.append({"voter_id": voter_id, "answer": {"ranking": [label_to_id[label] for label in ordered]}, "respondent": respondent})
             elif ballot_type == "single_choice":
                 label = answer.get("choice")
                 if label not in label_to_id:
                     issues.append({"voter_id": voter_id, "reason": "unknown option label", "labels": [label]})
                     continue
-                rows.append({"voter_id": voter_id, "answer": {"choice": label_to_id[label]}})
+                rows.append({"voter_id": voter_id, "answer": {"choice": label_to_id[label]}, "respondent": respondent})
             elif ballot_type == "approval":
                 labels = answer.get("approved") or answer.get("approval") or []
                 unknown = [label for label in labels if label not in label_to_id]
                 if unknown:
                     issues.append({"voter_id": voter_id, "reason": "unknown option labels", "labels": unknown})
                     continue
-                rows.append({"voter_id": voter_id, "answer": {"approved": [label_to_id[label] for label in labels]}})
+                rows.append({"voter_id": voter_id, "answer": {"approved": [label_to_id[label] for label in labels]}, "respondent": respondent})
             elif ballot_type == "score":
                 raw = answer.get("scores") or answer.get("score") or {}
                 unknown = [label for label in raw if label not in label_to_id]
                 if unknown:
                     issues.append({"voter_id": voter_id, "reason": "unknown option labels", "labels": unknown})
                     continue
-                rows.append({"voter_id": voter_id, "answer": {"scores": {label_to_id[label]: value for label, value in raw.items()}}})
+                rows.append({"voter_id": voter_id, "answer": {"scores": {label_to_id[label]: value for label, value in raw.items()}}, "respondent": respondent})
             else:
                 issues.append({"voter_id": voter_id, "reason": f"unsupported ballot_type for Results import: {ballot_type}"})
         except Exception as exc:  # pragma: no cover - defensive
@@ -239,6 +245,7 @@ def import_ballots(
     from_file: Optional[Path] = typer.Option(None, "--from", help="Path to results file written by a generated survey script."),
     from_results: Optional[Path] = typer.Option(None, "--from-results", help="Path to an EDSL Results .ep package (e.g. downloaded Humanize responses)."),
     from_coop: Optional[str] = typer.Option(None, "--from-coop", help="Coop UUID of an EDSL Results object to pull (network read; requires EDSL auth)."),
+    register_voters: bool = typer.Option(False, "--register-voters", help="Register unknown respondents as voters (weight 1.0) instead of importing their ballots as unregistered."),
 ) -> None:
     """Import ballots from a generated-script results file or an EDSL Results object."""
     project = ctx_project(ctx)
@@ -335,8 +342,28 @@ def import_ballots(
         answer = row.get("answer", {})
         voter = voters_by_id.get(voter_id)
         weight = float(voter.get("weight", 1.0)) if voter else 1.0
-        if voter is None:
-            warnings_list.append({"code": "unregistered_voter", "voter_id": voter_id})
+        if voter is None and register_voters:
+            from voting.core.store import write_entity
+
+            voter = {
+                "id": voter_id,
+                "name": row.get("respondent") or voter_id,
+                "added_at": local_iso_now(),
+                "weight": 1.0,
+                "eligible": True,
+                "traits": {},
+                "metadata": {"source": "ballot import --register-voters"},
+            }
+            write_entity(project, "voters", voter_id, voter)
+            voters_by_id[voter_id] = voter
+            weight = 1.0
+            warnings_list.append({"code": "voter_registered", "voter_id": voter_id})
+        elif voter is None:
+            warnings_list.append({
+                "code": "unregistered_voter",
+                "voter_id": voter_id,
+                "message": "Ballot recorded but will not count until the voter is registered (or re-import with --register-voters).",
+            })
         if voter_id in existing_voter_ids:
             warnings_list.append({"code": "ballot_overwritten", "voter_id": voter_id, "message": f"Existing ballot for voter '{voter_id}' replaced by this import."})
 
@@ -346,7 +373,11 @@ def import_ballots(
             "ballot_type": ballot_type,
             "recorded_at": local_iso_now(),
             "weight": weight,
-            "metadata": {"source": "import", "import_file": source_display},
+            "metadata": {
+                "source": "import",
+                "import_file": source_display,
+                **({"respondent": row["respondent"]} if row.get("respondent") and row["respondent"] != voter_id else {}),
+            },
         }
 
         try:
