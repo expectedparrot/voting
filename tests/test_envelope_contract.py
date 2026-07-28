@@ -70,3 +70,101 @@ def test_full_election_flow_smoke(tmp_path: Path) -> None:
             cwd = tmp_path / "demo"
     final = run_voting("next", cwd=cwd)
     assert json.loads(final.stdout)["data"]["phase"] == "done"
+
+
+def _book_results_ep(path: Path, labels: list[str], rankings: dict[str, list[str]]) -> None:
+    import warnings as _warnings
+
+    _warnings.filterwarnings("ignore")
+    from edsl import Agent, Model, Results, Scenario, Survey
+    from edsl.results import Result
+
+    rows = []
+    for voter_id, ordered in rankings.items():
+        ranking = {label: ordered.index(label) + 1 for label in ordered}
+        rows.append(Result(
+            agent=Agent(name=voter_id),
+            scenario=Scenario({}),
+            model=Model("test"),
+            iteration=0,
+            answer={"ranking": ranking},
+        ))
+    Results(survey=Survey([]), data=rows).git.save(str(path))
+
+
+def test_ballot_import_from_edsl_results(tmp_path: Path) -> None:
+    steps = [
+        ("init", "books"),
+        ("option", "add", "gatsby", "The Great Gatsby"),
+        ("option", "add", "orwell", "1984"),
+        ("option", "add", "mockingbird", "To Kill a Mockingbird"),
+        ("election", "add", "favorite", "Favorite book", "--method", "irv",
+         "--ballot-type", "ranked"),
+        ("election", "add-option", "favorite", "gatsby"),
+        ("election", "add-option", "favorite", "orwell"),
+        ("election", "add-option", "favorite", "mockingbird"),
+        ("election", "open", "favorite"),
+    ]
+    cwd = tmp_path
+    for index, step in enumerate(steps):
+        completed = run_voting(*step, cwd=cwd)
+        assert completed.returncode == 0, (step, completed.stdout, completed.stderr)
+        if index == 0:
+            cwd = tmp_path / "books"
+
+    results_path = tmp_path / "responses.ep"
+    _book_results_ep(results_path, ["The Great Gatsby", "1984", "To Kill a Mockingbird"], {
+        "r1": ["1984", "The Great Gatsby", "To Kill a Mockingbird"],
+        "r2": ["The Great Gatsby", "1984", "To Kill a Mockingbird"],
+        "r3": ["1984", "To Kill a Mockingbird", "The Great Gatsby"],
+    })
+
+    imported = subprocess.run(
+        [sys.executable, "-m", "voting", "ballot", "import", "--election", "favorite",
+         "--from-results", str(results_path)],
+        cwd=cwd, text=True, capture_output=True,
+        env={"PYTHONPATH": str(REPO), "PATH": "/usr/bin:/bin", "HOME": str(tmp_path)},
+    )
+    assert imported.returncode == 0, imported.stdout + imported.stderr
+    payload = json.loads(imported.stdout)
+    assert payload["data"]["cast"] == 3
+    assert payload["data"]["skipped"] == 0
+    # unregistered respondents warn but import (weight 1.0)
+    assert any(w["code"] == "unregistered_voter" for w in payload["warnings"])
+
+    counted = run_voting("count", "run", "favorite", cwd=cwd)
+    assert counted.returncode == 0
+    count_payload = json.loads(counted.stdout)
+    assert count_payload["status"] == "ok"
+
+
+def test_ballot_import_from_results_unknown_label_itemized(tmp_path: Path) -> None:
+    steps = [
+        ("init", "books2"),
+        ("option", "add", "gatsby", "The Great Gatsby"),
+        ("election", "add", "favorite", "Favorite book", "--method", "irv",
+         "--ballot-type", "ranked"),
+        ("election", "add-option", "favorite", "gatsby"),
+        ("election", "open", "favorite"),
+    ]
+    cwd = tmp_path
+    for index, step in enumerate(steps):
+        completed = run_voting(*step, cwd=cwd)
+        assert completed.returncode == 0, (step, completed.stdout)
+        if index == 0:
+            cwd = tmp_path / "books2"
+    results_path = tmp_path / "responses2.ep"
+    _book_results_ep(results_path, ["The Great Gatsby"], {
+        "r1": ["A Book Nobody Registered"],
+    })
+    imported = subprocess.run(
+        [sys.executable, "-m", "voting", "ballot", "import", "--election", "favorite",
+         "--from-results", str(results_path)],
+        cwd=cwd, text=True, capture_output=True,
+        env={"PYTHONPATH": str(REPO), "PATH": "/usr/bin:/bin", "HOME": str(tmp_path)},
+    )
+    assert imported.returncode == 0, imported.stdout
+    payload = json.loads(imported.stdout)
+    assert payload["data"]["cast"] == 0
+    assert payload["data"]["skipped"] == 1
+    assert payload["data"]["skipped_detail"][0]["reason"] == "unknown option labels"
