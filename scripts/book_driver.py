@@ -45,9 +45,6 @@ BOOKS = [
     ("scarlet_letter", "The Scarlet Letter — Hawthorne"),
 ]
 
-METHODS = ["borda", "irv", "schulze", "copeland", "kemeny_young", "bucklin", "fptp"]
-
-
 def parrot_env() -> dict[str, str]:
     """Subprocess env with production Expected Parrot credentials from ~/.env."""
     env = os.environ.copy()
@@ -131,20 +128,22 @@ def main() -> None:
     voting("plot", "ranks", "book_preference", capture="11b-plot-ranks")
     voting("status", capture="11-status")
 
-    # ── Count the same ballots under many methods ─────────────────────────
+    # ── Count the same ballots under every compatible method ─────────────
     validated = voting("ballot", "validate", "book_preference")
     assert validated["data"].get("valid_ballots") == imported["data"]["cast"], validated["data"]
-    borda = voting("count", "run", "book_preference", "--method", "borda",
-                   capture="12-count-borda")
-    voting("count", "show", borda["data"]["id"], capture="12h-count-borda", human=True)
-    voting("plot", "scores", borda["data"]["id"], capture="12p-plot-scores")
-    runs = {"borda": borda}
-    for method in METHODS[1:]:
-        runs[method] = voting("count", "run", "book_preference", "--method", method,
-                              capture=f"13-count-{method}")
-    voting("plot", "pairwise", runs["schulze"]["data"]["id"], capture="13p-plot-pairwise")
+    compared = voting("count", "compare", "book_preference", capture="12-count-compare")
+    voting("count", "list", "--election", "book_preference",
+           capture="12h-count-list", human=True)
+    ids = {row["method"]: row["result_id"] for row in compared["data"]["results"]}
+
+    # Deep dives into individual saved results.
+    voting("count", "show", ids["borda"], capture="13-show-borda")
+    voting("count", "show", ids["borda"], capture="13h-show-borda", human=True)
+    voting("plot", "scores", ids["borda"], capture="13p-plot-scores")
+    voting("count", "show", ids["irv"], capture="13-show-irv")
+    voting("count", "show", ids["schulze"], capture="13-show-schulze")
+    voting("plot", "pairwise", ids["schulze"], capture="13p-plot-pairwise")
     voting("count", "list", capture="14-count-list")
-    voting("count", "list", capture="14h-count-list", human=True)
     voting("plot", "methods", "--election", "book_preference", capture="14p-plot-methods")
     voting("next", capture="15-next-final")
 

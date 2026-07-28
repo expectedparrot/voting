@@ -112,16 +112,25 @@ def hcap(name: str, caption: str) -> str:
 
 # Facts from the captured run, extracted so prose can never drift from data.
 IMPORT = load("08-import")["payload"]["data"]
-BORDA = load("12-count-borda")["payload"]["data"]
-IRV = load("13-count-irv")["payload"]["data"]
-FPTP = load("13-count-fptp")["payload"]["data"]
+COMPARE = load("12-count-compare")["payload"]["data"]
+BORDA = load("13-show-borda")["payload"]["data"]
 N_BALLOTS = IMPORT["cast"]
 BORDA_SCORES = sorted(BORDA["scores"], key=lambda s: -s["total"])
-FPTP_TOTALS = sorted(FPTP["scores"], key=lambda s: -s["total"]) if FPTP.get("scores") else []
+RESULT_IDS = {row["method"]: row["result_id"] for row in COMPARE["results"]}
+
+
+def _saved_result(method: str) -> dict:
+    return json.loads((WORK / ".voting" / "results" / f"{RESULT_IDS[method]}.json").read_text())
+
+
+FPTP_TOTALS = sorted(_saved_result("fptp")["scores"], key=lambda s: -s["total"])
 WINNER = BORDA["winners"][0]
-assert all(load(f"13-count-{m}")["payload"]["data"]["winners"] == [WINNER]
-           for m in ["irv", "schulze", "copeland", "kemeny_young", "bucklin", "fptp"]), \
-    "prose assumes a unanimous winner; the data changed"
+N_METHODS = len(COMPARE["methods_run"])
+DECIDED = [row for row in COMPARE["results"] if row["winners"]]
+RUNOFF_RUNNER_UP = next(row["runner_up"] for row in COMPARE["results"] if row["method"] == "runoff")
+assert COMPARE["unanimous_winners"] == [WINNER], "prose assumes unanimity among deciding methods"
+assert COMPARE["no_winner"] == ["simple_majority"], "prose assumes exactly simple_majority declines"
+assert all(row["winners"] == [WINNER] for row in DECIDED), "prose assumes every deciding method agrees"
 HUMANIZE = load("07-humanize")["payload"]["data"]
 STATUS_COUNTS = load("11-status")["payload"]["data"]["counts"]
 QUESTION_TEXT = HUMANIZE["question_texts"]["ranking"]
@@ -136,7 +145,7 @@ add("""<!doctype html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A worked, evidence-first tutorial: counting real human ballots under seven voting methods.">
+  <meta name="description" content="A worked, evidence-first tutorial: counting real human ballots under twelve voting methods.">
   <title>Expected Parrot | Counting Real Ballots with voting</title>
   <style>
     :root{--green:#2e6b4f;--dark:#214d35;--light:#eef5f0;--amber:#b66b13;--ink:#1d211e;--muted:#5b665e;--rule:#dde5de;--code:#152019;--serif:Georgia,'Times New Roman',serif;--sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;--mono:'SF Mono',SFMono-Regular,ui-monospace,Menlo,Consolas,monospace;--measure:760px}
@@ -197,14 +206,14 @@ add("""<!doctype html>
   <a class="item" href="#election">4. Define the election</a>
   <a class="item" href="#survey">5. The hosted human survey</a>
   <a class="item" href="#ballots">6. Ballots that don't count (yet)</a>
-  <a class="item" href="#methods">7. Seven methods, one answer</a>
+  <a class="item" href="#methods">7. Every method, one answer</a>
   <div class="part">Practice</div>
   <a class="item" href="#practice">8. Where everything lives</a>
   <div class="small">Every output on this page is a real captured envelope; the ballots are 18 real human responses from a production Expected Parrot Humanize survey.</div>
 </nav>
 <main><article>
   <div class="eyebrow">Expected Parrot · a practical, evidence-first tutorial</div>
-  <h1>Counting real ballots under seven voting methods</h1>
+  <h1>Counting real ballots under twelve voting methods</h1>
   <p class="dek">Eighteen people ranked eight classic novels in a hosted survey on Expected Parrot. This tutorial shows how the <code>voting</code> package works with those votes — and how different ways of tallying them do (or don't) change the outcome.</p>
 """)
 
@@ -280,32 +289,25 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   </section>
 
   <section id="methods">
-    <h2><span class="chapter">07</span> Seven methods, one answer</h2>
-    <p>Now the point of the exercise. The same eighteen ballots, counted seven ways. Every count names its method explicitly — there is no default to fall back on, and that is a feature: a "winner" is always a <em>method's</em> winner. Borda first:</p>
-    {cmdcap_auto("12-count-borda")}
-    {hcap("12h-count-borda", "The saved Borda count rendered for people: full ranking, scores, and the winner.")}
-    <p>Any saved count can also be plotted — the winner's bar in green:</p>
-    {svgfig("12p-plot-scores", "Borda totals as a picture: every ballot position contributes points, so the gaps show breadth of support, not just first choices.")}
-    <p>Borda gives <em>{html.escape(BORDA_SCORES[0]["option_id"])}</em> {BORDA_SCORES[0]["total"]:.0f} points against {html.escape(BORDA_SCORES[1]["option_id"])}'s {BORDA_SCORES[1]["total"]:.0f}. Now the other six. Each envelope records how its method actually reasoned, so they are worth opening for different things:</p>
-    <p><strong>Instant-runoff</strong> eliminates the weakest option and retries until someone holds a majority — the <code>rounds</code> array is the elimination story, round by round:</p>
-    {cmdcap_auto("13-count-irv")}
-    <p><strong>Schulze</strong> (a Condorcet method) plays every option against every other; the <code>pairwise</code> matrix holds all 28 head-to-head margins — and <code>voting plot pairwise</code> makes it legible at a glance:</p>
-    {cmdcap_auto("13-count-schulze")}
-    {svgfig("13p-plot-pairwise", f"Every head-to-head from the real ballots: a cell is the row's margin over the column. {WINNER}'s top row is solid green — it beats all seven rivals directly, which is why every Condorcet method must elect it.")}
-    <p><strong>Copeland</strong> scores the same pairings bluntly — wins minus losses:</p>
-    {cmdcap_auto("13-count-copeland")}
-    <p><strong>Kemeny–Young</strong> searches for the full ordering that agrees with as many pairwise ballot judgments as possible — <code>kemeny_score</code> counts the agreements:</p>
-    {cmdcap_auto("13-count-kemeny_young")}
-    <p><strong>Bucklin</strong> keeps adding voters' next choices until someone crosses a majority — the <code>rounds</code> array shows when that happens:</p>
-    {cmdcap_auto("13-count-bucklin")}
-    <p>And <strong>plurality</strong> (first-past-the-post) throws every ranking away except the first line:</p>
-    {cmdcap_auto("13-count-fptp")}
-    <p>Every run was saved, so the comparison is one command:</p>
+    <h2><span class="chapter">07</span> Every method, one answer</h2>
+    <p>Now the point of the exercise. Counts name their method explicitly (<code>voting count run &lt;id&gt; --method borda</code>) — there is no default, and that is a feature: a "winner" is always a <em>method's</em> winner. But nobody should have to type twelve commands to ask the obvious question. <code>voting count compare</code> counts the same ballots under <strong>every method that can read them</strong> — for ranked ballots, all {N_METHODS} — and saves each result:</p>
+    {cmdcap_auto("12-count-compare")}
+    {hcap("12h-count-list", f"Twelve methods, side by side. {len(DECIDED)} elect {WINNER}; simple_majority declines.")}
+    <p><strong>{len(DECIDED)} of {N_METHODS} methods elect <em>1984</em>. The twelfth refuses to answer</strong> — and its refusal is worth reading. <code>simple_majority</code> requires an outright majority of first preferences; {WINNER} holds {FPTP_TOTALS[0]["total"]:.0f} of {N_BALLOTS}, a plurality but not a majority, so the method reports <code>winners: []</code> with the threshold it applied. Like the unregistered-ballot check in chapter 6, an honest refusal beats a fabricated answer.</p>
+    <p>Every comparison run is a full saved record of how its method reasoned. Open a few with <code>count show</code>. Borda first — each ballot position contributes points, so it measures breadth of support:</p>
+    {cmdcap_auto("13-show-borda")}
+    {hcap("13h-show-borda", "The saved Borda count rendered for people: full ranking, scores, and the winner.")}
+    {svgfig("13p-plot-scores", "Borda totals as a picture: the gaps show breadth of support, not just first choices.")}
+    <p>Borda gives <em>{html.escape(BORDA_SCORES[0]["option_id"])}</em> {BORDA_SCORES[0]["total"]:.0f} points against {html.escape(BORDA_SCORES[1]["option_id"])}'s {BORDA_SCORES[1]["total"]:.0f}. <strong>Instant-runoff</strong> reasons completely differently — eliminate the weakest option, retry until someone holds a majority — and its <code>rounds</code> array is that elimination story:</p>
+    {cmdcap_auto("13-show-irv")}
+    <p><strong>Schulze</strong> (a Condorcet method) plays every option against every other; the <code>pairwise</code> matrix holds all 28 head-to-head margins, and <code>voting plot pairwise</code> makes it legible at a glance:</p>
+    {cmdcap_auto("13-show-schulze")}
+    {svgfig("13p-plot-pairwise", f"Every head-to-head from the real ballots: a cell is the row's margin over the column. {WINNER}'s top row is solid green — it beats all seven rivals directly, which is why all five Condorcet-family methods (schulze, copeland, minimax, ranked_pairs, kemeny_young) must elect it.")}
+    <p>The rest tell the same story in different dialects: <strong>copeland</strong> scores those pairings as wins minus losses, <strong>kemeny_young</strong> searches for the ordering that agrees with the most pairwise judgments, <strong>bucklin</strong> keeps adding voters' next choices until someone crosses half, <strong>runoff</strong> stages a two-option finale ({html.escape(WINNER)} vs {html.escape(RUNOFF_RUNNER_UP)}), and <strong>fptp</strong> throws away everything but the first line. Their envelopes are all in <code>count list</code>:</p>
     {cmdcap_auto("14-count-list")}
-    {hcap("14h-count-list", "Every saved count, side by side: seven methods, one winner.")}
     <p>And the thesis of this whole page, as one picture — <code>voting plot methods</code> grids every option's finishing position under every saved count:</p>
-    {svgfig("14p-plot-methods", "The answer to the tutorial's question. The unbroken dark top row is the finding: no counting method changes the winner. The shuffling in the middle rows is where method choice does matter.")}
-    <p><strong>All seven agree: <em>1984</em> wins.</strong> That unanimity is itself the finding. Orwell's novel holds {FPTP_TOTALS[0]["total"]:.0f} of {N_BALLOTS} first preferences, the top Borda score, and — as Schulze, Copeland, and Kemeny–Young confirm — beats every rival head-to-head. When a candidate dominates like this, the choice of method cannot change the outcome; method choice matters exactly when support is fragmented, and these ballots are not fragmented at the top. (Beneath the winner the orderings do shuffle — compare the full <code>ranking</code> arrays across the envelopes above.)</p>
+    {svgfig("14p-plot-methods", "The answer to the tutorial's question. The unbroken dark top row is the finding: no counting method changes the winner (the asterisk marks simple_majority, which ranks but declines to declare). The shuffling in the middle rows is where method choice does matter.")}
+    <p><strong>Every method that names a winner names <em>1984</em>.</strong> That unanimity is itself the finding. Orwell's novel holds {FPTP_TOTALS[0]["total"]:.0f} of {N_BALLOTS} first preferences, the top Borda score, and beats every rival head-to-head. When a candidate dominates like this, the choice of method cannot change the outcome; method choice matters exactly when support is fragmented, and these ballots are not fragmented at the top. (Beneath the winner the orderings do shuffle — compare the <code>ranking</code> arrays across the saved results.)</p>
     <div class="callout"><strong>What this page cannot claim.</strong> Eighteen self-selected respondents are a poll of those eighteen people, not of readers in general. The demonstration is methodological — one auditable dataset, many counting rules, disclosed outputs — not a literary verdict.</div>
   </section>
 

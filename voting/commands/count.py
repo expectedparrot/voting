@@ -56,27 +56,32 @@ METHODS = {
 }
 
 
-@app.command("run")
-def run(
-    ctx: typer.Context,
-    election_id: str,
-    method: str = typer.Option(..., "--method", help="Counting method to apply (a count is a lens on the ballots; elections do not fix one)."),
-    seats: Optional[int] = typer.Option(None, "--seats"),
-    tie_policy: Optional[str] = typer.Option(None, "--tie-policy"),
-) -> None:
-    project = ctx_project(ctx)
-    prepared = prepare_count(project, election_id, method)
+# Canonical methods each ballot type can meaningfully count, keyed by the
+# ballot fields the counters actually read. `count compare` runs these.
+COMPATIBLE_METHODS = {
+    "ranked": ["borda", "irv", "stv", "schulze", "copeland", "minimax", "ranked_pairs",
+               "kemeny_young", "bucklin", "runoff", "fptp", "simple_majority"],
+    "single_choice": ["fptp", "simple_majority", "sntv", "runoff", "approval"],
+    "approval": ["approval", "block_voting", "limited_voting"],
+    "score": ["score", "star"],
+    "grade": ["majority_judgment"],
+    "allocated": ["cumulative"],
+}
+
+
+def _count_once(project: Project, election_id: str, prepared: dict, method: str,
+                seats: Optional[int], tie_policy: Optional[str]) -> dict:
+    """Count prepared ballots under one method and save the result record."""
     election = dict(prepared["election"])
     if seats is not None:
         election["seats"] = seats
-    selected_method = prepared["method"]
     selected_tie_policy = tie_policy or election.get("settings", {}).get("tie_policy", "lexicographic")
-    counter = METHODS[selected_method]
+    counter = METHODS[method]
     method_result = counter(election, prepared["options"], prepared["ballots"], selected_tie_policy)
     method_warnings = method_result.pop("warnings", [])
     result = {
         "election_id": election_id,
-        "method": selected_method,
+        "method": method,
         "created_at": local_iso_now(),
         "settings": {
             "seats": election.get("seats", 1),
@@ -94,8 +99,23 @@ def run(
         **{k: v for k, v in method_result.items() if k not in {"winners", "ranking"}},
         "warnings": prepared["warnings"] + method_warnings,
     }
-    rid, _ = append_record(project, "results", [election_id, selected_method], result)
+    rid, _ = append_record(project, "results", [election_id, method], result)
     result["id"] = rid
+    return result
+
+
+@app.command("run")
+def run(
+    ctx: typer.Context,
+    election_id: str,
+    method: str = typer.Option(..., "--method", help="Counting method to apply (a count is a lens on the ballots; elections do not fix one)."),
+    seats: Optional[int] = typer.Option(None, "--seats"),
+    tie_policy: Optional[str] = typer.Option(None, "--tie-policy"),
+) -> None:
+    project = ctx_project(ctx)
+    prepared = prepare_count(project, election_id, method)
+    result = _count_once(project, election_id, prepared, prepared["method"], seats, tie_policy)
+    rid = result["id"]
     def _run_table():
         from voting.render import count_result_table
 
@@ -107,6 +127,76 @@ def run(
         result,
         next_steps=[f"voting count show {rid}", "voting count list"],
         human_renderable=_run_table,
+    )
+
+
+@app.command("compare")
+def compare(
+    ctx: typer.Context,
+    election_id: str,
+    method: Optional[list[str]] = typer.Option(None, "--method", help="Restrict to these methods (repeatable). Default: every method compatible with the election's ballot type."),
+    seats: Optional[int] = typer.Option(None, "--seats"),
+    tie_policy: Optional[str] = typer.Option(None, "--tie-policy"),
+) -> None:
+    """Count the same ballots under every compatible method in one command."""
+    project = ctx_project(ctx)
+    prepared = prepare_count(project, election_id, None)
+    ballot_type = prepared["election"].get("ballot_type", "ranked")
+    if method:
+        unknown = [m for m in method if m not in METHODS]
+        if unknown:
+            raise UserError(
+                "Unknown voting method(s).",
+                {"methods": unknown, "known": sorted(METHODS)},
+                hint="Run `voting docs show voting-methods` to see all supported methods.",
+            )
+        selected = list(dict.fromkeys(method))
+    else:
+        selected = COMPATIBLE_METHODS.get(ballot_type, [])
+        if not selected:
+            raise UserError(
+                f"No methods are registered as compatible with ballot_type '{ballot_type}'.",
+                {"ballot_type": ballot_type},
+                hint="Name methods explicitly with --method <name> (repeatable).",
+            )
+
+    results = [_count_once(project, election_id, prepared, m, seats, tie_policy) for m in selected]
+    rows = [{
+        "method": r["method"],
+        "result_id": r["id"],
+        "winners": r["winners"],
+        "runner_up": next((x["option_id"] for x in r.get("ranking", []) if x.get("rank") == 2), None),
+    } for r in results]
+    decided = [tuple(sorted(r["winners"])) for r in results if r["winners"]]
+    no_winner = [r["method"] for r in results if not r["winners"]]
+    unanimous = list(decided[0]) if decided and len(set(decided)) == 1 else None
+
+    def _table():
+        from voting.render import count_list_table
+
+        return count_list_table(results)
+
+    output(
+        ctx,
+        "count compare",
+        {
+            "election_id": election_id,
+            "ballot_type": ballot_type,
+            "methods_run": selected,
+            "results": rows,
+            "no_winner": no_winner,
+            "unanimous_winners": unanimous,
+            "summary": {
+                "valid_ballots": len(prepared["ballots"]),
+                "invalid_ballots": len(prepared["warnings"]),
+            },
+        },
+        warnings=prepared["warnings"],
+        next_steps=[
+            f"voting plot methods --election {election_id}",
+            f"voting count show {rows[0]['result_id']}" if rows else "voting count list",
+        ],
+        human_renderable=_table,
     )
 
 

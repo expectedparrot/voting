@@ -201,6 +201,46 @@ def test_human_mode_renders_rich_tables(tmp_path: Path) -> None:
     assert "winner" in counts.stdout.lower() or "tea" in counts.stdout
 
 
+def test_count_compare_runs_all_compatible_methods(tmp_path: Path) -> None:
+    assert run_voting("init", "cmp", cwd=tmp_path).returncode == 0
+    cwd = tmp_path / "cmp"
+    for step in [
+        ("option", "add", "tea", "Tea"),
+        ("option", "add", "coffee", "Coffee"),
+        ("voter", "add", "v1", "One"), ("voter", "add", "v2", "Two"), ("voter", "add", "v3", "Three"),
+        ("election", "add", "drink", "Best drink", "--ballot-type", "ranked"),
+        ("election", "add-option", "drink", "tea"),
+        ("election", "add-option", "drink", "coffee"),
+        ("election", "open", "drink"),
+        ("ballot", "rank", "drink", "v1", "tea", "coffee"),
+        ("ballot", "rank", "drink", "v2", "tea", "coffee"),
+        ("ballot", "rank", "drink", "v3", "coffee", "tea"),
+    ]:
+        assert run_voting(*step, cwd=cwd).returncode == 0, step
+
+    compared = run_voting("count", "compare", "drink", cwd=cwd)
+    assert compared.returncode == 0, compared.stdout + compared.stderr
+    data = json.loads(compared.stdout)["data"]
+    assert set(data["methods_run"]) == {
+        "borda", "irv", "stv", "schulze", "copeland", "minimax", "ranked_pairs",
+        "kemeny_young", "bucklin", "runoff", "fptp", "simple_majority",
+    }
+    # 2/3 first preferences IS a majority here, so every method decides — tea.
+    assert data["no_winner"] == []
+    assert data["unanimous_winners"] == ["tea"]
+    # every run was saved as a normal result record
+    listed = json.loads(run_voting("count", "list", cwd=cwd).stdout)["data"]["results"]
+    assert len(listed) == len(data["methods_run"])
+
+    # --method restricts (and unknown names fail closed)
+    two = json.loads(run_voting("count", "compare", "drink", "--method", "borda",
+                                "--method", "fptp", cwd=cwd).stdout)["data"]
+    assert two["methods_run"] == ["borda", "fptp"]
+    bad = run_voting("count", "compare", "drink", "--method", "vibes", cwd=cwd)
+    assert bad.returncode == 1
+    assert json.loads(bad.stdout)["errors"][0]["context"]["methods"] == ["vibes"]
+
+
 def test_plot_commands_write_svgs(tmp_path: Path) -> None:
     assert run_voting("init", "plots", cwd=tmp_path).returncode == 0
     cwd = tmp_path / "plots"

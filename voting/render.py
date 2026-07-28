@@ -130,7 +130,7 @@ def count_list_table(results: list[dict]):
         runner_up = next((r["option_id"] for r in ranking if r.get("rank") == 2), "")
         table.add_row(
             result.get("method", ""),
-            ", ".join(result.get("winners", [])),
+            ", ".join(result.get("winners", [])) or "(no winner)",
             runner_up,
             (result.get("created_at") or "").replace("T", " "),
         )

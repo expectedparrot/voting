@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A worked, evidence-first tutorial: counting real human ballots under seven voting methods.">
+  <meta name="description" content="A worked, evidence-first tutorial: counting real human ballots under twelve voting methods.">
   <title>Expected Parrot | Counting Real Ballots with voting</title>
   <style>
     :root{--green:#2e6b4f;--dark:#214d35;--light:#eef5f0;--amber:#b66b13;--ink:#1d211e;--muted:#5b665e;--rule:#dde5de;--code:#152019;--serif:Georgia,'Times New Roman',serif;--sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;--mono:'SF Mono',SFMono-Regular,ui-monospace,Menlo,Consolas,monospace;--measure:760px}
@@ -64,14 +64,14 @@
   <a class="item" href="#election">4. Define the election</a>
   <a class="item" href="#survey">5. The hosted human survey</a>
   <a class="item" href="#ballots">6. Ballots that don't count (yet)</a>
-  <a class="item" href="#methods">7. Seven methods, one answer</a>
+  <a class="item" href="#methods">7. Every method, one answer</a>
   <div class="part">Practice</div>
   <a class="item" href="#practice">8. Where everything lives</a>
   <div class="small">Every output on this page is a real captured envelope; the ballots are 18 real human responses from a production Expected Parrot Humanize survey.</div>
 </nav>
 <main><article>
   <div class="eyebrow">Expected Parrot · a practical, evidence-first tutorial</div>
-  <h1>Counting real ballots under seven voting methods</h1>
+  <h1>Counting real ballots under twelve voting methods</h1>
   <p class="dek">Eighteen people ranked eight classic novels in a hosted survey on Expected Parrot. This tutorial shows how the <code>voting</code> package works with those votes — and how different ways of tallying them do (or don't) change the outcome.</p>
 
   <section id="question">
@@ -155,7 +155,7 @@
       &quot;id&quot;: &quot;classic_books&quot;,
       &quot;title&quot;: &quot;Classic Books&quot;,
       &quot;description&quot;: &quot;&quot;,
-      &quot;created_at&quot;: &quot;2026-07-28T13:28:25&quot;,
+      &quot;created_at&quot;: &quot;2026-07-28T13:44:12&quot;,
       &quot;settings&quot;: {
         &quot;default_tie_policy&quot;: &quot;lexicographic&quot;,
         &quot;allow_unregistered_voters&quot;: false
@@ -228,7 +228,7 @@
     &quot;id&quot;: &quot;book_preference&quot;,
     &quot;name&quot;: &quot;Classic book preference&quot;,
     &quot;description&quot;: &quot;&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T13:28:25&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T13:44:12&quot;,
     &quot;ballot_type&quot;: &quot;ranked&quot;,
     &quot;seats&quot;: 1,
     &quot;status&quot;: &quot;draft&quot;,
@@ -342,7 +342,7 @@
   ],
   &quot;data&quot;: {
     &quot;ballot_type&quot;: &quot;ranked&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T13:28:25&quot;,
+    &quot;created_at&quot;: &quot;2026-07-28T13:44:12&quot;,
     &quot;description&quot;: &quot;&quot;,
     &quot;id&quot;: &quot;book_preference&quot;,
     &quot;name&quot;: &quot;Classic book preference&quot;,
@@ -362,7 +362,7 @@
       &quot;tie_policy&quot;: &quot;lexicographic&quot;
     },
     &quot;status&quot;: &quot;open&quot;,
-    &quot;open_at&quot;: &quot;2026-07-28T13:28:26&quot;
+    &quot;open_at&quot;: &quot;2026-07-28T13:44:13&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
@@ -509,17 +509,17 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     &quot;warnings&quot;: [
       {
         &quot;code&quot;: &quot;unknown_voter&quot;,
-        &quot;ballot_id&quot;: &quot;20260728T172829047150Z_7dcb885c_r_95fa122e_8606_4b48_8903_a342103fedb3_book_preference&quot;,
+        &quot;ballot_id&quot;: &quot;20260728T174415672795Z_d1fea4da_r_95fa122e_8606_4b48_8903_a342103fedb3_book_preference&quot;,
         &quot;voter_id&quot;: &quot;r_95fa122e_8606_4b48_8903_a342103fedb3&quot;
       },
       {
         &quot;code&quot;: &quot;unknown_voter&quot;,
-        &quot;ballot_id&quot;: &quot;20260728T172829047363Z_62722475_r_02a2ae52_9765_414d_9d2e_9cfc19942690_book_preference&quot;,
+        &quot;ballot_id&quot;: &quot;20260728T174415673028Z_ffeb97d4_r_02a2ae52_9765_414d_9d2e_9cfc19942690_book_preference&quot;,
         &quot;voter_id&quot;: &quot;r_02a2ae52_9765_414d_9d2e_9cfc19942690&quot;
       },
       {
         &quot;code&quot;: &quot;unknown_voter&quot;,
-        &quot;ballot_id&quot;: &quot;20260728T172829047473Z_e70c439a_r_6785ca96_b4ae_482d_a397_1f78214cb69d_book_preference&quot;,
+        &quot;ballot_id&quot;: &quot;20260728T174415673197Z_4a43dcec_r_6785ca96_b4ae_482d_a397_1f78214cb69d_book_preference&quot;,
         &quot;voter_id&quot;: &quot;r_6785ca96_b4ae_482d_a397_1f78214cb69d&quot;
       },
       &quot;… 15 further entries elided …&quot;
@@ -598,33 +598,33 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
 ┏━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
 ┃ voter          ┃ ballot                                                    ┃ recorded            ┃
 ┡━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
-│ r_95fa122e_86… │ nineteen_eighty_four &gt; lord_flies &gt; scarlet_letter … (+5  │ 2026-07-28 13:28:30 │
+│ r_95fa122e_86… │ nineteen_eighty_four &gt; lord_flies &gt; scarlet_letter … (+5  │ 2026-07-28 13:44:17 │
 │                │ more)                                                     │                     │
-│ r_02a2ae52_97… │ catcher_rye &gt; nineteen_eighty_four &gt; great_gatsby … (+5   │ 2026-07-28 13:28:30 │
+│ r_02a2ae52_97… │ catcher_rye &gt; nineteen_eighty_four &gt; great_gatsby … (+5   │ 2026-07-28 13:44:17 │
 │                │ more)                                                     │                     │
-│ r_6785ca96_b4… │ nineteen_eighty_four &gt; animal_farm &gt; great_gatsby … (+5   │ 2026-07-28 13:28:30 │
+│ r_6785ca96_b4… │ nineteen_eighty_four &gt; animal_farm &gt; great_gatsby … (+5   │ 2026-07-28 13:44:17 │
 │                │ more)                                                     │                     │
-│ r_253c40f1_32… │ nineteen_eighty_four &gt; mice_men &gt; mockingbird … (+5 more) │ 2026-07-28 13:28:30 │
-│ r_2fbe4384_33… │ mice_men &gt; great_gatsby &gt; lord_flies … (+5 more)          │ 2026-07-28 13:28:30 │
-│ r_0f85628b_50… │ nineteen_eighty_four &gt; scarlet_letter &gt; catcher_rye … (+5 │ 2026-07-28 13:28:30 │
+│ r_253c40f1_32… │ nineteen_eighty_four &gt; mice_men &gt; mockingbird … (+5 more) │ 2026-07-28 13:44:17 │
+│ r_2fbe4384_33… │ mice_men &gt; great_gatsby &gt; lord_flies … (+5 more)          │ 2026-07-28 13:44:17 │
+│ r_0f85628b_50… │ nineteen_eighty_four &gt; scarlet_letter &gt; catcher_rye … (+5 │ 2026-07-28 13:44:17 │
 │                │ more)                                                     │                     │
-│ b29fe300_0612… │ nineteen_eighty_four &gt; animal_farm &gt; mice_men … (+5 more) │ 2026-07-28 13:28:30 │
-│ r_60abb9b9_1c… │ nineteen_eighty_four &gt; animal_farm &gt; catcher_rye … (+5    │ 2026-07-28 13:28:30 │
+│ b29fe300_0612… │ nineteen_eighty_four &gt; animal_farm &gt; mice_men … (+5 more) │ 2026-07-28 13:44:17 │
+│ r_60abb9b9_1c… │ nineteen_eighty_four &gt; animal_farm &gt; catcher_rye … (+5    │ 2026-07-28 13:44:17 │
 │                │ more)                                                     │                     │
-│ r_4e8ddeca_81… │ mockingbird &gt; mice_men &gt; nineteen_eighty_four … (+5 more) │ 2026-07-28 13:28:30 │
-│ r_51e15daa_72… │ mockingbird &gt; nineteen_eighty_four &gt; lord_flies … (+5     │ 2026-07-28 13:28:30 │
+│ r_4e8ddeca_81… │ mockingbird &gt; mice_men &gt; nineteen_eighty_four … (+5 more) │ 2026-07-28 13:44:17 │
+│ r_51e15daa_72… │ mockingbird &gt; nineteen_eighty_four &gt; lord_flies … (+5     │ 2026-07-28 13:44:17 │
 │                │ more)                                                     │                     │
-│ b2d6c619_8c5e… │ nineteen_eighty_four &gt; great_gatsby &gt; mockingbird … (+5   │ 2026-07-28 13:28:30 │
+│ b2d6c619_8c5e… │ nineteen_eighty_four &gt; great_gatsby &gt; mockingbird … (+5   │ 2026-07-28 13:44:17 │
 │                │ more)                                                     │                     │
-│ r_2dcf9550_88… │ catcher_rye &gt; great_gatsby &gt; mice_men … (+5 more)         │ 2026-07-28 13:28:30 │
-│ r_866b5ae1_22… │ mockingbird &gt; great_gatsby &gt; scarlet_letter … (+5 more)   │ 2026-07-28 13:28:30 │
-│ abb414e9_cd1e… │ nineteen_eighty_four &gt; animal_farm &gt; lord_flies … (+5     │ 2026-07-28 13:28:30 │
+│ r_2dcf9550_88… │ catcher_rye &gt; great_gatsby &gt; mice_men … (+5 more)         │ 2026-07-28 13:44:17 │
+│ r_866b5ae1_22… │ mockingbird &gt; great_gatsby &gt; scarlet_letter … (+5 more)   │ 2026-07-28 13:44:17 │
+│ abb414e9_cd1e… │ nineteen_eighty_four &gt; animal_farm &gt; lord_flies … (+5     │ 2026-07-28 13:44:17 │
 │                │ more)                                                     │                     │
-│ r_7cb11170_5a… │ mockingbird &gt; nineteen_eighty_four &gt; mice_men … (+5 more) │ 2026-07-28 13:28:30 │
-│ r_5b8d9c86_19… │ great_gatsby &gt; scarlet_letter &gt; mockingbird … (+5 more)   │ 2026-07-28 13:28:30 │
-│ r_7df8a708_8e… │ great_gatsby &gt; nineteen_eighty_four &gt; lord_flies … (+5    │ 2026-07-28 13:28:30 │
+│ r_7cb11170_5a… │ mockingbird &gt; nineteen_eighty_four &gt; mice_men … (+5 more) │ 2026-07-28 13:44:17 │
+│ r_5b8d9c86_19… │ great_gatsby &gt; scarlet_letter &gt; mockingbird … (+5 more)   │ 2026-07-28 13:44:17 │
+│ r_7df8a708_8e… │ great_gatsby &gt; nineteen_eighty_four &gt; lord_flies … (+5    │ 2026-07-28 13:44:17 │
 │                │ more)                                                     │                     │
-│ cd27fba8_b7ee… │ animal_farm &gt; catcher_rye &gt; great_gatsby … (+5 more)      │ 2026-07-28 13:28:30 │
+│ cd27fba8_b7ee… │ animal_farm &gt; catcher_rye &gt; great_gatsby … (+5 more)      │ 2026-07-28 13:44:17 │
 └────────────────┴───────────────────────────────────────────────────────────┴─────────────────────┘</code></pre><figcaption>The countable ballots: eighteen anonymous respondents at weight 1.0, top three choices shown; full rankings live in the ballot records and drive every count.</figcaption></figure>
     <p>Eighteen full rankings are hard to eyeball. The built-in plots turn them into a picture — <code>voting plot ranks</code> shows, for each book, how many voters placed it first, second, and so on (hover any segment for the exact count):</p>
     <pre class="command"><code>voting plot ranks book_preference</code></pre>
@@ -765,60 +765,131 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   </section>
 
   <section id="methods">
-    <h2><span class="chapter">07</span> Seven methods, one answer</h2>
-    <p>Now the point of the exercise. The same eighteen ballots, counted seven ways. Every count names its method explicitly — there is no default to fall back on, and that is a feature: a "winner" is always a <em>method's</em> winner. Borda first:</p>
-    <pre class="command"><code>voting count run book_preference --method borda</code></pre>
+    <h2><span class="chapter">07</span> Every method, one answer</h2>
+    <p>Now the point of the exercise. Counts name their method explicitly (<code>voting count run &lt;id&gt; --method borda</code>) — there is no default, and that is a feature: a "winner" is always a <em>method's</em> winner. But nobody should have to type twelve commands to ask the obvious question. <code>voting count compare</code> counts the same ballots under <strong>every method that can read them</strong> — for ranked ballots, all 12 — and saves each result:</p>
+    <pre class="command"><code>voting count compare book_preference</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
-  &quot;command&quot;: &quot;count run&quot;,
+  &quot;command&quot;: &quot;count compare&quot;,
   &quot;status&quot;: &quot;ok&quot;,
   &quot;argv&quot;: [
     &quot;voting&quot;,
     &quot;count&quot;,
-    &quot;run&quot;,
-    &quot;book_preference&quot;,
-    &quot;--method&quot;,
-    &quot;borda&quot;
+    &quot;compare&quot;,
+    &quot;book_preference&quot;
   ],
   &quot;data&quot;: {
     &quot;election_id&quot;: &quot;book_preference&quot;,
-    &quot;method&quot;: &quot;borda&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T13:28:31&quot;,
-    &quot;settings&quot;: {
-      &quot;seats&quot;: 1,
-      &quot;tie_policy&quot;: &quot;lexicographic&quot;,
-      &quot;quota&quot;: &quot;droop&quot;
-    },
-    &quot;winners&quot;: [
+    &quot;ballot_type&quot;: &quot;ranked&quot;,
+    &quot;methods_run&quot;: [
+      &quot;borda&quot;,
+      &quot;irv&quot;,
+      &quot;stv&quot;,
+      &quot;… 9 further entries elided …&quot;
+    ],
+    &quot;results&quot;: [
+      {
+        &quot;method&quot;: &quot;borda&quot;,
+        &quot;result_id&quot;: &quot;20260728T174417679517Z_e3bc667a_book_preference_borda&quot;,
+        &quot;winners&quot;: [
+          &quot;nineteen_eighty_four&quot;
+        ],
+        &quot;runner_up&quot;: &quot;mockingbird&quot;
+      },
+      {
+        &quot;method&quot;: &quot;irv&quot;,
+        &quot;result_id&quot;: &quot;20260728T174417680025Z_95e22f8e_book_preference_irv&quot;,
+        &quot;winners&quot;: [
+          &quot;nineteen_eighty_four&quot;
+        ],
+        &quot;runner_up&quot;: &quot;mockingbird&quot;
+      },
+      {
+        &quot;method&quot;: &quot;stv&quot;,
+        &quot;result_id&quot;: &quot;20260728T174417680357Z_03b71e53_book_preference_stv&quot;,
+        &quot;winners&quot;: [
+          &quot;nineteen_eighty_four&quot;
+        ],
+        &quot;runner_up&quot;: &quot;mockingbird&quot;
+      },
+      &quot;… 9 further entries elided …&quot;
+    ],
+    &quot;no_winner&quot;: [
+      &quot;simple_majority&quot;
+    ],
+    &quot;unanimous_winners&quot;: [
       &quot;nineteen_eighty_four&quot;
     ],
+    &quot;summary&quot;: {
+      &quot;valid_ballots&quot;: 18,
+      &quot;invalid_ballots&quot;: 0
+    }
+  },
+  &quot;warnings&quot;: [],
+  &quot;errors&quot;: [],
+  &quot;next_steps&quot;: [
+    &quot;voting plot methods --election book_preference&quot;,
+    &quot;voting count show 20260728T174417679517Z_e3bc667a_book_preference_borda&quot;
+  ]
+}</code></pre></details>
+    <figure class="human"><pre class="human"><code>$ voting --human count list --election book_preference
+                                Count runs (12)                                
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+┃ method          ┃ winner(s)            ┃ runner-up    ┃ created             ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+│ borda           │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 13:44:17 │
+│ irv             │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 13:44:17 │
+│ stv             │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 13:44:17 │
+│ schulze         │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 13:44:17 │
+│ copeland        │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 13:44:17 │
+│ minimax         │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 13:44:17 │
+│ ranked_pairs    │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 13:44:17 │
+│ kemeny_young    │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 13:44:17 │
+│ bucklin         │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 13:44:17 │
+│ runoff          │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 13:44:17 │
+│ fptp            │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 13:44:17 │
+│ simple_majority │ (no winner)          │ mockingbird  │ 2026-07-28 13:44:17 │
+└─────────────────┴──────────────────────┴──────────────┴─────────────────────┘</code></pre><figcaption>Twelve methods, side by side. 11 elect nineteen_eighty_four; simple_majority declines.</figcaption></figure>
+    <p><strong>11 of 12 methods elect <em>1984</em>. The twelfth refuses to answer</strong> — and its refusal is worth reading. <code>simple_majority</code> requires an outright majority of first preferences; nineteen_eighty_four holds 8 of 18, a plurality but not a majority, so the method reports <code>winners: []</code> with the threshold it applied. Like the unregistered-ballot check in chapter 6, an honest refusal beats a fabricated answer.</p>
+    <p>Every comparison run is a full saved record of how its method reasoned. Open a few with <code>count show</code>. Borda first — each ballot position contributes points, so it measures breadth of support:</p>
+    <pre class="command"><code>voting count show 20260728T174417679517Z_e3bc667a_book_preference_borda</code></pre>
+    <details class="output"><summary>Show command output</summary><pre><code>{
+  &quot;schema_version&quot;: &quot;1.0&quot;,
+  &quot;command&quot;: &quot;count show&quot;,
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;argv&quot;: [
+    &quot;voting&quot;,
+    &quot;count&quot;,
+    &quot;show&quot;,
+    &quot;20260728T174417679517Z_e3bc667a_book_preference_borda&quot;
+  ],
+  &quot;data&quot;: {
+    &quot;created_at&quot;: &quot;2026-07-28T13:44:17&quot;,
+    &quot;election_id&quot;: &quot;book_preference&quot;,
+    &quot;id&quot;: &quot;20260728T174417679517Z_e3bc667a_book_preference_borda&quot;,
+    &quot;method&quot;: &quot;borda&quot;,
     &quot;ranking&quot;: [
       {
         &quot;option_id&quot;: &quot;nineteen_eighty_four&quot;,
         &quot;rank&quot;: 1,
-        &quot;status&quot;: &quot;elected&quot;,
-        &quot;score&quot;: 93.0
+        &quot;score&quot;: 93.0,
+        &quot;status&quot;: &quot;elected&quot;
       },
       {
         &quot;option_id&quot;: &quot;mockingbird&quot;,
         &quot;rank&quot;: 2,
-        &quot;status&quot;: &quot;defeated&quot;,
-        &quot;score&quot;: 79.0
+        &quot;score&quot;: 79.0,
+        &quot;status&quot;: &quot;defeated&quot;
       },
       {
         &quot;option_id&quot;: &quot;great_gatsby&quot;,
         &quot;rank&quot;: 3,
-        &quot;status&quot;: &quot;defeated&quot;,
-        &quot;score&quot;: 73.0
+        &quot;score&quot;: 73.0,
+        &quot;status&quot;: &quot;defeated&quot;
       },
       &quot;… 5 further entries elided …&quot;
     ],
-    &quot;summary&quot;: {
-      &quot;valid_ballots&quot;: 18,
-      &quot;invalid_ballots&quot;: 0,
-      &quot;total_valid_weight&quot;: 18.0,
-      &quot;exhausted_weight&quot;: 0.0
-    },
+    &quot;rounds&quot;: [],
     &quot;scores&quot;: [
       {
         &quot;option_id&quot;: &quot;nineteen_eighty_four&quot;,
@@ -834,18 +905,27 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
       },
       &quot;… 5 further entries elided …&quot;
     ],
-    &quot;rounds&quot;: [],
+    &quot;settings&quot;: {
+      &quot;quota&quot;: &quot;droop&quot;,
+      &quot;seats&quot;: 1,
+      &quot;tie_policy&quot;: &quot;lexicographic&quot;
+    },
+    &quot;summary&quot;: {
+      &quot;exhausted_weight&quot;: 0.0,
+      &quot;invalid_ballots&quot;: 0,
+      &quot;total_valid_weight&quot;: 18.0,
+      &quot;valid_ballots&quot;: 18
+    },
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T172831327275Z_8eba6bf5_book_preference_borda&quot;
+    &quot;winners&quot;: [
+      &quot;nineteen_eighty_four&quot;
+    ]
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
-  &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T172831327275Z_8eba6bf5_book_preference_borda&quot;,
-    &quot;voting count list&quot;
-  ]
+  &quot;next_steps&quot;: []
 }</code></pre></details>
-    <figure class="human"><pre class="human"><code>$ voting --human count show 20260728T172831327275Z_8eba6bf5_book_preference_borda
+    <figure class="human"><pre class="human"><code>$ voting --human count show 20260728T174417679517Z_e3bc667a_book_preference_borda
           borda count — book_preference           
 ┏━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━┓
 ┃ rank ┃ option               ┃ score ┃ status   ┃
@@ -860,8 +940,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
 │    8 │ scarlet_letter       │    40 │ defeated │
 └──────┴──────────────────────┴───────┴──────────┘
            winner: nineteen_eighty_four</code></pre><figcaption>The saved Borda count rendered for people: full ranking, scores, and the winner.</figcaption></figure>
-    <p>Any saved count can also be plotted — the winner's bar in green:</p>
-    <pre class="command"><code>voting plot scores 20260728T172831327275Z_8eba6bf5_book_preference_borda</code></pre>
+    <pre class="command"><code>voting plot scores 20260728T174417679517Z_e3bc667a_book_preference_borda</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
   &quot;command&quot;: &quot;plot scores&quot;,
@@ -870,18 +949,18 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     &quot;voting&quot;,
     &quot;plot&quot;,
     &quot;scores&quot;,
-    &quot;20260728T172831327275Z_8eba6bf5_book_preference_borda&quot;
+    &quot;20260728T174417679517Z_e3bc667a_book_preference_borda&quot;
   ],
   &quot;data&quot;: {
-    &quot;result_id&quot;: &quot;20260728T172831327275Z_8eba6bf5_book_preference_borda&quot;,
+    &quot;result_id&quot;: &quot;20260728T174417679517Z_e3bc667a_book_preference_borda&quot;,
     &quot;method&quot;: &quot;borda&quot;,
-    &quot;path&quot;: &quot;.voting/output/plots/scores_20260728T172831327275Z_8eba6bf5_book_preference_borda.svg&quot;,
+    &quot;path&quot;: &quot;.voting/output/plots/scores_20260728T174417679517Z_e3bc667a_book_preference_borda.svg&quot;,
     &quot;format&quot;: &quot;svg&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;open .voting/output/plots/scores_20260728T172831327275Z_8eba6bf5_book_preference_borda.svg&quot;
+    &quot;open .voting/output/plots/scores_20260728T174417679517Z_e3bc667a_book_preference_borda.svg&quot;
   ]
 }</code></pre></details>
     <figure class="plot"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 358" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif" role="img" aria-label="borda totals — book_preference">
@@ -912,34 +991,25 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
 <rect x="250" y="301" width="180.6" height="20" rx="3" fill="#97c2a8"/>
 <text x="438.64516129032256" y="315" font-size="13" font-weight="700" fill="#5b665e">40</text>
 </svg>
-<figcaption>Borda totals as a picture: every ballot position contributes points, so the gaps show breadth of support, not just first choices.</figcaption></figure>
-    <p>Borda gives <em>nineteen_eighty_four</em> 93 points against mockingbird's 79. Now the other six. Each envelope records how its method actually reasoned, so they are worth opening for different things:</p>
-    <p><strong>Instant-runoff</strong> eliminates the weakest option and retries until someone holds a majority — the <code>rounds</code> array is the elimination story, round by round:</p>
-    <pre class="command"><code>voting count run book_preference --method irv</code></pre>
+<figcaption>Borda totals as a picture: the gaps show breadth of support, not just first choices.</figcaption></figure>
+    <p>Borda gives <em>nineteen_eighty_four</em> 93 points against mockingbird's 79. <strong>Instant-runoff</strong> reasons completely differently — eliminate the weakest option, retry until someone holds a majority — and its <code>rounds</code> array is that elimination story:</p>
+    <pre class="command"><code>voting count show 20260728T174417680025Z_95e22f8e_book_preference_irv</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
-  &quot;command&quot;: &quot;count run&quot;,
+  &quot;command&quot;: &quot;count show&quot;,
   &quot;status&quot;: &quot;ok&quot;,
   &quot;argv&quot;: [
     &quot;voting&quot;,
     &quot;count&quot;,
-    &quot;run&quot;,
-    &quot;book_preference&quot;,
-    &quot;--method&quot;,
-    &quot;irv&quot;
+    &quot;show&quot;,
+    &quot;20260728T174417680025Z_95e22f8e_book_preference_irv&quot;
   ],
   &quot;data&quot;: {
+    &quot;created_at&quot;: &quot;2026-07-28T13:44:17&quot;,
     &quot;election_id&quot;: &quot;book_preference&quot;,
+    &quot;exhausted_weight&quot;: 0.0,
+    &quot;id&quot;: &quot;20260728T174417680025Z_95e22f8e_book_preference_irv&quot;,
     &quot;method&quot;: &quot;irv&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T13:28:31&quot;,
-    &quot;settings&quot;: {
-      &quot;seats&quot;: 1,
-      &quot;tie_policy&quot;: &quot;lexicographic&quot;,
-      &quot;quota&quot;: &quot;droop&quot;
-    },
-    &quot;winners&quot;: [
-      &quot;nineteen_eighty_four&quot;
-    ],
     &quot;ranking&quot;: [
       {
         &quot;option_id&quot;: &quot;nineteen_eighty_four&quot;,
@@ -958,14 +1028,10 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
       },
       &quot;… 5 further entries elided …&quot;
     ],
-    &quot;summary&quot;: {
-      &quot;valid_ballots&quot;: 18,
-      &quot;invalid_ballots&quot;: 0,
-      &quot;total_valid_weight&quot;: 18.0,
-      &quot;exhausted_weight&quot;: 0.0
-    },
     &quot;rounds&quot;: [
       {
+        &quot;eliminated&quot;: &quot;lord_flies&quot;,
+        &quot;exhausted_weight&quot;: 0.0,
         &quot;totals&quot;: [
           {
             &quot;option_id&quot;: &quot;nineteen_eighty_four&quot;,
@@ -976,11 +1042,11 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
             &quot;total&quot;: 4.0
           },
           &quot;… 6 further entries elided …&quot;
-        ],
-        &quot;exhausted_weight&quot;: 0.0,
-        &quot;eliminated&quot;: &quot;lord_flies&quot;
+        ]
       },
       {
+        &quot;eliminated&quot;: &quot;scarlet_letter&quot;,
+        &quot;exhausted_weight&quot;: 0.0,
         &quot;totals&quot;: [
           {
             &quot;option_id&quot;: &quot;nineteen_eighty_four&quot;,
@@ -991,11 +1057,11 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
             &quot;total&quot;: 4.0
           },
           &quot;… 5 further entries elided …&quot;
-        ],
-        &quot;exhausted_weight&quot;: 0.0,
-        &quot;eliminated&quot;: &quot;scarlet_letter&quot;
+        ]
       },
       {
+        &quot;eliminated&quot;: &quot;animal_farm&quot;,
+        &quot;exhausted_weight&quot;: 0.0,
         &quot;totals&quot;: [
           {
             &quot;option_id&quot;: &quot;nineteen_eighty_four&quot;,
@@ -1006,9 +1072,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
             &quot;total&quot;: 4.0
           },
           &quot;… 4 further entries elided …&quot;
-        ],
-        &quot;exhausted_weight&quot;: 0.0,
-        &quot;eliminated&quot;: &quot;animal_farm&quot;
+        ]
       },
       &quot;… 4 further entries elided …&quot;
     ],
@@ -1027,43 +1091,125 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
       },
       &quot;… 5 further entries elided …&quot;
     ],
-    &quot;exhausted_weight&quot;: 0.0,
+    &quot;settings&quot;: {
+      &quot;quota&quot;: &quot;droop&quot;,
+      &quot;seats&quot;: 1,
+      &quot;tie_policy&quot;: &quot;lexicographic&quot;
+    },
+    &quot;summary&quot;: {
+      &quot;exhausted_weight&quot;: 0.0,
+      &quot;invalid_ballots&quot;: 0,
+      &quot;total_valid_weight&quot;: 18.0,
+      &quot;valid_ballots&quot;: 18
+    },
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T172831561305Z_fa96f7af_book_preference_irv&quot;
+    &quot;winners&quot;: [
+      &quot;nineteen_eighty_four&quot;
+    ]
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
-  &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T172831561305Z_fa96f7af_book_preference_irv&quot;,
-    &quot;voting count list&quot;
-  ]
+  &quot;next_steps&quot;: []
 }</code></pre></details>
-    <p><strong>Schulze</strong> (a Condorcet method) plays every option against every other; the <code>pairwise</code> matrix holds all 28 head-to-head margins — and <code>voting plot pairwise</code> makes it legible at a glance:</p>
-    <pre class="command"><code>voting count run book_preference --method schulze</code></pre>
+    <p><strong>Schulze</strong> (a Condorcet method) plays every option against every other; the <code>pairwise</code> matrix holds all 28 head-to-head margins, and <code>voting plot pairwise</code> makes it legible at a glance:</p>
+    <pre class="command"><code>voting count show 20260728T174417680800Z_4fd89131_book_preference_schulze</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
-  &quot;command&quot;: &quot;count run&quot;,
+  &quot;command&quot;: &quot;count show&quot;,
   &quot;status&quot;: &quot;ok&quot;,
   &quot;argv&quot;: [
     &quot;voting&quot;,
     &quot;count&quot;,
-    &quot;run&quot;,
-    &quot;book_preference&quot;,
-    &quot;--method&quot;,
-    &quot;schulze&quot;
+    &quot;show&quot;,
+    &quot;20260728T174417680800Z_4fd89131_book_preference_schulze&quot;
   ],
   &quot;data&quot;: {
+    &quot;created_at&quot;: &quot;2026-07-28T13:44:17&quot;,
     &quot;election_id&quot;: &quot;book_preference&quot;,
+    &quot;id&quot;: &quot;20260728T174417680800Z_4fd89131_book_preference_schulze&quot;,
     &quot;method&quot;: &quot;schulze&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T13:28:31&quot;,
-    &quot;settings&quot;: {
-      &quot;seats&quot;: 1,
-      &quot;tie_policy&quot;: &quot;lexicographic&quot;,
-      &quot;quota&quot;: &quot;droop&quot;
-    },
-    &quot;winners&quot;: [
-      &quot;nineteen_eighty_four&quot;
+    &quot;pairwise&quot;: [
+      {
+        &quot;a&quot;: &quot;great_gatsby&quot;,
+        &quot;a_over_b&quot;: 9.0,
+        &quot;b&quot;: &quot;mockingbird&quot;,
+        &quot;b_over_a&quot;: 9.0,
+        &quot;…&quot;: &quot;3 further keys elided&quot;
+      },
+      {
+        &quot;a&quot;: &quot;great_gatsby&quot;,
+        &quot;a_over_b&quot;: 6.0,
+        &quot;b&quot;: &quot;nineteen_eighty_four&quot;,
+        &quot;b_over_a&quot;: 12.0,
+        &quot;…&quot;: &quot;3 further keys elided&quot;
+      },
+      {
+        &quot;a&quot;: &quot;great_gatsby&quot;,
+        &quot;a_over_b&quot;: 12.0,
+        &quot;b&quot;: &quot;lord_flies&quot;,
+        &quot;b_over_a&quot;: 6.0,
+        &quot;…&quot;: &quot;3 further keys elided&quot;
+      },
+      &quot;… 25 further entries elided …&quot;
     ],
+    &quot;path_strengths&quot;: {
+      &quot;animal_farm&quot;: {
+        &quot;catcher_rye&quot;: 10.0,
+        &quot;great_gatsby&quot;: 0.0,
+        &quot;lord_flies&quot;: 13.0,
+        &quot;mice_men&quot;: 0.0,
+        &quot;…&quot;: &quot;3 further keys elided&quot;
+      },
+      &quot;catcher_rye&quot;: {
+        &quot;animal_farm&quot;: 0.0,
+        &quot;great_gatsby&quot;: 0.0,
+        &quot;lord_flies&quot;: 0.0,
+        &quot;mice_men&quot;: 0.0,
+        &quot;…&quot;: &quot;3 further keys elided&quot;
+      },
+      &quot;great_gatsby&quot;: {
+        &quot;animal_farm&quot;: 10.0,
+        &quot;catcher_rye&quot;: 11.0,
+        &quot;lord_flies&quot;: 12.0,
+        &quot;mice_men&quot;: 10.0,
+        &quot;…&quot;: &quot;3 further keys elided&quot;
+      },
+      &quot;lord_flies&quot;: {
+        &quot;animal_farm&quot;: 0.0,
+        &quot;catcher_rye&quot;: 0.0,
+        &quot;great_gatsby&quot;: 0.0,
+        &quot;mice_men&quot;: 0.0,
+        &quot;…&quot;: &quot;3 further keys elided&quot;
+      },
+      &quot;mice_men&quot;: {
+        &quot;animal_farm&quot;: 0.0,
+        &quot;catcher_rye&quot;: 11.0,
+        &quot;great_gatsby&quot;: 0.0,
+        &quot;lord_flies&quot;: 13.0,
+        &quot;…&quot;: &quot;3 further keys elided&quot;
+      },
+      &quot;mockingbird&quot;: {
+        &quot;animal_farm&quot;: 12.0,
+        &quot;catcher_rye&quot;: 13.0,
+        &quot;great_gatsby&quot;: 0.0,
+        &quot;lord_flies&quot;: 14.0,
+        &quot;…&quot;: &quot;3 further keys elided&quot;
+      },
+      &quot;nineteen_eighty_four&quot;: {
+        &quot;animal_farm&quot;: 13.0,
+        &quot;catcher_rye&quot;: 12.0,
+        &quot;great_gatsby&quot;: 12.0,
+        &quot;lord_flies&quot;: 16.0,
+        &quot;…&quot;: &quot;3 further keys elided&quot;
+      },
+      &quot;scarlet_letter&quot;: {
+        &quot;animal_farm&quot;: 0.0,
+        &quot;catcher_rye&quot;: 0.0,
+        &quot;great_gatsby&quot;: 0.0,
+        &quot;lord_flies&quot;: 0.0,
+        &quot;…&quot;: &quot;3 further keys elided&quot;
+      }
+    },
     &quot;ranking&quot;: [
       {
         &quot;option_id&quot;: &quot;nineteen_eighty_four&quot;,
@@ -1082,106 +1228,28 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
       },
       &quot;… 5 further entries elided …&quot;
     ],
+    &quot;rounds&quot;: [],
+    &quot;settings&quot;: {
+      &quot;quota&quot;: &quot;droop&quot;,
+      &quot;seats&quot;: 1,
+      &quot;tie_policy&quot;: &quot;lexicographic&quot;
+    },
     &quot;summary&quot;: {
-      &quot;valid_ballots&quot;: 18,
+      &quot;exhausted_weight&quot;: 0.0,
       &quot;invalid_ballots&quot;: 0,
       &quot;total_valid_weight&quot;: 18.0,
-      &quot;exhausted_weight&quot;: 0.0
+      &quot;valid_ballots&quot;: 18
     },
-    &quot;pairwise&quot;: [
-      {
-        &quot;a&quot;: &quot;great_gatsby&quot;,
-        &quot;b&quot;: &quot;mockingbird&quot;,
-        &quot;a_over_b&quot;: 9.0,
-        &quot;b_over_a&quot;: 9.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      },
-      {
-        &quot;a&quot;: &quot;great_gatsby&quot;,
-        &quot;b&quot;: &quot;nineteen_eighty_four&quot;,
-        &quot;a_over_b&quot;: 6.0,
-        &quot;b_over_a&quot;: 12.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      },
-      {
-        &quot;a&quot;: &quot;great_gatsby&quot;,
-        &quot;b&quot;: &quot;lord_flies&quot;,
-        &quot;a_over_b&quot;: 12.0,
-        &quot;b_over_a&quot;: 6.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      },
-      &quot;… 25 further entries elided …&quot;
-    ],
-    &quot;path_strengths&quot;: {
-      &quot;great_gatsby&quot;: {
-        &quot;mockingbird&quot;: 0.0,
-        &quot;nineteen_eighty_four&quot;: 0.0,
-        &quot;catcher_rye&quot;: 11.0,
-        &quot;lord_flies&quot;: 12.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      },
-      &quot;mockingbird&quot;: {
-        &quot;great_gatsby&quot;: 0.0,
-        &quot;nineteen_eighty_four&quot;: 0.0,
-        &quot;catcher_rye&quot;: 13.0,
-        &quot;lord_flies&quot;: 14.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      },
-      &quot;nineteen_eighty_four&quot;: {
-        &quot;great_gatsby&quot;: 12.0,
-        &quot;mockingbird&quot;: 11.0,
-        &quot;catcher_rye&quot;: 12.0,
-        &quot;lord_flies&quot;: 16.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      },
-      &quot;catcher_rye&quot;: {
-        &quot;great_gatsby&quot;: 0.0,
-        &quot;mockingbird&quot;: 0.0,
-        &quot;nineteen_eighty_four&quot;: 0.0,
-        &quot;lord_flies&quot;: 0.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      },
-      &quot;lord_flies&quot;: {
-        &quot;great_gatsby&quot;: 0.0,
-        &quot;mockingbird&quot;: 0.0,
-        &quot;nineteen_eighty_four&quot;: 0.0,
-        &quot;catcher_rye&quot;: 0.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      },
-      &quot;mice_men&quot;: {
-        &quot;great_gatsby&quot;: 0.0,
-        &quot;mockingbird&quot;: 0.0,
-        &quot;nineteen_eighty_four&quot;: 0.0,
-        &quot;catcher_rye&quot;: 11.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      },
-      &quot;animal_farm&quot;: {
-        &quot;great_gatsby&quot;: 0.0,
-        &quot;mockingbird&quot;: 0.0,
-        &quot;nineteen_eighty_four&quot;: 0.0,
-        &quot;catcher_rye&quot;: 10.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      },
-      &quot;scarlet_letter&quot;: {
-        &quot;great_gatsby&quot;: 0.0,
-        &quot;mockingbird&quot;: 0.0,
-        &quot;nineteen_eighty_four&quot;: 0.0,
-        &quot;catcher_rye&quot;: 0.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      }
-    },
-    &quot;rounds&quot;: [],
     &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T172831641609Z_31d3a64b_book_preference_schulze&quot;
+    &quot;winners&quot;: [
+      &quot;nineteen_eighty_four&quot;
+    ]
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
-  &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T172831641609Z_31d3a64b_book_preference_schulze&quot;,
-    &quot;voting count list&quot;
-  ]
+  &quot;next_steps&quot;: []
 }</code></pre></details>
-    <pre class="command"><code>voting plot pairwise 20260728T172831641609Z_31d3a64b_book_preference_schulze</code></pre>
+    <pre class="command"><code>voting plot pairwise 20260728T174417680800Z_4fd89131_book_preference_schulze</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
   &quot;command&quot;: &quot;plot pairwise&quot;,
@@ -1190,18 +1258,18 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     &quot;voting&quot;,
     &quot;plot&quot;,
     &quot;pairwise&quot;,
-    &quot;20260728T172831641609Z_31d3a64b_book_preference_schulze&quot;
+    &quot;20260728T174417680800Z_4fd89131_book_preference_schulze&quot;
   ],
   &quot;data&quot;: {
-    &quot;result_id&quot;: &quot;20260728T172831641609Z_31d3a64b_book_preference_schulze&quot;,
+    &quot;result_id&quot;: &quot;20260728T174417680800Z_4fd89131_book_preference_schulze&quot;,
     &quot;method&quot;: &quot;schulze&quot;,
-    &quot;path&quot;: &quot;.voting/output/plots/pairwise_20260728T172831641609Z_31d3a64b_book_preference_schulze.svg&quot;,
+    &quot;path&quot;: &quot;.voting/output/plots/pairwise_20260728T174417680800Z_4fd89131_book_preference_schulze.svg&quot;,
     &quot;format&quot;: &quot;svg&quot;
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: [
-    &quot;open .voting/output/plots/pairwise_20260728T172831641609Z_31d3a64b_book_preference_schulze.svg&quot;
+    &quot;open .voting/output/plots/pairwise_20260728T174417680800Z_4fd89131_book_preference_schulze.svg&quot;
   ]
 }</code></pre></details>
     <figure class="plot"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 666 576" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif" role="img" aria-label="Head-to-head margins — book_preference">
@@ -1345,387 +1413,8 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
 <text x="546.5" y="513.0" font-size="12" text-anchor="middle" fill="#214d35">+0</text>
 <rect x="574" y="484" width="49" height="49" fill="#eef5f0"/>
 </svg>
-<figcaption>Every head-to-head from the real ballots: a cell is the row's margin over the column. nineteen_eighty_four's top row is solid green — it beats all seven rivals directly, which is why every Condorcet method must elect it.</figcaption></figure>
-    <p><strong>Copeland</strong> scores the same pairings bluntly — wins minus losses:</p>
-    <pre class="command"><code>voting count run book_preference --method copeland</code></pre>
-    <details class="output"><summary>Show command output</summary><pre><code>{
-  &quot;schema_version&quot;: &quot;1.0&quot;,
-  &quot;command&quot;: &quot;count run&quot;,
-  &quot;status&quot;: &quot;ok&quot;,
-  &quot;argv&quot;: [
-    &quot;voting&quot;,
-    &quot;count&quot;,
-    &quot;run&quot;,
-    &quot;book_preference&quot;,
-    &quot;--method&quot;,
-    &quot;copeland&quot;
-  ],
-  &quot;data&quot;: {
-    &quot;election_id&quot;: &quot;book_preference&quot;,
-    &quot;method&quot;: &quot;copeland&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T13:28:31&quot;,
-    &quot;settings&quot;: {
-      &quot;seats&quot;: 1,
-      &quot;tie_policy&quot;: &quot;lexicographic&quot;,
-      &quot;quota&quot;: &quot;droop&quot;
-    },
-    &quot;winners&quot;: [
-      &quot;nineteen_eighty_four&quot;
-    ],
-    &quot;ranking&quot;: [
-      {
-        &quot;option_id&quot;: &quot;nineteen_eighty_four&quot;,
-        &quot;rank&quot;: 1,
-        &quot;status&quot;: &quot;elected&quot;,
-        &quot;score&quot;: 7.0
-      },
-      {
-        &quot;option_id&quot;: &quot;great_gatsby&quot;,
-        &quot;rank&quot;: 2,
-        &quot;status&quot;: &quot;defeated&quot;,
-        &quot;score&quot;: 5.5
-      },
-      {
-        &quot;option_id&quot;: &quot;mockingbird&quot;,
-        &quot;rank&quot;: 3,
-        &quot;status&quot;: &quot;defeated&quot;,
-        &quot;score&quot;: 5.5
-      },
-      &quot;… 5 further entries elided …&quot;
-    ],
-    &quot;summary&quot;: {
-      &quot;valid_ballots&quot;: 18,
-      &quot;invalid_ballots&quot;: 0,
-      &quot;total_valid_weight&quot;: 18.0,
-      &quot;exhausted_weight&quot;: 0.0
-    },
-    &quot;scores&quot;: [
-      {
-        &quot;option_id&quot;: &quot;nineteen_eighty_four&quot;,
-        &quot;total&quot;: 7.0
-      },
-      {
-        &quot;option_id&quot;: &quot;great_gatsby&quot;,
-        &quot;total&quot;: 5.5
-      },
-      {
-        &quot;option_id&quot;: &quot;mockingbird&quot;,
-        &quot;total&quot;: 5.5
-      },
-      &quot;… 5 further entries elided …&quot;
-    ],
-    &quot;pairwise&quot;: [
-      {
-        &quot;a&quot;: &quot;great_gatsby&quot;,
-        &quot;b&quot;: &quot;mockingbird&quot;,
-        &quot;a_over_b&quot;: 9.0,
-        &quot;b_over_a&quot;: 9.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      },
-      {
-        &quot;a&quot;: &quot;great_gatsby&quot;,
-        &quot;b&quot;: &quot;nineteen_eighty_four&quot;,
-        &quot;a_over_b&quot;: 6.0,
-        &quot;b_over_a&quot;: 12.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      },
-      {
-        &quot;a&quot;: &quot;great_gatsby&quot;,
-        &quot;b&quot;: &quot;lord_flies&quot;,
-        &quot;a_over_b&quot;: 12.0,
-        &quot;b_over_a&quot;: 6.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      },
-      &quot;… 25 further entries elided …&quot;
-    ],
-    &quot;rounds&quot;: [],
-    &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T172831723527Z_0cafd248_book_preference_copeland&quot;
-  },
-  &quot;warnings&quot;: [],
-  &quot;errors&quot;: [],
-  &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T172831723527Z_0cafd248_book_preference_copeland&quot;,
-    &quot;voting count list&quot;
-  ]
-}</code></pre></details>
-    <p><strong>Kemeny–Young</strong> searches for the full ordering that agrees with as many pairwise ballot judgments as possible — <code>kemeny_score</code> counts the agreements:</p>
-    <pre class="command"><code>voting count run book_preference --method kemeny_young</code></pre>
-    <details class="output"><summary>Show command output</summary><pre><code>{
-  &quot;schema_version&quot;: &quot;1.0&quot;,
-  &quot;command&quot;: &quot;count run&quot;,
-  &quot;status&quot;: &quot;ok&quot;,
-  &quot;argv&quot;: [
-    &quot;voting&quot;,
-    &quot;count&quot;,
-    &quot;run&quot;,
-    &quot;book_preference&quot;,
-    &quot;--method&quot;,
-    &quot;kemeny_young&quot;
-  ],
-  &quot;data&quot;: {
-    &quot;election_id&quot;: &quot;book_preference&quot;,
-    &quot;method&quot;: &quot;kemeny_young&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T13:28:31&quot;,
-    &quot;settings&quot;: {
-      &quot;seats&quot;: 1,
-      &quot;tie_policy&quot;: &quot;lexicographic&quot;,
-      &quot;quota&quot;: &quot;droop&quot;
-    },
-    &quot;winners&quot;: [
-      &quot;nineteen_eighty_four&quot;
-    ],
-    &quot;ranking&quot;: [
-      {
-        &quot;option_id&quot;: &quot;nineteen_eighty_four&quot;,
-        &quot;rank&quot;: 1,
-        &quot;status&quot;: &quot;elected&quot;
-      },
-      {
-        &quot;option_id&quot;: &quot;great_gatsby&quot;,
-        &quot;rank&quot;: 2,
-        &quot;status&quot;: &quot;defeated&quot;
-      },
-      {
-        &quot;option_id&quot;: &quot;mockingbird&quot;,
-        &quot;rank&quot;: 3,
-        &quot;status&quot;: &quot;defeated&quot;
-      },
-      &quot;… 5 further entries elided …&quot;
-    ],
-    &quot;summary&quot;: {
-      &quot;valid_ballots&quot;: 18,
-      &quot;invalid_ballots&quot;: 0,
-      &quot;total_valid_weight&quot;: 18.0,
-      &quot;exhausted_weight&quot;: 0.0
-    },
-    &quot;pairwise&quot;: [
-      {
-        &quot;a&quot;: &quot;great_gatsby&quot;,
-        &quot;b&quot;: &quot;mockingbird&quot;,
-        &quot;a_over_b&quot;: 9.0,
-        &quot;b_over_a&quot;: 9.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      },
-      {
-        &quot;a&quot;: &quot;great_gatsby&quot;,
-        &quot;b&quot;: &quot;nineteen_eighty_four&quot;,
-        &quot;a_over_b&quot;: 6.0,
-        &quot;b_over_a&quot;: 12.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      },
-      {
-        &quot;a&quot;: &quot;great_gatsby&quot;,
-        &quot;b&quot;: &quot;lord_flies&quot;,
-        &quot;a_over_b&quot;: 12.0,
-        &quot;b_over_a&quot;: 6.0,
-        &quot;…&quot;: &quot;3 further keys elided&quot;
-      },
-      &quot;… 25 further entries elided …&quot;
-    ],
-    &quot;kemeny_score&quot;: 329.0,
-    &quot;rounds&quot;: [],
-    &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T172831856712Z_093a2f21_book_preference_kemeny_young&quot;
-  },
-  &quot;warnings&quot;: [],
-  &quot;errors&quot;: [],
-  &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T172831856712Z_093a2f21_book_preference_kemeny_young&quot;,
-    &quot;voting count list&quot;
-  ]
-}</code></pre></details>
-    <p><strong>Bucklin</strong> keeps adding voters' next choices until someone crosses a majority — the <code>rounds</code> array shows when that happens:</p>
-    <pre class="command"><code>voting count run book_preference --method bucklin</code></pre>
-    <details class="output"><summary>Show command output</summary><pre><code>{
-  &quot;schema_version&quot;: &quot;1.0&quot;,
-  &quot;command&quot;: &quot;count run&quot;,
-  &quot;status&quot;: &quot;ok&quot;,
-  &quot;argv&quot;: [
-    &quot;voting&quot;,
-    &quot;count&quot;,
-    &quot;run&quot;,
-    &quot;book_preference&quot;,
-    &quot;--method&quot;,
-    &quot;bucklin&quot;
-  ],
-  &quot;data&quot;: {
-    &quot;election_id&quot;: &quot;book_preference&quot;,
-    &quot;method&quot;: &quot;bucklin&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T13:28:31&quot;,
-    &quot;settings&quot;: {
-      &quot;seats&quot;: 1,
-      &quot;tie_policy&quot;: &quot;lexicographic&quot;,
-      &quot;quota&quot;: &quot;droop&quot;
-    },
-    &quot;winners&quot;: [
-      &quot;nineteen_eighty_four&quot;
-    ],
-    &quot;ranking&quot;: [
-      {
-        &quot;option_id&quot;: &quot;nineteen_eighty_four&quot;,
-        &quot;rank&quot;: 1,
-        &quot;status&quot;: &quot;elected&quot;,
-        &quot;support&quot;: 12.0
-      },
-      {
-        &quot;option_id&quot;: &quot;great_gatsby&quot;,
-        &quot;rank&quot;: 2,
-        &quot;status&quot;: &quot;defeated&quot;,
-        &quot;support&quot;: 6.0
-      },
-      {
-        &quot;option_id&quot;: &quot;animal_farm&quot;,
-        &quot;rank&quot;: 3,
-        &quot;status&quot;: &quot;defeated&quot;,
-        &quot;support&quot;: 5.0
-      },
-      &quot;… 5 further entries elided …&quot;
-    ],
-    &quot;summary&quot;: {
-      &quot;valid_ballots&quot;: 18,
-      &quot;invalid_ballots&quot;: 0,
-      &quot;total_valid_weight&quot;: 18.0,
-      &quot;exhausted_weight&quot;: 0.0
-    },
-    &quot;scores&quot;: [
-      {
-        &quot;option_id&quot;: &quot;nineteen_eighty_four&quot;,
-        &quot;total&quot;: 12.0
-      },
-      {
-        &quot;option_id&quot;: &quot;great_gatsby&quot;,
-        &quot;total&quot;: 6.0
-      },
-      {
-        &quot;option_id&quot;: &quot;animal_farm&quot;,
-        &quot;total&quot;: 5.0
-      },
-      &quot;… 5 further entries elided …&quot;
-    ],
-    &quot;rounds&quot;: [
-      {
-        &quot;depth&quot;: 1,
-        &quot;totals&quot;: [
-          {
-            &quot;option_id&quot;: &quot;nineteen_eighty_four&quot;,
-            &quot;total&quot;: 8.0
-          },
-          {
-            &quot;option_id&quot;: &quot;mockingbird&quot;,
-            &quot;total&quot;: 4.0
-          },
-          &quot;… 6 further entries elided …&quot;
-        ],
-        &quot;majority_threshold&quot;: 9.0
-      },
-      {
-        &quot;depth&quot;: 2,
-        &quot;totals&quot;: [
-          {
-            &quot;option_id&quot;: &quot;nineteen_eighty_four&quot;,
-            &quot;total&quot;: 12.0
-          },
-          {
-            &quot;option_id&quot;: &quot;great_gatsby&quot;,
-            &quot;total&quot;: 6.0
-          },
-          &quot;… 6 further entries elided …&quot;
-        ],
-        &quot;majority_threshold&quot;: 9.0,
-        &quot;elected&quot;: &quot;nineteen_eighty_four&quot;
-      }
-    ],
-    &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T172831941689Z_ffb61c88_book_preference_bucklin&quot;
-  },
-  &quot;warnings&quot;: [],
-  &quot;errors&quot;: [],
-  &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T172831941689Z_ffb61c88_book_preference_bucklin&quot;,
-    &quot;voting count list&quot;
-  ]
-}</code></pre></details>
-    <p>And <strong>plurality</strong> (first-past-the-post) throws every ranking away except the first line:</p>
-    <pre class="command"><code>voting count run book_preference --method fptp</code></pre>
-    <details class="output"><summary>Show command output</summary><pre><code>{
-  &quot;schema_version&quot;: &quot;1.0&quot;,
-  &quot;command&quot;: &quot;count run&quot;,
-  &quot;status&quot;: &quot;ok&quot;,
-  &quot;argv&quot;: [
-    &quot;voting&quot;,
-    &quot;count&quot;,
-    &quot;run&quot;,
-    &quot;book_preference&quot;,
-    &quot;--method&quot;,
-    &quot;fptp&quot;
-  ],
-  &quot;data&quot;: {
-    &quot;election_id&quot;: &quot;book_preference&quot;,
-    &quot;method&quot;: &quot;fptp&quot;,
-    &quot;created_at&quot;: &quot;2026-07-28T13:28:32&quot;,
-    &quot;settings&quot;: {
-      &quot;seats&quot;: 1,
-      &quot;tie_policy&quot;: &quot;lexicographic&quot;,
-      &quot;quota&quot;: &quot;droop&quot;
-    },
-    &quot;winners&quot;: [
-      &quot;nineteen_eighty_four&quot;
-    ],
-    &quot;ranking&quot;: [
-      {
-        &quot;option_id&quot;: &quot;nineteen_eighty_four&quot;,
-        &quot;rank&quot;: 1,
-        &quot;status&quot;: &quot;elected&quot;,
-        &quot;total&quot;: 8.0
-      },
-      {
-        &quot;option_id&quot;: &quot;mockingbird&quot;,
-        &quot;rank&quot;: 2,
-        &quot;status&quot;: &quot;defeated&quot;,
-        &quot;total&quot;: 4.0
-      },
-      {
-        &quot;option_id&quot;: &quot;catcher_rye&quot;,
-        &quot;rank&quot;: 3,
-        &quot;status&quot;: &quot;defeated&quot;,
-        &quot;total&quot;: 2.0
-      },
-      &quot;… 5 further entries elided …&quot;
-    ],
-    &quot;summary&quot;: {
-      &quot;valid_ballots&quot;: 18,
-      &quot;invalid_ballots&quot;: 0,
-      &quot;total_valid_weight&quot;: 18.0,
-      &quot;exhausted_weight&quot;: 0.0
-    },
-    &quot;scores&quot;: [
-      {
-        &quot;option_id&quot;: &quot;nineteen_eighty_four&quot;,
-        &quot;total&quot;: 8.0
-      },
-      {
-        &quot;option_id&quot;: &quot;mockingbird&quot;,
-        &quot;total&quot;: 4.0
-      },
-      {
-        &quot;option_id&quot;: &quot;catcher_rye&quot;,
-        &quot;total&quot;: 2.0
-      },
-      &quot;… 5 further entries elided …&quot;
-    ],
-    &quot;rounds&quot;: [],
-    &quot;warnings&quot;: [],
-    &quot;id&quot;: &quot;20260728T172832023339Z_d7963fb4_book_preference_fptp&quot;
-  },
-  &quot;warnings&quot;: [],
-  &quot;errors&quot;: [],
-  &quot;next_steps&quot;: [
-    &quot;voting count show 20260728T172832023339Z_d7963fb4_book_preference_fptp&quot;,
-    &quot;voting count list&quot;
-  ]
-}</code></pre></details>
-    <p>Every run was saved, so the comparison is one command:</p>
+<figcaption>Every head-to-head from the real ballots: a cell is the row's margin over the column. nineteen_eighty_four's top row is solid green — it beats all seven rivals directly, which is why all five Condorcet-family methods (schulze, copeland, minimax, ranked_pairs, kemeny_young) must elect it.</figcaption></figure>
+    <p>The rest tell the same story in different dialects: <strong>copeland</strong> scores those pairings as wins minus losses, <strong>kemeny_young</strong> searches for the ordering that agrees with the most pairwise judgments, <strong>bucklin</strong> keeps adding voters' next choices until someone crosses half, <strong>runoff</strong> stages a two-option finale (nineteen_eighty_four vs mockingbird), and <strong>fptp</strong> throws away everything but the first line. Their envelopes are all in <code>count list</code>:</p>
     <pre class="command"><code>voting count list</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
   &quot;schema_version&quot;: &quot;1.0&quot;,
@@ -1739,46 +1428,33 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   &quot;data&quot;: {
     &quot;results&quot;: [
       {
-        &quot;created_at&quot;: &quot;2026-07-28T13:28:31&quot;,
+        &quot;created_at&quot;: &quot;2026-07-28T13:44:17&quot;,
         &quot;election_id&quot;: &quot;book_preference&quot;,
-        &quot;id&quot;: &quot;20260728T172831327275Z_8eba6bf5_book_preference_borda&quot;,
+        &quot;id&quot;: &quot;20260728T174417679517Z_e3bc667a_book_preference_borda&quot;,
         &quot;method&quot;: &quot;borda&quot;,
         &quot;…&quot;: &quot;7 further keys elided&quot;
       },
       {
-        &quot;created_at&quot;: &quot;2026-07-28T13:28:31&quot;,
+        &quot;created_at&quot;: &quot;2026-07-28T13:44:17&quot;,
         &quot;election_id&quot;: &quot;book_preference&quot;,
         &quot;exhausted_weight&quot;: 0.0,
-        &quot;id&quot;: &quot;20260728T172831561305Z_fa96f7af_book_preference_irv&quot;,
+        &quot;id&quot;: &quot;20260728T174417680025Z_95e22f8e_book_preference_irv&quot;,
         &quot;…&quot;: &quot;8 further keys elided&quot;
       },
       {
-        &quot;created_at&quot;: &quot;2026-07-28T13:28:31&quot;,
+        &quot;created_at&quot;: &quot;2026-07-28T13:44:17&quot;,
         &quot;election_id&quot;: &quot;book_preference&quot;,
-        &quot;id&quot;: &quot;20260728T172831641609Z_31d3a64b_book_preference_schulze&quot;,
-        &quot;method&quot;: &quot;schulze&quot;,
-        &quot;…&quot;: &quot;8 further keys elided&quot;
+        &quot;exhausted_weight&quot;: 0.0,
+        &quot;id&quot;: &quot;20260728T174417680357Z_03b71e53_book_preference_stv&quot;,
+        &quot;…&quot;: &quot;9 further keys elided&quot;
       },
-      &quot;… 4 further entries elided …&quot;
+      &quot;… 9 further entries elided …&quot;
     ]
   },
   &quot;warnings&quot;: [],
   &quot;errors&quot;: [],
   &quot;next_steps&quot;: []
 }</code></pre></details>
-    <figure class="human"><pre class="human"><code>$ voting --human count list
-                               Count runs (7)                               
-┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
-┃ method       ┃ winner(s)            ┃ runner-up    ┃ created             ┃
-┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
-│ borda        │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 13:28:31 │
-│ irv          │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 13:28:31 │
-│ schulze      │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 13:28:31 │
-│ copeland     │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 13:28:31 │
-│ kemeny_young │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 13:28:31 │
-│ bucklin      │ nineteen_eighty_four │ great_gatsby │ 2026-07-28 13:28:31 │
-│ fptp         │ nineteen_eighty_four │ mockingbird  │ 2026-07-28 13:28:32 │
-└──────────────┴──────────────────────┴──────────────┴─────────────────────┘</code></pre><figcaption>Every saved count, side by side: seven methods, one winner.</figcaption></figure>
     <p>And the thesis of this whole page, as one picture — <code>voting plot methods</code> grids every option's finishing position under every saved count:</p>
     <pre class="command"><code>voting plot methods --election book_preference</code></pre>
     <details class="output"><summary>Show command output</summary><pre><code>{
@@ -1794,12 +1470,12 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
   ],
   &quot;data&quot;: {
     &quot;election&quot;: &quot;book_preference&quot;,
-    &quot;results&quot;: 7,
+    &quot;results&quot;: 12,
     &quot;methods&quot;: [
       &quot;borda&quot;,
       &quot;bucklin&quot;,
       &quot;copeland&quot;,
-      &quot;… 4 further entries elided …&quot;
+      &quot;… 9 further entries elided …&quot;
     ],
     &quot;path&quot;: &quot;.voting/output/plots/methods_book_preference.svg&quot;,
     &quot;format&quot;: &quot;svg&quot;
@@ -1810,140 +1486,226 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     &quot;open .voting/output/plots/methods_book_preference.svg&quot;
   ]
 }</code></pre></details>
-    <figure class="plot"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 906 460" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif" role="img" aria-label="Finishing positions across counting methods">
-<rect width="906" height="460" fill="#ffffff"/>
+    <figure class="plot"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 494" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif" role="img" aria-label="Finishing positions across counting methods">
+<rect width="1150" height="494" fill="#ffffff"/>
 <text x="20" y="30" font-size="17" font-weight="700" fill="#214d35">Finishing positions across counting methods</text>
 <text x="20" y="52" font-size="12" fill="#5b665e">Cell = finishing position under that method (1 = winner). A solid top row means the method does not change the outcome.</text>
-<text x="294.0" y="88" font-size="12" font-weight="700" text-anchor="middle" fill="#214d35">borda</text>
-<text x="382.0" y="88" font-size="12" font-weight="700" text-anchor="middle" fill="#214d35">irv</text>
-<text x="470.0" y="88" font-size="12" font-weight="700" text-anchor="middle" fill="#214d35">schulze</text>
-<text x="558.0" y="88" font-size="12" font-weight="700" text-anchor="middle" fill="#214d35">copeland</text>
-<text x="646.0" y="88" font-size="12" font-weight="700" text-anchor="middle" fill="#214d35">kemeny_young</text>
-<text x="734.0" y="88" font-size="12" font-weight="700" text-anchor="middle" fill="#214d35">bucklin</text>
-<text x="822.0" y="88" font-size="12" font-weight="700" text-anchor="middle" fill="#214d35">fptp</text>
-<text x="240" y="124.0" font-size="13" text-anchor="end" fill="#214d35">1984 — Orwell</text>
-<rect x="250" y="100" width="84" height="36" rx="4" fill="#214d35"/>
-<text x="292.0" y="124.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
-<rect x="338" y="100" width="84" height="36" rx="4" fill="#214d35"/>
-<text x="380.0" y="124.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
-<rect x="426" y="100" width="84" height="36" rx="4" fill="#214d35"/>
-<text x="468.0" y="124.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
-<rect x="514" y="100" width="84" height="36" rx="4" fill="#214d35"/>
-<text x="556.0" y="124.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
-<rect x="602" y="100" width="84" height="36" rx="4" fill="#214d35"/>
-<text x="644.0" y="124.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
-<rect x="690" y="100" width="84" height="36" rx="4" fill="#214d35"/>
-<text x="732.0" y="124.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
-<rect x="778" y="100" width="84" height="36" rx="4" fill="#214d35"/>
-<text x="820.0" y="124.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
-<text x="240" y="164.0" font-size="13" text-anchor="end" fill="#214d35">To Kill a Mockingbird — Har…</text>
-<rect x="250" y="140" width="84" height="36" rx="4" fill="#2e6b4f"/>
-<text x="292.0" y="164.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
-<rect x="338" y="140" width="84" height="36" rx="4" fill="#2e6b4f"/>
-<text x="380.0" y="164.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
-<rect x="426" y="140" width="84" height="36" rx="4" fill="#4d8a6a"/>
-<text x="468.0" y="164.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
-<rect x="514" y="140" width="84" height="36" rx="4" fill="#4d8a6a"/>
-<text x="556.0" y="164.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
-<rect x="602" y="140" width="84" height="36" rx="4" fill="#4d8a6a"/>
-<text x="644.0" y="164.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
-<rect x="690" y="140" width="84" height="36" rx="4" fill="#71a888"/>
-<text x="732.0" y="164.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
-<rect x="778" y="140" width="84" height="36" rx="4" fill="#2e6b4f"/>
-<text x="820.0" y="164.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
-<text x="240" y="204.0" font-size="13" text-anchor="end" fill="#214d35">The Great Gatsby — Fitzgera…</text>
-<rect x="250" y="180" width="84" height="36" rx="4" fill="#4d8a6a"/>
-<text x="292.0" y="204.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
-<rect x="338" y="180" width="84" height="36" rx="4" fill="#f2f8f4"/>
-<text x="380.0" y="204.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
-<rect x="426" y="180" width="84" height="36" rx="4" fill="#2e6b4f"/>
-<text x="468.0" y="204.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
-<rect x="514" y="180" width="84" height="36" rx="4" fill="#2e6b4f"/>
-<text x="556.0" y="204.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
-<rect x="602" y="180" width="84" height="36" rx="4" fill="#2e6b4f"/>
-<text x="644.0" y="204.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
-<rect x="690" y="180" width="84" height="36" rx="4" fill="#2e6b4f"/>
-<text x="732.0" y="204.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
-<rect x="778" y="180" width="84" height="36" rx="4" fill="#71a888"/>
-<text x="820.0" y="204.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
-<text x="240" y="244.0" font-size="13" text-anchor="end" fill="#214d35">Animal Farm — Orwell</text>
-<rect x="250" y="220" width="84" height="36" rx="4" fill="#97c2a8"/>
-<text x="292.0" y="244.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
-<rect x="338" y="220" width="84" height="36" rx="4" fill="#97c2a8"/>
-<text x="380.0" y="244.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
-<rect x="426" y="220" width="84" height="36" rx="4" fill="#71a888"/>
-<text x="468.0" y="244.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
-<rect x="514" y="220" width="84" height="36" rx="4" fill="#71a888"/>
-<text x="556.0" y="244.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
-<rect x="602" y="220" width="84" height="36" rx="4" fill="#71a888"/>
-<text x="644.0" y="244.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
-<rect x="690" y="220" width="84" height="36" rx="4" fill="#4d8a6a"/>
-<text x="732.0" y="244.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
-<rect x="778" y="220" width="84" height="36" rx="4" fill="#97c2a8"/>
-<text x="820.0" y="244.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
-<text x="240" y="284.0" font-size="13" text-anchor="end" fill="#214d35">Of Mice and Men — Steinbeck</text>
-<rect x="250" y="260" width="84" height="36" rx="4" fill="#71a888"/>
-<text x="292.0" y="284.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
-<rect x="338" y="260" width="84" height="36" rx="4" fill="#71a888"/>
-<text x="380.0" y="284.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
-<rect x="426" y="260" width="84" height="36" rx="4" fill="#97c2a8"/>
-<text x="468.0" y="284.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
-<rect x="514" y="260" width="84" height="36" rx="4" fill="#97c2a8"/>
-<text x="556.0" y="284.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
-<rect x="602" y="260" width="84" height="36" rx="4" fill="#97c2a8"/>
-<text x="644.0" y="284.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
-<rect x="690" y="260" width="84" height="36" rx="4" fill="#bcd8c7"/>
-<text x="732.0" y="284.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
-<rect x="778" y="260" width="84" height="36" rx="4" fill="#bcd8c7"/>
-<text x="820.0" y="284.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
-<text x="240" y="324.0" font-size="13" text-anchor="end" fill="#214d35">The Catcher in the Rye — Sa…</text>
-<rect x="250" y="300" width="84" height="36" rx="4" fill="#bcd8c7"/>
-<text x="292.0" y="324.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
-<rect x="338" y="300" width="84" height="36" rx="4" fill="#4d8a6a"/>
-<text x="380.0" y="324.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
-<rect x="426" y="300" width="84" height="36" rx="4" fill="#dcebe2"/>
-<text x="468.0" y="324.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
-<rect x="514" y="300" width="84" height="36" rx="4" fill="#dcebe2"/>
-<text x="556.0" y="324.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
-<rect x="602" y="300" width="84" height="36" rx="4" fill="#bcd8c7"/>
-<text x="644.0" y="324.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
-<rect x="690" y="300" width="84" height="36" rx="4" fill="#97c2a8"/>
-<text x="732.0" y="324.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
-<rect x="778" y="300" width="84" height="36" rx="4" fill="#4d8a6a"/>
-<text x="820.0" y="324.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
-<text x="240" y="364.0" font-size="13" text-anchor="end" fill="#214d35">Lord of the Flies — Golding</text>
-<rect x="250" y="340" width="84" height="36" rx="4" fill="#dcebe2"/>
-<text x="292.0" y="364.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
-<rect x="338" y="340" width="84" height="36" rx="4" fill="#dcebe2"/>
-<text x="380.0" y="364.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
-<rect x="426" y="340" width="84" height="36" rx="4" fill="#bcd8c7"/>
-<text x="468.0" y="364.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
-<rect x="514" y="340" width="84" height="36" rx="4" fill="#bcd8c7"/>
-<text x="556.0" y="364.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
-<rect x="602" y="340" width="84" height="36" rx="4" fill="#dcebe2"/>
-<text x="644.0" y="364.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
-<rect x="690" y="340" width="84" height="36" rx="4" fill="#f2f8f4"/>
-<text x="732.0" y="364.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
-<rect x="778" y="340" width="84" height="36" rx="4" fill="#dcebe2"/>
-<text x="820.0" y="364.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
-<text x="240" y="404.0" font-size="13" text-anchor="end" fill="#214d35">The Scarlet Letter — Hawtho…</text>
-<rect x="250" y="380" width="84" height="36" rx="4" fill="#f2f8f4"/>
-<text x="292.0" y="404.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
-<rect x="338" y="380" width="84" height="36" rx="4" fill="#bcd8c7"/>
-<text x="380.0" y="404.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
-<rect x="426" y="380" width="84" height="36" rx="4" fill="#f2f8f4"/>
-<text x="468.0" y="404.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
-<rect x="514" y="380" width="84" height="36" rx="4" fill="#f2f8f4"/>
-<text x="556.0" y="404.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
-<rect x="602" y="380" width="84" height="36" rx="4" fill="#f2f8f4"/>
-<text x="644.0" y="404.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
-<rect x="690" y="380" width="84" height="36" rx="4" fill="#dcebe2"/>
-<text x="732.0" y="404.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
-<rect x="778" y="380" width="84" height="36" rx="4" fill="#f2f8f4"/>
-<text x="820.0" y="404.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<g transform="translate(260,108) rotate(-32)"><text font-size="11" font-weight="700" fill="#214d35">borda</text></g>
+<g transform="translate(330,108) rotate(-32)"><text font-size="11" font-weight="700" fill="#214d35">irv</text></g>
+<g transform="translate(400,108) rotate(-32)"><text font-size="11" font-weight="700" fill="#214d35">stv</text></g>
+<g transform="translate(470,108) rotate(-32)"><text font-size="11" font-weight="700" fill="#214d35">schulze</text></g>
+<g transform="translate(540,108) rotate(-32)"><text font-size="11" font-weight="700" fill="#214d35">copeland</text></g>
+<g transform="translate(610,108) rotate(-32)"><text font-size="11" font-weight="700" fill="#214d35">minimax</text></g>
+<g transform="translate(680,108) rotate(-32)"><text font-size="11" font-weight="700" fill="#214d35">ranked_pairs</text></g>
+<g transform="translate(750,108) rotate(-32)"><text font-size="11" font-weight="700" fill="#214d35">kemeny_young</text></g>
+<g transform="translate(820,108) rotate(-32)"><text font-size="11" font-weight="700" fill="#214d35">bucklin</text></g>
+<g transform="translate(890,108) rotate(-32)"><text font-size="11" font-weight="700" fill="#214d35">runoff</text></g>
+<g transform="translate(960,108) rotate(-32)"><text font-size="11" font-weight="700" fill="#214d35">fptp</text></g>
+<g transform="translate(1030,108) rotate(-32)"><text font-size="11" font-weight="700" fill="#214d35">simple_majority*</text></g>
+<text x="250" y="468" font-size="12" fill="#b66b13">* declared no winner (its ranking is shown for comparison)</text>
+<text x="240" y="142.0" font-size="13" text-anchor="end" fill="#214d35">1984 — Orwell</text>
+<rect x="250" y="118" width="66" height="36" rx="4" fill="#214d35"/>
+<text x="283.0" y="142.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="320" y="118" width="66" height="36" rx="4" fill="#214d35"/>
+<text x="353.0" y="142.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="390" y="118" width="66" height="36" rx="4" fill="#214d35"/>
+<text x="423.0" y="142.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="460" y="118" width="66" height="36" rx="4" fill="#214d35"/>
+<text x="493.0" y="142.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="530" y="118" width="66" height="36" rx="4" fill="#214d35"/>
+<text x="563.0" y="142.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="600" y="118" width="66" height="36" rx="4" fill="#214d35"/>
+<text x="633.0" y="142.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="670" y="118" width="66" height="36" rx="4" fill="#214d35"/>
+<text x="703.0" y="142.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="740" y="118" width="66" height="36" rx="4" fill="#214d35"/>
+<text x="773.0" y="142.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="810" y="118" width="66" height="36" rx="4" fill="#214d35"/>
+<text x="843.0" y="142.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="880" y="118" width="66" height="36" rx="4" fill="#214d35"/>
+<text x="913.0" y="142.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="950" y="118" width="66" height="36" rx="4" fill="#214d35"/>
+<text x="983.0" y="142.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="1020" y="118" width="66" height="36" rx="4" fill="#214d35"/>
+<text x="1053.0" y="142.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+<text x="240" y="182.0" font-size="13" text-anchor="end" fill="#214d35">To Kill a Mockingbird — Har…</text>
+<rect x="250" y="158" width="66" height="36" rx="4" fill="#2e6b4f"/>
+<text x="283.0" y="182.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="320" y="158" width="66" height="36" rx="4" fill="#2e6b4f"/>
+<text x="353.0" y="182.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="390" y="158" width="66" height="36" rx="4" fill="#2e6b4f"/>
+<text x="423.0" y="182.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="460" y="158" width="66" height="36" rx="4" fill="#4d8a6a"/>
+<text x="493.0" y="182.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="530" y="158" width="66" height="36" rx="4" fill="#4d8a6a"/>
+<text x="563.0" y="182.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="600" y="158" width="66" height="36" rx="4" fill="#2e6b4f"/>
+<text x="633.0" y="182.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="670" y="158" width="66" height="36" rx="4" fill="#4d8a6a"/>
+<text x="703.0" y="182.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="740" y="158" width="66" height="36" rx="4" fill="#4d8a6a"/>
+<text x="773.0" y="182.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="810" y="158" width="66" height="36" rx="4" fill="#71a888"/>
+<text x="843.0" y="182.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="880" y="158" width="66" height="36" rx="4" fill="#2e6b4f"/>
+<text x="913.0" y="182.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="950" y="158" width="66" height="36" rx="4" fill="#2e6b4f"/>
+<text x="983.0" y="182.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="1020" y="158" width="66" height="36" rx="4" fill="#2e6b4f"/>
+<text x="1053.0" y="182.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<text x="240" y="222.0" font-size="13" text-anchor="end" fill="#214d35">The Great Gatsby — Fitzgera…</text>
+<rect x="250" y="198" width="66" height="36" rx="4" fill="#4d8a6a"/>
+<text x="283.0" y="222.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="320" y="198" width="66" height="36" rx="4" fill="#f2f8f4"/>
+<text x="353.0" y="222.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="390" y="198" width="66" height="36" rx="4" fill="#f2f8f4"/>
+<text x="423.0" y="222.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="460" y="198" width="66" height="36" rx="4" fill="#2e6b4f"/>
+<text x="493.0" y="222.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="530" y="198" width="66" height="36" rx="4" fill="#2e6b4f"/>
+<text x="563.0" y="222.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="600" y="198" width="66" height="36" rx="4" fill="#4d8a6a"/>
+<text x="633.0" y="222.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="670" y="198" width="66" height="36" rx="4" fill="#2e6b4f"/>
+<text x="703.0" y="222.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="740" y="198" width="66" height="36" rx="4" fill="#2e6b4f"/>
+<text x="773.0" y="222.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="810" y="198" width="66" height="36" rx="4" fill="#2e6b4f"/>
+<text x="843.0" y="222.0" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="880" y="198" width="66" height="36" rx="4" fill="#97c2a8"/>
+<text x="913.0" y="222.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="950" y="198" width="66" height="36" rx="4" fill="#71a888"/>
+<text x="983.0" y="222.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="1020" y="198" width="66" height="36" rx="4" fill="#71a888"/>
+<text x="1053.0" y="222.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<text x="240" y="262.0" font-size="13" text-anchor="end" fill="#214d35">Animal Farm — Orwell</text>
+<rect x="250" y="238" width="66" height="36" rx="4" fill="#97c2a8"/>
+<text x="283.0" y="262.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="320" y="238" width="66" height="36" rx="4" fill="#97c2a8"/>
+<text x="353.0" y="262.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="390" y="238" width="66" height="36" rx="4" fill="#97c2a8"/>
+<text x="423.0" y="262.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="460" y="238" width="66" height="36" rx="4" fill="#71a888"/>
+<text x="493.0" y="262.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="530" y="238" width="66" height="36" rx="4" fill="#71a888"/>
+<text x="563.0" y="262.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="600" y="238" width="66" height="36" rx="4" fill="#71a888"/>
+<text x="633.0" y="262.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="670" y="238" width="66" height="36" rx="4" fill="#71a888"/>
+<text x="703.0" y="262.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="740" y="238" width="66" height="36" rx="4" fill="#71a888"/>
+<text x="773.0" y="262.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="810" y="238" width="66" height="36" rx="4" fill="#4d8a6a"/>
+<text x="843.0" y="262.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="880" y="238" width="66" height="36" rx="4" fill="#4d8a6a"/>
+<text x="913.0" y="262.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="950" y="238" width="66" height="36" rx="4" fill="#97c2a8"/>
+<text x="983.0" y="262.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="1020" y="238" width="66" height="36" rx="4" fill="#97c2a8"/>
+<text x="1053.0" y="262.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<text x="240" y="302.0" font-size="13" text-anchor="end" fill="#214d35">The Catcher in the Rye — Sa…</text>
+<rect x="250" y="278" width="66" height="36" rx="4" fill="#bcd8c7"/>
+<text x="283.0" y="302.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="320" y="278" width="66" height="36" rx="4" fill="#4d8a6a"/>
+<text x="353.0" y="302.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="390" y="278" width="66" height="36" rx="4" fill="#4d8a6a"/>
+<text x="423.0" y="302.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="460" y="278" width="66" height="36" rx="4" fill="#dcebe2"/>
+<text x="493.0" y="302.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="530" y="278" width="66" height="36" rx="4" fill="#dcebe2"/>
+<text x="563.0" y="302.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="600" y="278" width="66" height="36" rx="4" fill="#97c2a8"/>
+<text x="633.0" y="302.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="670" y="278" width="66" height="36" rx="4" fill="#dcebe2"/>
+<text x="703.0" y="302.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="740" y="278" width="66" height="36" rx="4" fill="#bcd8c7"/>
+<text x="773.0" y="302.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="810" y="278" width="66" height="36" rx="4" fill="#97c2a8"/>
+<text x="843.0" y="302.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="880" y="278" width="66" height="36" rx="4" fill="#71a888"/>
+<text x="913.0" y="302.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="950" y="278" width="66" height="36" rx="4" fill="#4d8a6a"/>
+<text x="983.0" y="302.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<rect x="1020" y="278" width="66" height="36" rx="4" fill="#4d8a6a"/>
+<text x="1053.0" y="302.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">3</text>
+<text x="240" y="342.0" font-size="13" text-anchor="end" fill="#214d35">Of Mice and Men — Steinbeck</text>
+<rect x="250" y="318" width="66" height="36" rx="4" fill="#71a888"/>
+<text x="283.0" y="342.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="320" y="318" width="66" height="36" rx="4" fill="#71a888"/>
+<text x="353.0" y="342.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="390" y="318" width="66" height="36" rx="4" fill="#71a888"/>
+<text x="423.0" y="342.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">4</text>
+<rect x="460" y="318" width="66" height="36" rx="4" fill="#97c2a8"/>
+<text x="493.0" y="342.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="530" y="318" width="66" height="36" rx="4" fill="#97c2a8"/>
+<text x="563.0" y="342.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="600" y="318" width="66" height="36" rx="4" fill="#bcd8c7"/>
+<text x="633.0" y="342.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="670" y="318" width="66" height="36" rx="4" fill="#97c2a8"/>
+<text x="703.0" y="342.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="740" y="318" width="66" height="36" rx="4" fill="#97c2a8"/>
+<text x="773.0" y="342.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">5</text>
+<rect x="810" y="318" width="66" height="36" rx="4" fill="#bcd8c7"/>
+<text x="843.0" y="342.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="880" y="318" width="66" height="36" rx="4" fill="#dcebe2"/>
+<text x="913.0" y="342.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="950" y="318" width="66" height="36" rx="4" fill="#bcd8c7"/>
+<text x="983.0" y="342.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="1020" y="318" width="66" height="36" rx="4" fill="#bcd8c7"/>
+<text x="1053.0" y="342.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<text x="240" y="382.0" font-size="13" text-anchor="end" fill="#214d35">Lord of the Flies — Golding</text>
+<rect x="250" y="358" width="66" height="36" rx="4" fill="#dcebe2"/>
+<text x="283.0" y="382.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="320" y="358" width="66" height="36" rx="4" fill="#dcebe2"/>
+<text x="353.0" y="382.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="390" y="358" width="66" height="36" rx="4" fill="#dcebe2"/>
+<text x="423.0" y="382.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="460" y="358" width="66" height="36" rx="4" fill="#bcd8c7"/>
+<text x="493.0" y="382.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="530" y="358" width="66" height="36" rx="4" fill="#bcd8c7"/>
+<text x="563.0" y="382.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="600" y="358" width="66" height="36" rx="4" fill="#dcebe2"/>
+<text x="633.0" y="382.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="670" y="358" width="66" height="36" rx="4" fill="#bcd8c7"/>
+<text x="703.0" y="382.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="740" y="358" width="66" height="36" rx="4" fill="#dcebe2"/>
+<text x="773.0" y="382.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="810" y="358" width="66" height="36" rx="4" fill="#f2f8f4"/>
+<text x="843.0" y="382.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="880" y="358" width="66" height="36" rx="4" fill="#bcd8c7"/>
+<text x="913.0" y="382.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="950" y="358" width="66" height="36" rx="4" fill="#dcebe2"/>
+<text x="983.0" y="382.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="1020" y="358" width="66" height="36" rx="4" fill="#dcebe2"/>
+<text x="1053.0" y="382.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<text x="240" y="422.0" font-size="13" text-anchor="end" fill="#214d35">The Scarlet Letter — Hawtho…</text>
+<rect x="250" y="398" width="66" height="36" rx="4" fill="#f2f8f4"/>
+<text x="283.0" y="422.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="320" y="398" width="66" height="36" rx="4" fill="#bcd8c7"/>
+<text x="353.0" y="422.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="390" y="398" width="66" height="36" rx="4" fill="#bcd8c7"/>
+<text x="423.0" y="422.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">6</text>
+<rect x="460" y="398" width="66" height="36" rx="4" fill="#f2f8f4"/>
+<text x="493.0" y="422.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="530" y="398" width="66" height="36" rx="4" fill="#f2f8f4"/>
+<text x="563.0" y="422.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="600" y="398" width="66" height="36" rx="4" fill="#f2f8f4"/>
+<text x="633.0" y="422.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="670" y="398" width="66" height="36" rx="4" fill="#f2f8f4"/>
+<text x="703.0" y="422.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="740" y="398" width="66" height="36" rx="4" fill="#f2f8f4"/>
+<text x="773.0" y="422.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="810" y="398" width="66" height="36" rx="4" fill="#dcebe2"/>
+<text x="843.0" y="422.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">7</text>
+<rect x="880" y="398" width="66" height="36" rx="4" fill="#f2f8f4"/>
+<text x="913.0" y="422.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="950" y="398" width="66" height="36" rx="4" fill="#f2f8f4"/>
+<text x="983.0" y="422.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
+<rect x="1020" y="398" width="66" height="36" rx="4" fill="#f2f8f4"/>
+<text x="1053.0" y="422.0" font-size="14" font-weight="700" text-anchor="middle" fill="#214d35">8</text>
 </svg>
-<figcaption>The answer to the tutorial's question. The unbroken dark top row is the finding: no counting method changes the winner. The shuffling in the middle rows is where method choice does matter.</figcaption></figure>
-    <p><strong>All seven agree: <em>1984</em> wins.</strong> That unanimity is itself the finding. Orwell's novel holds 8 of 18 first preferences, the top Borda score, and — as Schulze, Copeland, and Kemeny–Young confirm — beats every rival head-to-head. When a candidate dominates like this, the choice of method cannot change the outcome; method choice matters exactly when support is fragmented, and these ballots are not fragmented at the top. (Beneath the winner the orderings do shuffle — compare the full <code>ranking</code> arrays across the envelopes above.)</p>
+<figcaption>The answer to the tutorial's question. The unbroken dark top row is the finding: no counting method changes the winner (the asterisk marks simple_majority, which ranks but declines to declare). The shuffling in the middle rows is where method choice does matter.</figcaption></figure>
+    <p><strong>Every method that names a winner names <em>1984</em>.</strong> That unanimity is itself the finding. Orwell's novel holds 8 of 18 first preferences, the top Borda score, and beats every rival head-to-head. When a candidate dominates like this, the choice of method cannot change the outcome; method choice matters exactly when support is fragmented, and these ballots are not fragmented at the top. (Beneath the winner the orderings do shuffle — compare the <code>ranking</code> arrays across the saved results.)</p>
     <div class="callout"><strong>What this page cannot claim.</strong> Eighteen self-selected respondents are a poll of those eighteen people, not of readers in general. The demonstration is methodological — one auditable dataset, many counting rules, disclosed outputs — not a literary verdict.</div>
   </section>
 
@@ -1966,7 +1728,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
       &quot;voters&quot;: 18,
       &quot;elections&quot;: 1,
       &quot;ballots&quot;: 36,
-      &quot;results&quot;: 7
+      &quot;results&quot;: 12
     },
     &quot;recommendation&quot;: &quot;voting count list&quot;,
     &quot;reason&quot;: &quot;View results&quot;,
@@ -1989,7 +1751,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
       <tr><td>Import and audit</td><td><code>ballot import --from|--from-results|--from-coop [--register-voters]</code>, <code>ballot validate</code>, <code>ballot list</code></td></tr>
       <tr><td>Count and compare</td><td><code>count run [--method]</code>, <code>count list</code>, <code>count show</code></td></tr>
     </tbody></table>
-    <p>Exact options and defaults belong to <code>voting &lt;command&gt; --help</code>; the README's generated command reference lists all 50 commands and is enforced against the CLI by <code>tests/test_contract_sync.py</code>.</p>
+    <p>Exact options and defaults belong to <code>voting &lt;command&gt; --help</code>; the README's generated command reference lists all 51 commands and is enforced against the CLI by <code>tests/test_contract_sync.py</code>.</p>
     <p>That is the whole loop. The natural next step is to run it on a question you actually care about: define your options, publish the survey to the people whose answer matters (or let AI personas vote via <code>survey generate</code> and <code>ep run</code>), and — before believing any winner — check <code>ballot validate</code>, then count it more than one way. If all the methods agree, you have a robust answer. If they disagree, you have something more interesting.</p>
   </section>
 

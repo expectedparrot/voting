@@ -175,22 +175,36 @@ def methods_svg(results: list[dict], names: dict[str, str] | None = None) -> str
         raise ValueError("No saved count results to compare (run voting count run first).")
     methods: list[str] = []
     positions: dict[str, dict[str, int]] = {}
+    no_winner: set[str] = set()
     for result in results:
         method = result.get("method", "?")
         if method not in methods:
             methods.append(method)
+        if not result.get("winners"):
+            no_winner.add(method)
+        else:
+            no_winner.discard(method)
         for row in result.get("ranking", []):
             positions.setdefault(row["option_id"], {})[method] = row.get("rank", 0)
     option_ids = sorted(positions, key=lambda oid: sum(positions[oid].values()) / max(len(positions[oid]), 1))
-    cell_w, cell_h, left, top = 88, 40, 250, 100
-    width = left + cell_w * len(methods) + 40
-    height = top + cell_h * len(option_ids) + 40
+    cell_w, cell_h, left, top = (88 if len(methods) <= 8 else 70), 40, 250, 118
+    width = left + cell_w * len(methods) + 60
+    height = top + cell_h * len(option_ids) + (56 if no_winner else 40)
     n_options = len(option_ids)
     parts = [f'<text x="20" y="52" font-size="12" fill="{MUTED}">Cell = finishing position under that method '
              f'(1 = winner). A solid top row means the method does not change the outcome.</text>']
+    rotate = len(methods) > 8
     for j, method in enumerate(methods):
-        parts.append(f'<text x="{left + j * cell_w + cell_w / 2}" y="{top - 12}" font-size="12" font-weight="700" '
-                     f'text-anchor="middle" fill="{DARK}">{html.escape(method)}</text>')
+        label = html.escape(method + ("*" if method in no_winner else ""))
+        if rotate:
+            parts.append(f'<g transform="translate({left + j * cell_w + 10},{top - 10}) rotate(-32)">'
+                         f'<text font-size="11" font-weight="700" fill="{DARK}">{label}</text></g>')
+        else:
+            parts.append(f'<text x="{left + j * cell_w + cell_w / 2}" y="{top - 12}" font-size="12" font-weight="700" '
+                         f'text-anchor="middle" fill="{DARK}">{label}</text>')
+    if no_winner:
+        parts.append(f'<text x="{left}" y="{top + cell_h * n_options + 30}" font-size="12" fill="{AMBER}">'
+                     f'* declared no winner (its ranking is shown for comparison)</text>')
     for i, oid in enumerate(option_ids):
         y = top + i * cell_h
         parts.append(f'<text x="{left - 10}" y="{y + cell_h / 2 + 4}" font-size="13" text-anchor="end" '

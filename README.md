@@ -231,6 +231,7 @@ Every registered command (options and defaults live in `voting <command> --help`
 | `voting ballot show` |  |
 | `voting ballot validate` |  |
 | `voting capabilities` | Describe the agent-facing output contract and external-action surface. |
+| `voting count compare` | Count the same ballots under every compatible method in one command. |
 | `voting count list` |  |
 | `voting count run` |  |
 | `voting count show` |  |
