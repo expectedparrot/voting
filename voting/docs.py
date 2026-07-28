@@ -44,6 +44,11 @@ DOCS: dict[str, dict] = {
         "summary": "Common errors, warning codes, and their recovery hints.",
         "file": "troubleshooting.md",
     },
+    "recipes": {
+        "title": "Recipes",
+        "summary": "Worked organizational patterns — prioritization, hiring panels, preference surveys, AI pretesting, budget allocation.",
+        "file": "recipes.md",
+    },
 }
 
 

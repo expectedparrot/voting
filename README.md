@@ -30,6 +30,23 @@ It can:
 - Generate synthetic EDSL preference studies or publish Humanize surveys for
   real respondents.
 
+## What people use it for
+
+- **Roadmap and feature prioritization** — replace dot-voting (plurality by
+  accident) with ranked ballots and `count compare`; if methods disagree, the
+  priority is contested and deserves discussion, not a tally.
+- **Hiring and promotion panels** — ranked ballots per interviewer, explicit
+  role weights, Condorcet counting, and a pairwise plot of every head-to-head.
+- **Customer and employee preference surveys** — publish a hosted Humanize
+  ranking survey, email unique links, import the responses as ballots, and
+  read the rank-distribution plot ("broadly liked" vs "polarizing").
+- **AI-persona pretesting** — pilot the question against synthetic voter
+  personas via `survey generate` + `ep run` before spending respondent budget.
+- **Budget allocation** — "split 100 points across these initiatives" maps
+  directly to allocated ballots and cumulative counting.
+
+Each of these is a worked six-command recipe in `voting docs show recipes`.
+
 ## Use with a coding agent
 
 Copy this into Codex or Claude Code:
