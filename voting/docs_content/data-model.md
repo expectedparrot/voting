@@ -76,7 +76,6 @@ Traits are arbitrary key/value pairs. Traits (such as `persona`) become EDSL age
   "name": "City Council Race",
   "description": "",
   "created_at": "2026-04-21T10:03:00",
-  "method": "irv",
   "ballot_type": "ranked",
   "seats": 1,
   "status": "open",

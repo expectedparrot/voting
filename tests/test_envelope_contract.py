@@ -50,15 +50,14 @@ def test_full_election_flow_smoke(tmp_path: Path) -> None:
         ("option", "add", "coffee", "Coffee"),
         ("voter", "add", "v1", "Voter One"),
         ("voter", "add", "v2", "Voter Two"),
-        ("election", "add", "drink", "Best drink", "--method", "fptp",
-         "--ballot-type", "single_choice"),
+        ("election", "add", "drink", "Best drink", "--ballot-type", "single_choice"),
         ("election", "add-option", "drink", "tea"),
         ("election", "add-option", "drink", "coffee"),
         ("election", "open", "drink"),
         ("ballot", "cast", "drink", "v1", "--choice", "tea"),
         ("ballot", "cast", "drink", "v2", "--choice", "coffee"),
         ("ballot", "validate", "drink"),
-        ("count", "run", "drink"),
+        ("count", "run", "drink", "--method", "fptp"),
     ]
     cwd = tmp_path
     for index, step in enumerate(steps):
@@ -98,8 +97,7 @@ def test_ballot_import_from_edsl_results(tmp_path: Path) -> None:
         ("option", "add", "gatsby", "The Great Gatsby"),
         ("option", "add", "orwell", "1984"),
         ("option", "add", "mockingbird", "To Kill a Mockingbird"),
-        ("election", "add", "favorite", "Favorite book", "--method", "irv",
-         "--ballot-type", "ranked"),
+        ("election", "add", "favorite", "Favorite book", "--ballot-type", "ranked"),
         ("election", "add-option", "favorite", "gatsby"),
         ("election", "add-option", "favorite", "orwell"),
         ("election", "add-option", "favorite", "mockingbird"),
@@ -132,7 +130,7 @@ def test_ballot_import_from_edsl_results(tmp_path: Path) -> None:
     # unregistered respondents warn but import (weight 1.0)
     assert any(w["code"] == "unregistered_voter" for w in payload["warnings"])
 
-    counted = run_voting("count", "run", "favorite", cwd=cwd)
+    counted = run_voting("count", "run", "favorite", "--method", "irv", cwd=cwd)
     assert counted.returncode == 0
     count_payload = json.loads(counted.stdout)
     assert count_payload["status"] == "ok"
@@ -141,8 +139,7 @@ def test_ballot_import_from_edsl_results(tmp_path: Path) -> None:
 def test_option_import_bulk_loads_and_attaches(tmp_path: Path) -> None:
     assert run_voting("init", "bulk", cwd=tmp_path).returncode == 0
     cwd = tmp_path / "bulk"
-    assert run_voting("election", "add", "books", "Books", "--method", "borda",
-                      "--ballot-type", "ranked", cwd=cwd).returncode == 0
+    assert run_voting("election", "add", "books", "Books", "--ballot-type", "ranked", cwd=cwd).returncode == 0
     spec = tmp_path / "options.json"
     spec.write_text(json.dumps([
         {"id": "gatsby", "name": "The Great Gatsby"},
@@ -174,12 +171,12 @@ def test_human_mode_renders_rich_tables(tmp_path: Path) -> None:
         ("option", "add", "tea", "Tea"),
         ("option", "add", "coffee", "Coffee"),
         ("voter", "add", "v1", "Voter One"),
-        ("election", "add", "drink", "Best drink", "--method", "borda", "--ballot-type", "ranked"),
+        ("election", "add", "drink", "Best drink", "--ballot-type", "ranked"),
         ("election", "add-option", "drink", "tea"),
         ("election", "add-option", "drink", "coffee"),
         ("election", "open", "drink"),
         ("ballot", "rank", "drink", "v1", "tea", "coffee"),
-        ("count", "run", "drink"),
+        ("count", "run", "drink", "--method", "borda"),
     ]:
         assert run_voting(*step, cwd=cwd).returncode == 0, step
 
@@ -212,7 +209,7 @@ def test_plot_commands_write_svgs(tmp_path: Path) -> None:
         ("option", "add", "coffee", "Coffee"),
         ("option", "add", "milk", "Milk"),
         ("voter", "add", "v1", "One"), ("voter", "add", "v2", "Two"), ("voter", "add", "v3", "Three"),
-        ("election", "add", "drink", "Best drink", "--method", "borda", "--ballot-type", "ranked"),
+        ("election", "add", "drink", "Best drink", "--ballot-type", "ranked"),
         ("election", "add-option", "drink", "tea"),
         ("election", "add-option", "drink", "coffee"),
         ("election", "add-option", "drink", "milk"),
@@ -222,7 +219,7 @@ def test_plot_commands_write_svgs(tmp_path: Path) -> None:
         ("ballot", "rank", "drink", "v3", "coffee", "tea", "milk"),
     ]:
         assert run_voting(*step, cwd=cwd).returncode == 0, step
-    borda = json.loads(run_voting("count", "run", "drink", cwd=cwd).stdout)["data"]
+    borda = json.loads(run_voting("count", "run", "drink", "--method", "borda", cwd=cwd).stdout)["data"]
     schulze = json.loads(run_voting("count", "run", "drink", "--method", "schulze", cwd=cwd).stdout)["data"]
 
     for args in [
@@ -253,8 +250,7 @@ def test_survey_generate_emits_executable_jobs_package(tmp_path: Path) -> None:
         ("option", "add", "orwell", "1984"),
         ("voter", "add", "v1", "Voter One"),
         ("voter", "add", "v2", "Voter Two"),
-        ("election", "add", "favorite", "Favorite book", "--method", "borda",
-         "--ballot-type", "ranked"),
+        ("election", "add", "favorite", "Favorite book", "--ballot-type", "ranked"),
         ("election", "add-option", "favorite", "gatsby"),
         ("election", "add-option", "favorite", "orwell"),
         ("election", "open", "favorite"),
@@ -302,8 +298,7 @@ def test_ballot_import_from_results_unknown_label_itemized(tmp_path: Path) -> No
     steps = [
         ("init", "books2"),
         ("option", "add", "gatsby", "The Great Gatsby"),
-        ("election", "add", "favorite", "Favorite book", "--method", "irv",
-         "--ballot-type", "ranked"),
+        ("election", "add", "favorite", "Favorite book", "--ballot-type", "ranked"),
         ("election", "add-option", "favorite", "gatsby"),
         ("election", "open", "favorite"),
     ]

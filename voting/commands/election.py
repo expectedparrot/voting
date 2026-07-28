@@ -15,7 +15,6 @@ def add(
     ctx: typer.Context,
     election_id: str,
     name: str,
-    method: str = typer.Option("fptp", "--method"),
     ballot_type: str = typer.Option("single_choice", "--ballot-type"),
     seats: int = typer.Option(1, "--seats"),
     tie_policy: str = typer.Option("lexicographic", "--tie-policy"),
@@ -29,7 +28,6 @@ def add(
         "name": name,
         "description": description,
         "created_at": local_iso_now(),
-        "method": method,
         "ballot_type": ballot_type,
         "seats": seats,
         "status": "draft",
@@ -96,17 +94,8 @@ def close(ctx: typer.Context, election_id: str) -> None:
         "election close",
         data,
         human_message=f"Closed {election_id}",
-        next_steps=[f"voting count run {election_id}"],
+        next_steps=[f"voting count run {election_id} --method <method>"],
     )
-
-
-@app.command("set-method")
-def set_method(ctx: typer.Context, election_id: str, method: str) -> None:
-    project = ctx_project(ctx)
-    data = read_entity(project, "elections", election_id)
-    data["method"] = method
-    write_json(project.path("elections", f"{election_id}.json"), data)
-    output(ctx, "election set-method", data)
 
 
 @app.command("add-option")

@@ -10,7 +10,7 @@ The `voting` workflow has six phases inferred from what exists on disk — no me
 | `setup` | Project exists, no options or voters | `voting option add`, `voting voter add` |
 | `elections` | Options+voters ready, no open election | `voting election add` + `voting election open` |
 | `balloting` | Open election exists, no ballots | Direct ballot, synthetic survey, or Humanize survey |
-| `counting` | Ballots recorded, no results | `voting count run <election_id>` |
+| `counting` | Ballots recorded, no results | `voting count run <election_id> --method <method>` |
 | `done` | Results exist | `voting count list` / `voting count show` |
 
 Check current phase at any time:
@@ -32,19 +32,19 @@ voting voter set-trait <id> email '"person@example.com"'
 
 ## Phase: elections
 
-Create one or more elections, each with a method and ballot type. The method can be changed before counting — it does not need to match the ballot type strictly (many methods handle cross-type ballots gracefully). Add all options to each election, then open it.
+Create one or more elections, each with a ballot type. An election deliberately does not fix a counting method — counting is a lens applied later, and any number of methods can be run against the same stored ballots. Add all options to each election, then open it.
 
 ```bash
-voting election add <id> <name> --method fptp --ballot-type single_choice
+voting election add <id> <name> --ballot-type ranked
 voting election add-option <election_id> <option_id>  # repeat per option
 voting election open <election_id>
 ```
 
-For multi-method comparison, create multiple elections with different methods but the same options:
+Multi-method comparison therefore needs only one election — count it several ways in the counting phase:
 ```bash
-voting election add e_irv    "Race (IRV)"    --method irv    --ballot-type ranked
-voting election add e_borda  "Race (Borda)"  --method borda  --ballot-type ranked
-voting election add e_condorcet "Race (Schulze)" --method schulze --ballot-type ranked
+voting count run <election_id> --method irv
+voting count run <election_id> --method borda
+voting count run <election_id> --method schulze
 ```
 
 ## Phase: balloting
@@ -124,7 +124,7 @@ voting ballot validate <election_id>
 Run any method at any time. Results are saved as records; running again with a different method does not overwrite previous results.
 
 ```bash
-voting count run <election_id>
+voting count run <election_id> --method irv
 voting count run <election_id> --method borda
 voting count run <election_id> --method schulze
 ```

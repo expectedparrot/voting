@@ -114,8 +114,7 @@ voting voter add voter_1 "Voter 1"
 voting voter add voter_2 "Voter 2"
 voting voter add voter_3 "Voter 3"
 
-voting election add projects "Neighborhood projects" \
-  --method irv --ballot-type ranked
+voting election add projects "Neighborhood projects" --ballot-type ranked
 voting election add-option projects library
 voting election add-option projects shelters
 voting election add-option projects lighting
@@ -126,7 +125,7 @@ voting ballot rank projects voter_2 shelters lighting library
 voting ballot rank projects voter_3 lighting library shelters
 
 voting ballot validate projects
-voting count run projects
+voting count run projects --method irv
 voting count run projects --method borda
 voting count list
 ```
@@ -244,7 +243,6 @@ Every registered command (options and defaults live in `voting <command> --help`
 | `voting election list` |  |
 | `voting election open` |  |
 | `voting election remove-option` |  |
-| `voting election set-method` |  |
 | `voting election show` |  |
 | `voting info` |  |
 | `voting init` |  |

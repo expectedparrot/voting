@@ -138,7 +138,7 @@ def import_options(
     next_steps = (
         [f"voting election open {election_id}", f"voting --human election show {election_id}"]
         if election_id
-        else ["voting election add <id> <name> --method <method>", "voting election add-option <election_id> <option_id>"]
+        else ["voting election add <id> <name> --ballot-type <type>", "voting election add-option <election_id> <option_id>"]
     )
     output(
         ctx,

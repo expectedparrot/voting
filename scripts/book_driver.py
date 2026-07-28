@@ -98,7 +98,7 @@ def main() -> None:
 
     # ── The election and its options (bulk-loaded from a JSON file) ───────
     voting("election", "add", "book_preference", "Classic book preference",
-           "--method", "borda", "--ballot-type", "ranked", capture="04-election-add")
+           "--ballot-type", "ranked", capture="04-election-add")
     books_spec = WORK / "books.json"
     books_spec.write_text(json.dumps(
         [{"id": option_id, "name": name} for option_id, name in BOOKS], indent=2
@@ -134,7 +134,8 @@ def main() -> None:
     # ── Count the same ballots under many methods ─────────────────────────
     validated = voting("ballot", "validate", "book_preference")
     assert validated["data"].get("valid_ballots") == imported["data"]["cast"], validated["data"]
-    borda = voting("count", "run", "book_preference", capture="12-count-borda")
+    borda = voting("count", "run", "book_preference", "--method", "borda",
+                   capture="12-count-borda")
     voting("count", "show", borda["data"]["id"], capture="12h-count-borda", human=True)
     voting("plot", "scores", borda["data"]["id"], capture="12p-plot-scores")
     runs = {"borda": borda}

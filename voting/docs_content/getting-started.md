@@ -40,7 +40,6 @@ voting voter set-trait voter_1 persona '"Progressive urban planner who prioritiz
 
 ```bash
 voting election add city_council "City Council Race" \
-    --method irv \
     --ballot-type ranked
 
 voting election add-option city_council alice
@@ -106,7 +105,7 @@ voting survey email city_council --name "City council ballot"
 ## 6. Count the Results
 
 ```bash
-voting count run city_council
+voting count run city_council --method irv
 ```
 
 Compare additional methods:
@@ -124,7 +123,7 @@ voting count show <result_id>
 
 Use `--human` for readable output (it's a top-level flag, place it before the subcommand):
 ```bash
-voting --human count run city_council
+voting --human count run city_council --method irv
 ```
 
 ## Next Steps

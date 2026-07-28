@@ -60,7 +60,7 @@ METHODS = {
 def run(
     ctx: typer.Context,
     election_id: str,
-    method: Optional[str] = typer.Option(None, "--method"),
+    method: str = typer.Option(..., "--method", help="Counting method to apply (a count is a lens on the ballots; elections do not fix one)."),
     seats: Optional[int] = typer.Option(None, "--seats"),
     tie_policy: Optional[str] = typer.Option(None, "--tie-policy"),
 ) -> None:
@@ -141,13 +141,18 @@ def show(ctx: typer.Context, result_id: str) -> None:
 
 
 def prepare_count(project: Project, election_id: str, method: str | None) -> dict:
+    """Resolve options, voters, and countable ballots.
+
+    method=None is the validation-only path (ballot checks without counting);
+    counting always names its method explicitly — elections do not carry one.
+    """
     election = read_entity(project, "elections", election_id)
-    selected_method = method or election.get("method", "fptp")
-    if selected_method not in METHODS:
+    selected_method = method
+    if selected_method is not None and selected_method not in METHODS:
         raise UserError(
             "Unknown voting method.",
             {"method": selected_method, "known": sorted(METHODS)},
-            hint=f"Run `voting docs show voting-methods` to see all supported methods.",
+            hint="Run `voting docs show voting-methods` to see all supported methods.",
         )
     options = eligible_options(
         election,

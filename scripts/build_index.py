@@ -237,7 +237,7 @@ add(f"""
 
   <section id="election">
     <h2><span class="chapter">04</span> Define the election</h2>
-    <p>An <em>election</em> is the central object here: it names the contest, fixes the <strong>ballot type</strong> (ranked, in this case — voters order all options; other types are single choice, approval, and score), sets a default <strong>counting method</strong> (Borda — though any method can be run against the stored ballots later), and holds the list of eligible options. It starts as a draft and only accepts ballots once opened:</p>
+    <p>An <em>election</em> is the central object here: it names the contest, fixes the <strong>ballot type</strong> (ranked, in this case — voters order all options; other types are single choice, approval, and score), and holds the list of eligible options. Deliberately absent: a counting method. The ballot type determines what voters are asked; <em>how the ballots are counted is a lens you apply afterwards</em> — as many lenses as you like, which is the whole point of chapter 7. An election starts as a draft and only accepts ballots once opened:</p>
     {cmdcap_auto("04-election-add")}
     <p>The eight books load in one step from a JSON file — id plus display name each. The display names matter: when ballots arrive from a survey, answers reference options by these exact labels, and the importer maps labels back to ids. An unknown label skips that row and reports it; nothing is ever silently guessed. (<code>voting option add</code> exists for adding one at a time.)</p>
     <p>Alongside options, a project also keeps a <strong>voter registry</strong> — who may vote, at what weight, with what traits. Ours is deliberately still empty; that becomes the crux of chapter 6.</p>
@@ -246,7 +246,7 @@ add(f"""
     {cmdcap_auto("05-option-import")}
     <p>Open the election and look at it the way a person would — <code>--human</code> renders tables instead of JSON:</p>
     {cmdcap_auto("06-election-open")}
-    {hcap("06h-election", "The election at a glance: eight options, ranked ballots, Borda default, open for ballots.")}
+    {hcap("06h-election", "The election at a glance: eight options, ranked ballots, open for ballots — and no counting method, because that decision belongs to the count.")}
   </section>
 
   <section id="survey">
@@ -281,7 +281,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
 
   <section id="methods">
     <h2><span class="chapter">07</span> Seven methods, one answer</h2>
-    <p>Now the point of the exercise. The same eighteen ballots, counted seven ways — the election's default first:</p>
+    <p>Now the point of the exercise. The same eighteen ballots, counted seven ways. Every count names its method explicitly — there is no default to fall back on, and that is a feature: a "winner" is always a <em>method's</em> winner. Borda first:</p>
     {cmdcap_auto("12-count-borda")}
     {hcap("12h-count-borda", "The saved Borda count rendered for people: full ranking, scores, and the winner.")}
     <p>Any saved count can also be plotted — the winner's bar in green:</p>

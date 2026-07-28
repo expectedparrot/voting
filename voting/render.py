@@ -22,7 +22,6 @@ def election_panel(election: dict, option_names: dict[str, str] | None = None):
     table.add_row("Name", election.get("name") or election["id"])
     if election.get("description"):
         table.add_row("Description", election["description"])
-    table.add_row("Method", election.get("method", ""))
     table.add_row("Ballot type", election.get("ballot_type", ""))
     table.add_row("Status", election.get("status", ""))
     table.add_row("Seats", str(election.get("seats", 1)))

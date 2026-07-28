@@ -25,7 +25,7 @@ CHECKLISTS: dict[str, list[str]] = {
         "Optionally set voter traits for survey generation: `voting voter set-trait <id> <key> <value>`",
     ],
     Phase.ELECTIONS: [
-        "Create an election: `voting election add <id> <name> --method <method> --ballot-type <type>`",
+        "Create an election: `voting election add <id> <name> --ballot-type <type>`",
         "Add options to the election: `voting election add-option <election_id> <option_id>`",
         "Open the election: `voting election open <election_id>`",
     ],
@@ -35,7 +35,7 @@ CHECKLISTS: dict[str, list[str]] = {
         "Validate ballots:       `voting ballot validate <election_id>`",
     ],
     Phase.COUNTING: [
-        "Run a counting method: `voting count run <election_id>`",
+        "Run a counting method: `voting count run <election_id> --method <method>`",
         "Run multiple methods for comparison: `voting count run <election_id> --method <method>`",
     ],
     Phase.DONE: [
@@ -53,7 +53,7 @@ NEXT_STEP_COMMANDS: dict[str, list[dict]] = {
         {"label": "Add first voter", "command": "voting voter add <id> <name>"},
     ],
     Phase.ELECTIONS: [
-        {"label": "Create election", "command": "voting election add <id> <name> --method fptp --ballot-type single_choice"},
+        {"label": "Create election", "command": "voting election add <id> <name> --ballot-type single_choice"},
         {"label": "Browse methods", "command": "voting docs show voting-methods"},
     ],
     Phase.BALLOTING: [
@@ -61,7 +61,7 @@ NEXT_STEP_COMMANDS: dict[str, list[dict]] = {
         {"label": "Generate EDSL survey", "command": "voting survey generate <election_id>"},
     ],
     Phase.COUNTING: [
-        {"label": "Count with election's default method", "command": "voting count run <election_id>"},
+        {"label": "Count the ballots", "command": "voting count run <election_id> --method <method>"},
     ],
     Phase.DONE: [
         {"label": "View results", "command": "voting count list"},

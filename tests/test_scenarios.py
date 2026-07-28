@@ -40,7 +40,7 @@ def add_voters(project: Path, count: int) -> list[str]:
 
 
 def add_election(project: Path, election_id: str, method: str, ballot_type: str, options: list[str], seats: int = 1) -> None:
-    invoke(["election", "add", election_id, election_id.title(), "--method", method, "--ballot-type", ballot_type, "--seats", str(seats)], project)
+    invoke(["election", "add", election_id, election_id.title(), "--ballot-type", ballot_type, "--seats", str(seats)], project)
     for option_id in options:
         invoke(["election", "add-option", election_id, option_id], project)
     invoke(["election", "open", election_id], project)

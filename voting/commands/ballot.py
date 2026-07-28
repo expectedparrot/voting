@@ -30,7 +30,7 @@ def cast(
         "ballot cast",
         {"id": rid, **data},
         human_message=f"Recorded ballot {rid}",
-        next_steps=[f"voting ballot validate {election_id}", f"voting count run {election_id}"],
+        next_steps=[f"voting ballot validate {election_id}", f"voting count run {election_id} --method <method>"],
     )
 
 
@@ -53,7 +53,7 @@ def rank(
         "ballot rank",
         {"id": rid, **data},
         human_message=f"Recorded ballot {rid}",
-        next_steps=[f"voting ballot validate {election_id}", f"voting count run {election_id}"],
+        next_steps=[f"voting ballot validate {election_id}", f"voting count run {election_id} --method <method>"],
     )
 
 
@@ -75,7 +75,7 @@ def approve(
         "ballot approve",
         {"id": rid, **data},
         human_message=f"Recorded ballot {rid}",
-        next_steps=[f"voting ballot validate {election_id}", f"voting count run {election_id}"],
+        next_steps=[f"voting ballot validate {election_id}", f"voting count run {election_id} --method <method>"],
     )
 
 
@@ -94,7 +94,7 @@ def score(
         "ballot score",
         {"id": rid, **data},
         human_message=f"Recorded ballot {rid}",
-        next_steps=[f"voting ballot validate {election_id}", f"voting count run {election_id}"],
+        next_steps=[f"voting ballot validate {election_id}", f"voting count run {election_id} --method <method>"],
     )
 
 
@@ -113,7 +113,7 @@ def grade(
         "ballot grade",
         {"id": rid, **data},
         human_message=f"Recorded ballot {rid}",
-        next_steps=[f"voting ballot validate {election_id}", f"voting count run {election_id}"],
+        next_steps=[f"voting ballot validate {election_id}", f"voting count run {election_id} --method <method>"],
     )
 
 
@@ -132,7 +132,7 @@ def allocate(
         "ballot allocate",
         {"id": rid, **data},
         human_message=f"Recorded ballot {rid}",
-        next_steps=[f"voting ballot validate {election_id}", f"voting count run {election_id}"],
+        next_steps=[f"voting ballot validate {election_id}", f"voting count run {election_id} --method <method>"],
     )
 
 
@@ -183,7 +183,7 @@ def validate_cmd(ctx: typer.Context, election_id: str) -> None:
         ctx,
         "ballot validate",
         {"valid_ballots": len(prepared["ballots"]), "warnings": prepared["warnings"]},
-        next_steps=[f"voting count run {election_id}"],
+        next_steps=[f"voting count run {election_id} --method <method>"],
     )
 
 
@@ -464,7 +464,7 @@ def import_ballots(
             "source_file": source_display,
         },
         warnings=warnings_list or None,
-        next_steps=[f"voting count run {election_id}"],
+        next_steps=[f"voting count run {election_id} --method <method>"],
     )
 
 
