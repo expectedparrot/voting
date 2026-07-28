@@ -30,13 +30,10 @@ def clean(obj):
         return {clean(key): clean(value) for key, value in obj.items()}
     return obj
 
-TRUNCATE = {
-    "08-import": 3,
-    "08a-import-unregistered": 2,
-    "08b-validate-unregistered": 3,
-    "09-validate": 2,
-    "14-count-list": 3,
-}
+# Envelopes shown at full fidelity (the reader should see the complete
+# contract at least once). Everything else gets elided for readability —
+# the untrimmed captures live in build/tutorial/captures/.
+FULL = {"01-version", "02-init", "03-next", "04-election-add", "06-election-open"}
 
 
 def load(name: str) -> dict:
@@ -52,14 +49,25 @@ def _trim(value, depth=0):
             ]
         return [_trim(v, depth + 1) for v in value]
     if isinstance(value, dict):
-        return {k: _trim(v, depth + 1) for k, v in value.items()}
+        items = list(value.items())
+        if depth >= 2 and len(items) > 5:
+            trimmed = {k: _trim(v, depth + 1) for k, v in items[:4]}
+            trimmed["…"] = f"{len(items) - 4} further keys elided"
+            return trimmed
+        return {k: _trim(v, depth + 1) for k, v in items}
     return value
 
 
 def render_payload(name: str) -> str:
     payload = clean(load(name)["payload"])
-    if name in TRUNCATE and isinstance(payload.get("data"), dict):
-        payload["data"] = _trim(payload["data"])
+    if name not in FULL:
+        if isinstance(payload.get("data"), dict):
+            payload["data"] = _trim(payload["data"])
+        if len(payload.get("warnings") or []) > 3:
+            n = len(payload["warnings"])
+            payload["warnings"] = payload["warnings"][:2] + [
+                f"… {n - 2} further warnings elided ({n} total) …"
+            ]
     return json.dumps(payload, indent=2, ensure_ascii=False)
 
 
@@ -104,6 +112,10 @@ WINNER = BORDA["winners"][0]
 assert all(load(f"13-count-{m}")["payload"]["data"]["winners"] == [WINNER]
            for m in ["irv", "schulze", "copeland", "kemeny_young", "bucklin", "fptp"]), \
     "prose assumes a unanimous winner; the data changed"
+HUMANIZE = load("07-humanize")["payload"]["data"]
+QUESTION_TEXT = HUMANIZE["question_texts"]["ranking"]
+BOOKS_JSON = (WORK / "books.json").read_text().rstrip()
+N_COMMANDS = (REPO / "README.md").read_text().count("| `voting ")
 
 T: list[str] = []
 add = T.append
@@ -168,18 +180,19 @@ add("""<!doctype html>
   <a class="item" href="#question">1. The question and the data</a>
   <a class="item" href="#install">2. Installation and contract</a>
   <div class="part">Worked run</div>
-  <a class="item" href="#setup">3. Set up the election</a>
-  <a class="item" href="#survey">4. The hosted human survey</a>
-  <a class="item" href="#ballots">5. Real ballots, fail-closed</a>
-  <a class="item" href="#methods">6. Seven methods, one answer</a>
+  <a class="item" href="#setup">3. Set up the project</a>
+  <a class="item" href="#election">4. Define the election</a>
+  <a class="item" href="#survey">5. The hosted human survey</a>
+  <a class="item" href="#ballots">6. Ballots that don't count (yet)</a>
+  <a class="item" href="#methods">7. Seven methods, one answer</a>
   <div class="part">Practice</div>
-  <a class="item" href="#practice">7. Where everything lives</a>
+  <a class="item" href="#practice">8. Where everything lives</a>
   <div class="small">Every output on this page is a real captured envelope; the ballots are 18 real human responses from a production Expected Parrot Humanize survey.</div>
 </nav>
 <main><article>
   <div class="eyebrow">Expected Parrot · a practical, evidence-first tutorial</div>
   <h1>Counting real ballots under seven voting methods</h1>
-  <p class="dek">Eighteen people ranked eight classic novels in a hosted survey. This tutorial rebuilds that election from scratch, imports their real ballots from production, and asks whether the winner depends on how you count.</p>
+  <p class="dek">Eighteen people ranked eight classic novels in a hosted survey on Expected Parrot. This tutorial shows how the <code>voting</code> package works with those votes — and how different ways of tallying them do (or don't) change the outcome.</p>
 """)
 
 add(f"""
@@ -192,37 +205,48 @@ add(f"""
 
   <section id="install">
     <h2><span class="chapter">02</span> Installation and the output contract</h2>
-    {cmd("pip install git+https://github.com/expectedparrot/voting.git")}
-    <p>Every command prints exactly one JSON envelope to stdout — <code>schema_version</code>, <code>command</code>, <code>status</code>, <code>argv</code>, <code>data</code>, <code>warnings</code>, <code>errors</code>, <code>next_steps</code> — with failures as structured errors and nonzero exits. <code>voting capabilities</code> states the contract machine-readably, and <code>voting next</code> always knows the next valid step:</p>
+    {cmd("uv tool install git+https://github.com/expectedparrot/voting.git")}
+    <p>(<code>uv tool</code> gives <code>voting</code> its own isolated environment on your PATH; plain <code>pip install</code> works too.) Every command prints exactly one JSON envelope to stdout — <code>schema_version</code>, <code>command</code>, <code>status</code>, <code>argv</code>, <code>data</code>, <code>warnings</code>, <code>errors</code>, <code>next_steps</code> — with failures as structured errors and nonzero exits. Add <code>--human</code> to any command for tables meant for people instead. <code>voting capabilities</code> states the contract machine-readably:</p>
     {cmdcap_auto("01-version")}
+    <div class="callout">Longer envelopes on this page are elided — lists cut to a few entries, repeated warnings summarized — so the shape stays readable. The first few outputs are shown complete; the full captures live in <code>build/tutorial/captures/</code> when you regenerate the page.</div>
   </section>
 
   <section id="setup">
-    <h2><span class="chapter">03</span> Set up the election</h2>
-    <p>A project is a directory with a <code>.voting/</code> store of small JSON entity files — inspectable with nothing but <code>cat</code>. Create it, and let <code>next</code> confirm where you are:</p>
+    <h2><span class="chapter">03</span> Set up the project</h2>
+    <p>Create a project and step into it. All state lives inside the project directory as plain JSON files, so everything the tool does is inspectable and versionable — the layout is covered at the end.</p>
     {cmdcap_auto("02-init")}
     {cmd("cd classic_books")}
+    <p><code>voting next</code> is the orientation command: it reports the current phase and the exact commands that make sense now. It exists mostly for AI agents driving the CLI — an agent that only knows how to run <code>voting next</code> can navigate the whole workflow — but it is just as useful when a person comes back to a project cold:</p>
     {cmdcap_auto("03-next")}
-    <p>Register the eight books as options. The display names matter: when ballots arrive from a survey, answers reference options by these exact labels, and the importer maps labels back to ids fail-closed — an unknown label skips the row and tells you, it never guesses:</p>
-    {cmdcap_auto("04-option-add")}
-    <p>The other seven follow the same shape. Then define the election — ranked ballots, Borda as the default counting method (any method can be run against the stored ballots later) — attach the options, and open it:</p>
-    {cmdcap_auto("05-election-add")}
+  </section>
+
+  <section id="election">
+    <h2><span class="chapter">04</span> Define the election</h2>
+    <p>An <em>election</em> is the central object here: it names the contest, fixes the <strong>ballot type</strong> (ranked, in this case — voters order all options; other types are single choice, approval, and score), sets a default <strong>counting method</strong> (Borda — though any method can be run against the stored ballots later), and holds the list of eligible options. It starts as a draft and only accepts ballots once opened:</p>
+    {cmdcap_auto("04-election-add")}
+    <p>The eight books load in one step from a JSON file — id plus display name each. The display names matter: when ballots arrive from a survey, answers reference options by these exact labels, and the importer maps labels back to ids. An unknown label skips that row and reports it; nothing is ever silently guessed. (<code>voting option add</code> exists for adding one at a time.)</p>
+    <pre class="command"><code>cat books.json</code></pre>
+    <details class="output"><summary>Show books.json</summary><pre><code>{html.escape(BOOKS_JSON)}</code></pre></details>
+    {cmdcap_auto("05-option-import")}
+    <p>Open the election and look at it the way a person would — <code>--human</code> renders tables instead of JSON:</p>
     {cmdcap_auto("06-election-open")}
-    {hcap("06h-election", "The election as a person reads it: eight options, ranked ballots, Borda default, open for ballots.")}
+    {hcap("06h-election", "The election at a glance: eight options, ranked ballots, Borda default, open for ballots.")}
   </section>
 
   <section id="survey">
-    <h2><span class="chapter">04</span> The hosted human survey</h2>
-    <p><code>voting survey humanize</code> packages the election as a model-free EDSL job for Expected Parrot's Humanize platform — a web survey real people answer. The build is local and writes every artifact (job package, manifest, response schema):</p>
+    <h2><span class="chapter">05</span> The hosted human survey</h2>
+    <p><code>voting survey humanize</code> packages the election as a model-free EDSL job for Expected Parrot's Humanize platform — a web survey real people answer. The question wording is generated from the election definition itself (name, description, ballot type), and the manifest records it. This election produced exactly one question:</p>
+    <div class="callout"><em>{html.escape(QUESTION_TEXT)}</em><br><small>— followed by the eight book titles, in randomized order per respondent.</small></div>
+    <p>The build is local and writes every artifact (job package, manifest with the question text, response schema):</p>
     {cmdcap_auto("07-humanize")}
     <div class="callout"><strong>Publishing happened once, for real.</strong> <code>voting survey publish</code> creates the hosted survey through the ep CLI, <code>voting survey email</code> sends invitation links, and <code>voting survey responses</code> downloads the answers — all outward-facing service actions, declared as such in <code>voting capabilities</code>. This tutorial's survey was published from the original project and left open; eighteen people responded. This page does not republish it — the next chapter pulls the responses that run collected.</div>
   </section>
 
   <section id="ballots">
-    <h2><span class="chapter">05</span> Real ballots, fail-closed</h2>
+    <h2><span class="chapter">06</span> Ballots that don't count (yet)</h2>
     <p>The eighteen responses live in a production EDSL <code>Results</code> object. <code>ballot import</code> can read a local <code>.ep</code> package (<code>--from-results</code>) or pull one by UUID (<code>--from-coop</code>, a network read using your EDSL credentials). Watch what happens on a first, naive import:</p>
     {cmdcap_auto("08a-import-unregistered")}
-    <p>All {N_BALLOTS} ballots recorded — with a warning per ballot: the respondents are anonymous survey takers, not registered voters. And the system is fail-closed about exactly that:</p>
+    <p>All {N_BALLOTS} ballots recorded — with a warning per ballot: the respondents are anonymous survey takers, not registered voters. When something is off, <code>voting</code>'s policy is to record the problem and refuse to count, rather than guess. Validation makes that concrete:</p>
     {cmdcap_auto("08b-validate-unregistered")}
     <p><strong>Zero valid ballots.</strong> Recorded is not the same as countable: a ballot from an unregistered voter is preserved but excluded from every count until you decide it belongs. This is the check to run before believing any result — a count over invalid ballots will happily report a "winner" that is nothing but a tiebreak among zeros. The deliberate fix is <code>--register-voters</code>, which registers each unknown respondent as a weight-1.0 voter (keeping the original respondent id as provenance on the ballot) and replaces the earlier ballots:</p>
     {cmdcap_auto("08-import")}
@@ -233,9 +257,10 @@ add(f"""
   </section>
 
   <section id="methods">
-    <h2><span class="chapter">06</span> Seven methods, one answer</h2>
+    <h2><span class="chapter">07</span> Seven methods, one answer</h2>
     <p>Now the point of the exercise. The same eighteen ballots, counted seven ways — the election's default first:</p>
     {cmdcap_auto("12-count-borda")}
+    {hcap("12h-count-borda", "The saved Borda count rendered for people: full ranking, scores, and the winner.")}
     <p>Borda gives <em>{html.escape(BORDA_SCORES[0]["option_id"])}</em> {BORDA_SCORES[0]["total"]:.0f} points against {html.escape(BORDA_SCORES[1]["option_id"])}'s {BORDA_SCORES[1]["total"]:.0f}. Then the rest — instant-runoff, two Condorcet methods, Kemeny–Young, Bucklin, and bare plurality on first preferences:</p>
     {cmdcap_auto("13-count-irv")}
     {cmdcap_auto("13-count-schulze")}
@@ -250,17 +275,17 @@ add(f"""
   </section>
 
   <section id="practice">
-    <h2><span class="chapter">07</span> Where everything lives</h2>
-    <p>Every entity is a JSON file under <code>.voting/</code>: options, voters, ballots (append-only records; re-imports warn <code>ballot_overwritten</code>), and one saved result per count, so comparisons never overwrite each other. <code>next</code> closes the loop:</p>
+    <h2><span class="chapter">08</span> Where everything lives</h2>
+    <p>Every entity the project holds is a small JSON file under the project's <code>.voting/</code> directory: options, voters, ballots (append-only records; re-imports warn <code>ballot_overwritten</code>), and one saved result per count, so comparisons never overwrite each other — all inspectable with nothing but <code>cat</code>. <code>next</code> closes the loop:</p>
     {cmdcap_auto("15-next-final")}
     <table><thead><tr><th>Need</th><th>Command family</th></tr></thead><tbody>
       <tr><td>Discover the workflow</td><td><code>version</code>, <code>capabilities</code>, <code>status</code>, <code>next</code>, <code>docs list</code></td></tr>
-      <tr><td>Define the electorate</td><td><code>option add</code>, <code>voter add</code>, <code>election add|add-option|open</code></td></tr>
+      <tr><td>Define the electorate</td><td><code>option add|import</code>, <code>voter add</code>, <code>election add|add-option|open</code></td></tr>
       <tr><td>Collect ballots</td><td><code>ballot rank|cast|approve|score</code>, <code>survey generate</code>, <code>survey humanize|publish|email|responses</code></td></tr>
       <tr><td>Import and audit</td><td><code>ballot import --from|--from-results|--from-coop [--register-voters]</code>, <code>ballot validate</code>, <code>ballot list</code></td></tr>
       <tr><td>Count and compare</td><td><code>count run [--method]</code>, <code>count list</code>, <code>count show</code></td></tr>
     </tbody></table>
-    <p>Exact options and defaults belong to <code>voting &lt;command&gt; --help</code>; the README's generated command reference lists all 46 commands and is enforced against the CLI by <code>tests/test_contract_sync.py</code>.</p>
+    <p>Exact options and defaults belong to <code>voting &lt;command&gt; --help</code>; the README's generated command reference lists all {N_COMMANDS} commands and is enforced against the CLI by <code>tests/test_contract_sync.py</code>.</p>
   </section>
 
   <footer>

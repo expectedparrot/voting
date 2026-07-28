@@ -40,7 +40,14 @@ def add(
 
 @app.command("list")
 def list_cmd(ctx: typer.Context) -> None:
-    output(ctx, "voter list", {"voters": list_entities(ctx_project(ctx), "voters")})
+    voters = list_entities(ctx_project(ctx), "voters")
+
+    def _table():
+        from voting.render import voters_table
+
+        return voters_table(voters)
+
+    output(ctx, "voter list", {"voters": voters}, human_renderable=_table)
 
 
 @app.command("show")

@@ -96,11 +96,17 @@ def run(
     }
     rid, _ = append_record(project, "results", [election_id, selected_method], result)
     result["id"] = rid
+    def _run_table():
+        from voting.render import count_result_table
+
+        return count_result_table(result)
+
     output(
         ctx,
         "count run",
         result,
         next_steps=[f"voting count show {rid}", "voting count list"],
+        human_renderable=_run_table,
     )
 
 
@@ -112,13 +118,26 @@ def list_cmd(
     records = [record for _, record in list_records(ctx_project(ctx), "results")]
     if election:
         records = [r for r in records if r.get("election_id") == election]
-    output(ctx, "count list", {"results": records})
+
+    def _table():
+        from voting.render import count_list_table
+
+        return count_list_table(records)
+
+    output(ctx, "count list", {"results": records}, human_renderable=_table)
 
 
 @app.command("show")
 def show(ctx: typer.Context, result_id: str) -> None:
     project = ctx_project(ctx)
-    output(ctx, "count show", read_json(project.path("results", f"{result_id}.json")))
+    result = read_json(project.path("results", f"{result_id}.json"))
+
+    def _table():
+        from voting.render import count_result_table
+
+        return count_result_table(result)
+
+    output(ctx, "count show", result, human_renderable=_table)
 
 
 def prepare_count(project: Project, election_id: str, method: str | None) -> dict:

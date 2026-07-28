@@ -22,10 +22,16 @@ def output(
     warnings: list[dict] | None = None,
     next_steps: list[str] | None = None,
     human_message: str | None = None,
+    human_renderable: Any = None,
 ) -> None:
     human = ctx.obj.human if ctx.obj else False
     if human:
-        typer.echo(human_message or json.dumps(data, indent=2, sort_keys=True))
+        if human_renderable is not None:
+            from voting.render import print_human
+
+            print_human(human_renderable() if callable(human_renderable) else human_renderable)
+        else:
+            typer.echo(human_message or json.dumps(data, indent=2, sort_keys=True))
         return
     payload = data if isinstance(data, dict) else {"items": data}
     finish(command, payload, warnings=warnings, next_steps=next_steps)

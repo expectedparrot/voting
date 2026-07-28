@@ -147,7 +147,13 @@ def list_cmd(
         records = [r for r in records if r.get("election_id") == election]
     if voter:
         records = [r for r in records if r.get("voter_id") == voter]
-    output(ctx, "ballot list", {"ballots": records})
+
+    def _table():
+        from voting.render import ballots_table
+
+        return ballots_table(records)
+
+    output(ctx, "ballot list", {"ballots": records}, human_renderable=_table)
 
 
 @app.command("show")

@@ -56,7 +56,21 @@ def list_cmd(ctx: typer.Context) -> None:
 
 @app.command("show")
 def show(ctx: typer.Context, election_id: str) -> None:
-    output(ctx, "election show", read_entity(ctx_project(ctx), "elections", election_id))
+    project = ctx_project(ctx)
+    election = read_entity(project, "elections", election_id)
+
+    def _panel():
+        from voting.render import election_panel
+
+        names = {}
+        for oid in election.get("options", []):
+            try:
+                names[oid] = read_entity(project, "options", oid).get("name", "")
+            except Exception:
+                pass
+        return election_panel(election, names)
+
+    output(ctx, "election show", election, human_renderable=_panel)
 
 
 @app.command("open")

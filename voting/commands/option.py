@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import typer
 
 from voting.commands.common import ctx_project, output
@@ -49,7 +52,106 @@ def list_cmd(ctx: typer.Context, type_: str = typer.Option("all", "--type")) -> 
     items = list_entities(ctx_project(ctx), "options")
     if type_ != "all":
         items = [item for item in items if item.get("type") == type_]
-    output(ctx, "option list", {"options": items})
+
+    def _table():
+        from voting.render import options_table
+
+        return options_table(items)
+
+    output(ctx, "option list", {"options": items}, human_renderable=_table)
+
+
+@app.command("import")
+def import_options(
+    ctx: typer.Context,
+    from_file: Path = typer.Option(..., "--from", help="JSON file: a list of {id, name, type?, description?} objects (or {\"options\": [...]})."),
+    election_id: str = typer.Option(None, "--election", help="Also attach every imported option to this election."),
+) -> None:
+    """Import many options from a JSON file, optionally attaching them to an election."""
+    project = ctx_project(ctx)
+    if not from_file.exists():
+        raise UserError(f"Options file not found: {from_file}", {"path": str(from_file)})
+    try:
+        raw = json.loads(from_file.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise UserError(f"Invalid JSON in options file: {exc}", {"path": str(from_file)}) from exc
+    entries = raw.get("options") if isinstance(raw, dict) else raw
+    if not isinstance(entries, list) or not entries:
+        raise UserError(
+            "Options file must contain a non-empty list of options.",
+            {"path": str(from_file)},
+            hint='Expected [{"id": "alice", "name": "Alice"}, ...] or {"options": [...]}.',
+        )
+
+    election = read_entity(project, "elections", election_id) if election_id else None
+    existing = {item["id"] for item in list_entities(project, "options")}
+
+    # Validate everything before writing anything, so a bad row can't
+    # leave a half-imported file behind.
+    seen: set[str] = set()
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict) or not entry.get("id") or not entry.get("name"):
+            raise UserError(
+                f"Option entry {index} must be an object with 'id' and 'name'.",
+                {"entry": entry},
+            )
+        validate_id(entry["id"], "option id")
+        if entry["id"] in seen:
+            raise UserError(f"Duplicate option id in file: {entry['id']}")
+        if entry["id"] in existing:
+            raise UserError(
+                f"Option already exists: {entry['id']}",
+                hint="Remove it from the file or use a different id.",
+            )
+        entry_type = entry.get("type", "candidate")
+        if entry_type not in {"candidate", "proposal", "reference", "write_in"}:
+            raise UserError(
+                f"Option entry {index} has invalid type '{entry_type}'.",
+                hint="Valid types: candidate, proposal, reference, write_in.",
+            )
+        seen.add(entry["id"])
+
+    imported = []
+    for entry in entries:
+        data = {
+            "id": entry["id"],
+            "name": entry["name"],
+            "type": entry.get("type", "candidate"),
+            "description": entry.get("description", ""),
+            "added_at": local_iso_now(),
+            "eligible": True,
+            "metadata": {"source": f"option import {from_file.name}"},
+        }
+        write_entity(project, "options", entry["id"], data)
+        imported.append(data)
+
+    attached = []
+    if election is not None:
+        election_options = election.get("options", [])
+        for entry in entries:
+            if entry["id"] not in election_options:
+                election_options.append(entry["id"])
+                attached.append(entry["id"])
+        election["options"] = election_options
+        write_entity(project, "elections", election_id, election, overwrite=True)
+
+    next_steps = (
+        [f"voting election open {election_id}", f"voting --human election show {election_id}"]
+        if election_id
+        else ["voting election add <id> <name> --method <method>", "voting election add-option <election_id> <option_id>"]
+    )
+    output(
+        ctx,
+        "option import",
+        {
+            "imported": len(imported),
+            "options": [{"id": item["id"], "name": item["name"]} for item in imported],
+            "election_id": election_id,
+            "attached": attached,
+        },
+        human_message=f"Imported {len(imported)} options" + (f" and attached them to {election_id}" if election_id else ""),
+        next_steps=next_steps,
+    )
 
 
 @app.command("show")

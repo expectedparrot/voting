@@ -138,6 +138,64 @@ def test_ballot_import_from_edsl_results(tmp_path: Path) -> None:
     assert count_payload["status"] == "ok"
 
 
+def test_option_import_bulk_loads_and_attaches(tmp_path: Path) -> None:
+    assert run_voting("init", "bulk", cwd=tmp_path).returncode == 0
+    cwd = tmp_path / "bulk"
+    assert run_voting("election", "add", "books", "Books", "--method", "borda",
+                      "--ballot-type", "ranked", cwd=cwd).returncode == 0
+    spec = tmp_path / "options.json"
+    spec.write_text(json.dumps([
+        {"id": "gatsby", "name": "The Great Gatsby"},
+        {"id": "orwell", "name": "1984"},
+        {"id": "mockingbird", "name": "To Kill a Mockingbird"},
+    ]))
+    imported = run_voting("option", "import", "--from", str(spec), "--election", "books", cwd=cwd)
+    assert imported.returncode == 0, imported.stdout + imported.stderr
+    payload = json.loads(imported.stdout)
+    assert payload["data"]["imported"] == 3
+    assert payload["data"]["attached"] == ["gatsby", "orwell", "mockingbird"]
+
+    shown = run_voting("election", "show", "books", cwd=cwd)
+    assert json.loads(shown.stdout)["data"]["options"] == ["gatsby", "orwell", "mockingbird"]
+
+    # a duplicate id in the file fails before anything is written
+    spec2 = tmp_path / "options2.json"
+    spec2.write_text(json.dumps([{"id": "new_one", "name": "New"}, {"id": "gatsby", "name": "Dupe"}]))
+    failed = run_voting("option", "import", "--from", str(spec2), cwd=cwd)
+    assert failed.returncode != 0
+    listed = run_voting("option", "list", cwd=cwd)
+    assert len(json.loads(listed.stdout)["data"]["options"]) == 3  # new_one not half-imported
+
+
+def test_human_mode_renders_rich_tables(tmp_path: Path) -> None:
+    assert run_voting("init", "pretty", cwd=tmp_path).returncode == 0
+    cwd = tmp_path / "pretty"
+    for step in [
+        ("option", "add", "tea", "Tea"),
+        ("option", "add", "coffee", "Coffee"),
+        ("voter", "add", "v1", "Voter One"),
+        ("election", "add", "drink", "Best drink", "--method", "borda", "--ballot-type", "ranked"),
+        ("election", "add-option", "drink", "tea"),
+        ("election", "add-option", "drink", "coffee"),
+        ("election", "open", "drink"),
+        ("ballot", "rank", "drink", "v1", "tea", "coffee"),
+        ("count", "run", "drink"),
+    ]:
+        assert run_voting(*step, cwd=cwd).returncode == 0, step
+
+    shown = run_voting("--human", "election", "show", "drink", cwd=cwd)
+    assert shown.returncode == 0, shown.stderr
+    assert "{" not in shown.stdout  # a panel, not a JSON dump
+    assert "tea — Tea" in shown.stdout
+
+    ballots = run_voting("--human", "ballot", "list", "--election", "drink", cwd=cwd)
+    assert "tea > coffee" in ballots.stdout
+
+    counts = run_voting("--human", "count", "list", cwd=cwd)
+    assert "borda" in counts.stdout
+    assert "winner" in counts.stdout.lower() or "tea" in counts.stdout
+
+
 def test_survey_generate_emits_executable_jobs_package(tmp_path: Path) -> None:
     steps = [
         ("init", "books"),

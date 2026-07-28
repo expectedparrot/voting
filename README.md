@@ -250,6 +250,7 @@ Every registered command (options and defaults live in `voting <command> --help`
 | `voting init` |  |
 | `voting next` | Return the single highest-priority next action from project state. |
 | `voting option add` |  |
+| `voting option import` | Import many options from a JSON file, optionally attaching them to an election. |
 | `voting option list` |  |
 | `voting option set-eligible` |  |
 | `voting option show` |  |

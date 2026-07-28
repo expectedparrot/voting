@@ -95,14 +95,15 @@ def main() -> None:
     voting("init", "classic_books", capture="02-init", cwd=TUTORIAL)
     voting("next", capture="03-next")
 
-    # ── Options and the election ──────────────────────────────────────────
-    voting("option", "add", BOOKS[0][0], BOOKS[0][1], capture="04-option-add")
-    for option_id, name in BOOKS[1:]:
-        voting("option", "add", option_id, name)
+    # ── The election and its options (bulk-loaded from a JSON file) ───────
     voting("election", "add", "book_preference", "Classic book preference",
-           "--method", "borda", "--ballot-type", "ranked", capture="05-election-add")
-    for option_id, _ in BOOKS:
-        voting("election", "add-option", "book_preference", option_id)
+           "--method", "borda", "--ballot-type", "ranked", capture="04-election-add")
+    books_spec = WORK / "books.json"
+    books_spec.write_text(json.dumps(
+        [{"id": option_id, "name": name} for option_id, name in BOOKS], indent=2
+    ) + "\n")
+    voting("option", "import", "--from", "books.json", "--election", "book_preference",
+           capture="05-option-import")
     voting("election", "open", "book_preference", capture="06-election-open")
     voting("election", "show", "book_preference", capture="06h-election", human=True)
 
@@ -130,7 +131,8 @@ def main() -> None:
     # ── Count the same ballots under many methods ─────────────────────────
     validated = voting("ballot", "validate", "book_preference")
     assert validated["data"].get("valid_ballots") == imported["data"]["cast"], validated["data"]
-    voting("count", "run", "book_preference", capture="12-count-borda")
+    borda = voting("count", "run", "book_preference", capture="12-count-borda")
+    voting("count", "show", borda["data"]["id"], capture="12h-count-borda", human=True)
     for method in METHODS[1:]:
         voting("count", "run", "book_preference", "--method", method,
                capture=f"13-count-{method}")

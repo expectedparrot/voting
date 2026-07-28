@@ -159,6 +159,7 @@ def build_humanize_job(
         "ballot_type": ballot_type,
         "options": [{"id": option["id"], "name": option["name"]} for option in options],
         "question_names": [question.question_name for question in questions],
+        "question_texts": {question.question_name: question.question_text for question in questions},
         "email_trait": email_trait,
         "voter_count": len(voters) if email_trait else 0,
         "randomize_options": bool(randomized_questions),
