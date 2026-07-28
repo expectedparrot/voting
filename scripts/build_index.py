@@ -246,7 +246,7 @@ add("""<!doctype html>
   <a class="item" href="#setup">3. Set up the project</a>
   <a class="item" href="#election">4. Define the election</a>
   <a class="item" href="#survey">5. The hosted human survey</a>
-  <a class="item" href="#ballots">6. Ballots that don't count (yet)</a>
+  <a class="item" href="#ballots">6. The responses, as data</a>
   <a class="item" href="#methods">7. Every method, one answer</a>
   <div class="part">Practice</div>
   <a class="item" href="#practice">8. Where everything lives</a>
@@ -262,6 +262,7 @@ add(f"""
   <section id="question">
     <h2><span class="chapter">01</span> The question and the data</h2>
     <p>Different voting methods can elect different winners from the same ballots — that is the entire reason this tool exists. Plurality rewards first-place strength; Borda rewards broad support; Condorcet methods reward head-to-head dominance; IRV rewards surviving eliminations. <code>voting</code> stores one set of inputs — options, voters, ballots — and lets any of 28 method names and aliases count them, so the comparison is always apples to apples.</p>
+    <p>To be clear about what this is: <code>voting</code> is a research instrument — for studying group preferences, comparing counting rules, teaching social choice, and settling low-stakes group decisions (which book, which logo, which restaurant). The vocabulary is the social-choice literature's — elections, voters, ballots — but nothing here administers civic elections, and nothing should be read as claiming to.</p>
     <p>The worked example is real: an Expected Parrot <em>Humanize</em> survey titled "Classic book preference" asked respondents to rank eight classic novels. Eighteen people completed it. Their full rankings live in a production EDSL <code>Results</code> object, and this page imports them — actual human preferences, not synthetic data.</p>
     <div class="callout"><strong>If you follow along, expect small differences.</strong> Every command output on this page is a real captured envelope from one worked run. Ballot and result ids are generated per run, and timestamps will differ. The one step you cannot reproduce byte-for-byte is the data itself: the production Results object belongs to its owner's account, so substitute your own survey results (or cast ballots directly with <code>voting ballot rank</code>). Everything else — every command and the shape of every output — is what you will see. Outputs are JSON envelopes by default; add <code>--human</code> for a readable rendering.</div>
   </section>
@@ -290,7 +291,7 @@ add(f"""
     <p>An <em>election</em> is the central object here: it names the contest, fixes the <strong>ballot type</strong> (ranked, in this case — voters order all options; other types are single choice, approval, and score), and holds the list of eligible options. Deliberately absent: a counting method. The ballot type determines what voters are asked; <em>how the ballots are counted is a lens you apply afterwards</em> — as many lenses as you like, which is the whole point of chapter 7. An election starts as a draft and only accepts ballots once opened:</p>
     {cmdcap_auto("04-election-add")}
     <p>The eight books load in one step from a JSON file — id plus display name each. The display names matter: when ballots arrive from a survey, answers reference options by these exact labels, and the importer maps labels back to ids. An unknown label skips that row and reports it; nothing is ever silently guessed. (<code>voting option add</code> exists for adding one at a time.)</p>
-    <p>Alongside options, a project also keeps a <strong>voter registry</strong> — who may vote, at what weight, with what traits. Ours is deliberately still empty; that becomes the crux of chapter 6.</p>
+    <p>Alongside options, a project also keeps a <strong>voter roster</strong> — who is in your panel, at what weight, with what traits (personas for AI studies, emails for invitations). Ours starts empty — the survey respondents join it automatically at import time in chapter 6.</p>
     <pre class="command"><code>cat books.json</code></pre>
     <details class="output"><summary>Show books.json</summary><pre><code>{html.escape(BOOKS_JSON)}</code></pre></details>
     {cmdcap_auto("05-option-import")}
@@ -318,31 +319,28 @@ add(f"""
   </section>
 
   <section id="ballots">
-    <h2><span class="chapter">06</span> Ballots that don't count (yet)</h2>
-    <p>The eighteen responses live in a production EDSL <code>Results</code> object. <code>ballot import</code> can read a local <code>.ep</code> package (<code>--from-results</code>) or pull one by UUID (<code>--from-coop</code>, a network read using your EDSL credentials). Watch what happens on a first, naive import:</p>
-    <div class="callout"><strong>Following along without a survey?</strong> This is the one place you cannot use this page's data (the Results object belongs to its owner). Cast a few ballots yourself instead and rejoin at chapter 7 — every count works the same:
+    <h2><span class="chapter">06</span> The responses, as data</h2>
+    <p>The eighteen responses are, from here on, simply a dataset: an EDSL <code>Results</code> object on the Expected Parrot platform. <code>ballot import</code> reads one directly — from a local <code>.ep</code> package (<code>--from-results</code>) or by UUID (<code>--from-coop</code>, a network read using your EDSL credentials) — and converts each response into a ballot: display labels map back to option ids (an unknown label is itemized, never guessed), and <code>--register-voters</code> adds each respondent to the project's voter roster at weight 1.0, keeping the original respondent id as provenance:</p>
+    {cmdcap_auto("08-import")}
+    <div class="callout"><strong>Following along without a survey?</strong> This is the one step you cannot reproduce with this page's data (the Results object belongs to its owner). Cast a few ballots yourself instead and everything downstream works the same:
 <pre class="command"><code>voting voter add v1 'Voter One'
 voting ballot rank book_preference v1 nineteen_eighty_four mockingbird great_gatsby</code></pre>
 Or run your own survey (<code>voting survey publish</code>) — or have AI personas vote: <code>voting survey generate</code> builds a job you execute with <code>ep run</code> and import with <code>--from-results</code>.</div>
-    {cmdcap_auto("08a-import-unregistered")}
-    <p>All {N_BALLOTS} ballots recorded — with a warning per ballot: the respondents are anonymous survey takers, not registered voters. When something is off, <code>voting</code>'s policy is to record the problem and refuse to count, rather than guess. Validation makes that concrete:</p>
-    {cmdcap_auto("08b-validate-unregistered")}
-    <p><strong>Zero valid ballots.</strong> Recorded is not the same as countable: a ballot from an unregistered voter is preserved but excluded from every count until you decide it belongs. This is the check to run before believing any result — a count over invalid ballots will happily report a "winner" that is nothing but a tiebreak among zeros. The deliberate fix is <code>--register-voters</code>, which registers each unknown respondent as a weight-1.0 voter (keeping the original respondent id as provenance on the ballot) and replaces the earlier ballots:</p>
-    {cmdcap_auto("08-import")}
+    <p>One habit worth keeping: validate before counting. <code>valid_ballots</code> is the number of ballots that will actually enter a tally — anything else (a respondent not on the roster, an unknown option, a duplicate ranking) is itemized as a warning and left out rather than guessed at. (Without <code>--register-voters</code>, for instance, all eighteen ballots would have been recorded but none would count until you decided whose responses belong in the analysis.)</p>
     {cmdcap_auto("09-validate")}
-    <p>Eighteen registered voters, eighteen valid ballots. Here is what actually came back from real people — one row per respondent, top choices first (<code>--latest</code> shows the ballots a count would use; without it, the append-only record also lists the eighteen superseded ballots from the first import):</p>
+    <p>Eighteen countable ballots. Here is the dataset — one row per respondent, top choices first:</p>
     {tablefig(
-        "voting --human ballot list --election book_preference --latest",
+        "voting --human ballot list --election book_preference",
         ["voter", "ballot (top choices)", "recorded"],
         [[ballot["voter_id"][:13] + "…",
           " > ".join(ballot["ranking"][:3]) + f" … (+{len(ballot['ranking']) - 3} more)",
           ballot["recorded_at"].replace("T", " ")]
          for ballot in BALLOTS],
-        "The countable ballots: eighteen anonymous respondents at weight 1.0, top three choices shown; full rankings live in the ballot records and drive every count.",
+        "The imported dataset: eighteen anonymous respondents at weight 1.0, top three choices shown; full rankings live in the ballot records and drive every count.",
     )}
     <p>Eighteen full rankings are hard to eyeball. The built-in plots turn them into a picture — <code>voting plot ranks</code> shows, for each book, how many voters placed it first, second, and so on (hover any segment for the exact count):</p>
     {svgfig("11b-plot-ranks", f"Position distributions from the real ballots. {WINNER}'s long dark leading edge is its {FPTP_TOTALS[0]['total']:.0f} first-place votes; books lower down live mostly in the pale right-hand (late-rank) end of the bar.")}
-    <p><code>voting status</code> is the project's dashboard. Note the ballot count: {STATUS_COUNTS["ballots"]} records, not {N_BALLOTS} — the superseded first import is still in the append-only log (an audit trail, never silently rewritten), while counting uses each voter's latest ballot. The phase says exactly what remains:</p>
+    <p><code>voting status</code> is the project's dashboard — {STATUS_COUNTS["options"]} options, {STATUS_COUNTS["voters"]} voters, {STATUS_COUNTS["ballots"]} ballots, and a phase saying counting is what remains:</p>
     {cmdcap_auto("11-status")}
   </section>
 
@@ -357,7 +355,7 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
          for row in COMPARE["results"]],
         f"Twelve methods, side by side. {len(DECIDED)} elect {WINNER}; simple_majority declines.",
     )}
-    <p><strong>{len(DECIDED)} of {N_METHODS} methods elect <em>1984</em>. The twelfth refuses to answer</strong> — and its refusal is worth reading. <code>simple_majority</code> requires an outright majority of first preferences; {WINNER} holds {FPTP_TOTALS[0]["total"]:.0f} of {N_BALLOTS}, a plurality but not a majority, so the method reports <code>winners: []</code> with the threshold it applied. Like the unregistered-ballot check in chapter 6, an honest refusal beats a fabricated answer.</p>
+    <p><strong>{len(DECIDED)} of {N_METHODS} methods elect <em>1984</em>. The twelfth refuses to answer</strong> — and its refusal is worth reading. <code>simple_majority</code> requires an outright majority of first preferences; {WINNER} holds {FPTP_TOTALS[0]["total"]:.0f} of {N_BALLOTS}, a plurality but not a majority, so the method reports <code>winners: []</code> with the threshold it applied. Like the <code>valid_ballots</code> check in chapter 6, an honest refusal beats a fabricated answer.</p>
     <p>Every comparison run is a full saved record of how its method reasoned. Open a few with <code>count show</code>. Borda first — each ballot position contributes points, so it measures breadth of support:</p>
     {cmdcap_auto("13-show-borda")}
     {tablefig(
@@ -387,13 +385,13 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     {cmdcap_auto("15-next-final")}
     <table><thead><tr><th>Need</th><th>Command family</th></tr></thead><tbody>
       <tr><td>Discover the workflow</td><td><code>version</code>, <code>capabilities</code>, <code>status</code>, <code>next</code>, <code>docs list</code></td></tr>
-      <tr><td>Define the electorate</td><td><code>option add|import</code>, <code>voter add</code>, <code>election add|add-option|open</code></td></tr>
+      <tr><td>Define options and voters</td><td><code>option add|import</code>, <code>voter add</code>, <code>election add|add-option|open</code></td></tr>
       <tr><td>Collect ballots</td><td><code>ballot rank|cast|approve|score</code>, <code>survey generate</code>, <code>survey humanize|publish|email|responses</code></td></tr>
       <tr><td>Import and audit</td><td><code>ballot import --from|--from-results|--from-coop [--register-voters]</code>, <code>ballot validate</code>, <code>ballot list</code></td></tr>
       <tr><td>Count and compare</td><td><code>count run [--method]</code>, <code>count list</code>, <code>count show</code></td></tr>
     </tbody></table>
     <p>Exact options and defaults belong to <code>voting &lt;command&gt; --help</code>; the README's generated command reference lists all {N_COMMANDS} commands and is enforced against the CLI by <code>tests/test_contract_sync.py</code>.</p>
-    <p>That is the whole loop. The natural next step is to run it on a question you actually care about: define your options, publish the survey to the people whose answer matters (or let AI personas vote via <code>survey generate</code> and <code>ep run</code>), and — before believing any winner — check <code>ballot validate</code>, then count it more than one way. If all the methods agree, you have a robust answer. If they disagree, you have something more interesting.</p>
+    <p>That is the whole loop. The natural next step is to run it on a question you actually care about: define your options, publish the survey to the people whose answer matters (or let AI personas vote via <code>survey generate</code> and <code>ep run</code>), and — before reading any winner — check <code>ballot validate</code>, then count it more than one way. If all the methods agree, you have a robust answer. If they disagree, you have something more interesting.</p>
   </section>
 
   <footer>

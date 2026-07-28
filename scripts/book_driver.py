@@ -109,22 +109,13 @@ def main() -> None:
     voting("survey", "humanize", "book_preference", capture="07-humanize")
 
     # ── Real ballots: pull the production Results object and import ────────
-    # First without registration: ballots record, but none can count —
-    # the fail-closed state the tutorial teaches readers to check for.
-    first = voting("ballot", "import", "--election", "book_preference",
-                   "--from-coop", RESULTS_UUID, capture="08a-import-unregistered")
-    assert first["data"]["cast"] > 0
-    unvalidated = voting("ballot", "validate", "book_preference",
-                         capture="08b-validate-unregistered")
-    assert unvalidated["data"]["valid_ballots"] == 0
     imported = voting("ballot", "import", "--election", "book_preference",
                       "--from-coop", RESULTS_UUID, "--register-voters",
                       capture="08-import")
     assert imported["data"]["cast"] > 0, "no ballots imported"
     assert imported["data"]["skipped"] == 0, imported["data"]
     voting("ballot", "validate", "book_preference", capture="09-validate")
-    voting("ballot", "list", "--election", "book_preference", "--latest",
-           capture="10-ballots")
+    voting("ballot", "list", "--election", "book_preference", capture="10-ballots")
     voting("plot", "ranks", "book_preference", capture="11b-plot-ranks")
     voting("status", capture="11-status")
 

@@ -4,19 +4,25 @@
 
 [View the project website](https://expectedparrot.github.io/voting/)
 
-`voting` is a JSON-first command-line toolkit for building elections, recording
-ballots, and comparing voting methods. It supports single- and multi-winner
-elections across plurality, ranked, approval, score, grade, allocation, and
-Condorcet families.
+`voting` is a JSON-first command-line toolkit for preference research and
+group-decision analysis: define an election (in the social-choice sense — any
+group choosing among options), collect ballots from people or AI personas,
+and compare how counting methods treat the same data. It supports single- and
+multi-winner counts across plurality, ranked, approval, score, grade,
+allocation, and Condorcet families.
+
+It is a research, teaching, and decision-support tool — not
+election-administration software.
 
 It can:
 
 - Register candidates, proposals, voters, weights, and eligibility.
-- Configure elections with a ballot type, counting method, number of seats,
-  and tie policy.
+- Configure elections with a ballot type, number of seats, and tie policy
+  (counting methods are chosen at count time, never fixed on the election).
 - Record ballots directly or import them from another system.
 - Validate ballots before counting.
-- Run 28 method names and aliases, including FPTP, approval, score, STAR, IRV,
+- Run 28 method names and aliases — one at a time (`count run`) or every
+  compatible method at once (`count compare`) — including FPTP, approval, score, STAR, IRV,
   STV, Borda, Schulze, ranked pairs, Copeland, Kemeny–Young, Bucklin, runoff,
   cumulative voting, and majority judgment.
 - Save every count so results from different methods can be inspected and
