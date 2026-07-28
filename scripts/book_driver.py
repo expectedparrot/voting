@@ -103,7 +103,7 @@ def main() -> None:
     voting("option", "import", "--from", "books.json", "--election", "book_preference",
            capture="05-option-import")
     voting("election", "open", "book_preference", capture="06-election-open")
-    voting("election", "show", "book_preference", capture="06h-election", human=True)
+    voting("election", "show", "book_preference", capture="06s-election-show")
 
     # ── The hosted Humanize survey (build is local; publishing happened once) ─
     voting("survey", "humanize", "book_preference", capture="07-humanize")
@@ -124,7 +124,7 @@ def main() -> None:
     assert imported["data"]["skipped"] == 0, imported["data"]
     voting("ballot", "validate", "book_preference", capture="09-validate")
     voting("ballot", "list", "--election", "book_preference", "--latest",
-           capture="10-ballots", human=True)
+           capture="10-ballots")
     voting("plot", "ranks", "book_preference", capture="11b-plot-ranks")
     voting("status", capture="11-status")
 
@@ -132,13 +132,10 @@ def main() -> None:
     validated = voting("ballot", "validate", "book_preference")
     assert validated["data"].get("valid_ballots") == imported["data"]["cast"], validated["data"]
     compared = voting("count", "compare", "book_preference", capture="12-count-compare")
-    voting("count", "list", "--election", "book_preference",
-           capture="12h-count-list", human=True)
     ids = {row["method"]: row["result_id"] for row in compared["data"]["results"]}
 
     # Deep dives into individual saved results.
     voting("count", "show", ids["borda"], capture="13-show-borda")
-    voting("count", "show", ids["borda"], capture="13h-show-borda", human=True)
     voting("plot", "scores", ids["borda"], capture="13p-plot-scores")
     voting("count", "show", ids["irv"], capture="13-show-irv")
     voting("count", "show", ids["schulze"], capture="13-show-schulze")

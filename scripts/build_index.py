@@ -79,8 +79,31 @@ def cap(name: str, label: str = "Show command output") -> str:
     )
 
 
+def wrap_command(display: str, width: int = 88) -> str:
+    """Break long commands into shell-valid continuation lines, at flag boundaries."""
+    if len(display) <= width:
+        return display
+    import shlex
+
+    tokens = [shlex.quote(token) for token in shlex.split(display)]
+    segments: list[list[str]] = [[]]
+    for token in tokens:
+        if token.startswith("--") and segments[0]:
+            segments.append([token])
+        else:
+            segments[-1].append(token)
+    lines: list[str] = []
+    for segment in segments:
+        text = " ".join(segment)
+        if lines and len(lines[-1]) + 1 + len(text) <= width - 2:
+            lines[-1] += " " + text
+        else:
+            lines.append(("  " if lines else "") + text)
+    return " \\\n".join(lines)
+
+
 def cmd(display: str) -> str:
-    return f'<pre class="command"><code>{html.escape(display)}</code></pre>'
+    return f'<pre class="command"><code>{html.escape(wrap_command(display))}</code></pre>'
 
 
 def cmdcap(display: str, name: str) -> str:
@@ -101,12 +124,25 @@ def svgfig(capture_name: str, caption: str) -> str:
     )
 
 
-def hcap(name: str, caption: str) -> str:
-    text = (CAPTURES / f"{name}.txt").read_text()
-    body = html.escape(text.rstrip())
+def tablefig(command: str, headers: list[str], rows: list[list[str]], caption: str) -> str:
+    """A real HTML table built from captured envelope data.
+
+    `command` is the --human invocation that draws the same table in a
+    terminal; the page renders the data natively instead of embedding
+    terminal box art.
+    """
+    thead = ""
+    if any(headers):
+        head = "".join(f"<th>{html.escape(h)}</th>" for h in headers)
+        thead = f"<thead><tr>{head}</tr></thead>"
+    body = "".join(
+        "<tr>" + "".join(f"<td>{html.escape(str(cell))}</td>" for cell in row) + "</tr>"
+        for row in rows
+    )
     return (
-        f'<figure class="human"><pre class="human"><code>{body}</code></pre>'
-        f"<figcaption>{caption}</figcaption></figure>"
+        cmd(command)
+        + f'\n    <figure class="table"><table>{thead}'
+        + f"<tbody>{body}</tbody></table><figcaption>{caption}</figcaption></figure>"
     )
 
 
@@ -135,6 +171,9 @@ HUMANIZE = load("07-humanize")["payload"]["data"]
 STATUS_COUNTS = load("11-status")["payload"]["data"]["counts"]
 QUESTION_TEXT = HUMANIZE["question_texts"]["ranking"]
 BOOKS_JSON = (WORK / "books.json").read_text().rstrip()
+ELECTION = load("06s-election-show")["payload"]["data"]
+BOOK_NAMES = {book["id"]: book["name"] for book in json.loads(BOOKS_JSON)}
+BALLOTS = load("10-ballots")["payload"]["data"]["ballots"]
 N_COMMANDS = (REPO / "README.md").read_text().count("| `voting ")
 
 T: list[str] = []
@@ -173,7 +212,7 @@ add("""<!doctype html>
     code{padding:.14em .35em;background:#f0f3f0;border-radius:4px;font:88% var(--mono)}
     pre{position:relative;overflow:auto;margin:18px 0 26px;padding:20px 22px;color:#d8e3db;background:var(--code);border-radius:8px;font:13px/1.55 var(--mono)}
     pre code{padding:0;color:inherit;background:none}
-    pre.command{border-left:4px solid var(--green);background:#18231d}
+    pre.command{border-left:4px solid var(--green);background:#18231d;white-space:pre-wrap;overflow-wrap:anywhere}
     .syntax-program{color:#7ddc9e;font-weight:700}.syntax-option{color:#e8b86d}.syntax-string{color:#b9d8ff}
     details.output{margin:-14px 0 26px}
     details.output summary{color:var(--green);font-size:13px;font-weight:700;cursor:pointer}
@@ -182,7 +221,9 @@ add("""<!doctype html>
     figure{margin:30px 0 36px;padding:0;border:0}
     figure.plot{max-width:820px}
     figure.plot svg{width:100%;height:auto;border:1px solid var(--rule);border-radius:8px}
-    figure.human pre.human{margin:0 0 8px;color:var(--ink);background:#fbfdfb;border:1px solid var(--rule);border-left:4px solid #9fd3b2;overflow:auto}
+    figure.table{margin-top:-8px}
+    figure.table table{margin:0 0 8px}
+    figure.table td:first-child{white-space:nowrap}
     figcaption{color:var(--muted);font-size:13px}
     .callout{margin:24px 0;padding:18px 22px;background:linear-gradient(135deg,#f9fbf9,var(--light));border-left:4px solid var(--green);border-radius:0 8px 8px 0}
     .callout.warn{background:#fff7e9;border-color:var(--amber)}
@@ -255,7 +296,16 @@ add(f"""
     {cmdcap_auto("05-option-import")}
     <p>Open the election and look at it the way a person would — <code>--human</code> renders tables instead of JSON:</p>
     {cmdcap_auto("06-election-open")}
-    {hcap("06h-election", "The election at a glance: eight options, ranked ballots, open for ballots — and no counting method, because that decision belongs to the count.")}
+    {tablefig(
+        "voting --human election show book_preference",
+        ["", ""],
+        [["Name", ELECTION["name"]],
+         ["Ballot type", ELECTION["ballot_type"]],
+         ["Status", ELECTION["status"]],
+         ["Seats", ELECTION["seats"]],
+         [f"Options ({len(ELECTION['options'])})", ", ".join(BOOK_NAMES[oid] for oid in ELECTION["options"])]],
+        "The election at a glance: eight options, ranked ballots, open for ballots — and no counting method, because that decision belongs to the count. (In a terminal, --human draws this same view; the page renders the captured envelope natively.)",
+    )}
   </section>
 
   <section id="survey">
@@ -281,7 +331,15 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     {cmdcap_auto("08-import")}
     {cmdcap_auto("09-validate")}
     <p>Eighteen registered voters, eighteen valid ballots. Here is what actually came back from real people — one row per respondent, top choices first (<code>--latest</code> shows the ballots a count would use; without it, the append-only record also lists the eighteen superseded ballots from the first import):</p>
-    {hcap("10-ballots", "The countable ballots: eighteen anonymous respondents at weight 1.0, top three choices shown; full rankings live in the ballot records and drive every count.")}
+    {tablefig(
+        "voting --human ballot list --election book_preference --latest",
+        ["voter", "ballot (top choices)", "recorded"],
+        [[ballot["voter_id"][:13] + "…",
+          " > ".join(ballot["ranking"][:3]) + f" … (+{len(ballot['ranking']) - 3} more)",
+          ballot["recorded_at"].replace("T", " ")]
+         for ballot in BALLOTS],
+        "The countable ballots: eighteen anonymous respondents at weight 1.0, top three choices shown; full rankings live in the ballot records and drive every count.",
+    )}
     <p>Eighteen full rankings are hard to eyeball. The built-in plots turn them into a picture — <code>voting plot ranks</code> shows, for each book, how many voters placed it first, second, and so on (hover any segment for the exact count):</p>
     {svgfig("11b-plot-ranks", f"Position distributions from the real ballots. {WINNER}'s long dark leading edge is its {FPTP_TOTALS[0]['total']:.0f} first-place votes; books lower down live mostly in the pale right-hand (late-rank) end of the bar.")}
     <p><code>voting status</code> is the project's dashboard. Note the ballot count: {STATUS_COUNTS["ballots"]} records, not {N_BALLOTS} — the superseded first import is still in the append-only log (an audit trail, never silently rewritten), while counting uses each voter's latest ballot. The phase says exactly what remains:</p>
@@ -292,11 +350,23 @@ Or run your own survey (<code>voting survey publish</code>) — or have AI perso
     <h2><span class="chapter">07</span> Every method, one answer</h2>
     <p>Now the point of the exercise. Counts name their method explicitly (<code>voting count run &lt;id&gt; --method borda</code>) — there is no default, and that is a feature: a "winner" is always a <em>method's</em> winner. But nobody should have to type twelve commands to ask the obvious question. <code>voting count compare</code> counts the same ballots under <strong>every method that can read them</strong> — for ranked ballots, all {N_METHODS} — and saves each result:</p>
     {cmdcap_auto("12-count-compare")}
-    {hcap("12h-count-list", f"Twelve methods, side by side. {len(DECIDED)} elect {WINNER}; simple_majority declines.")}
+    {tablefig(
+        "voting --human count list --election book_preference",
+        ["method", "winner", "runner-up"],
+        [[row["method"], ", ".join(row["winners"]) or "(no winner)", row["runner_up"] or ""]
+         for row in COMPARE["results"]],
+        f"Twelve methods, side by side. {len(DECIDED)} elect {WINNER}; simple_majority declines.",
+    )}
     <p><strong>{len(DECIDED)} of {N_METHODS} methods elect <em>1984</em>. The twelfth refuses to answer</strong> — and its refusal is worth reading. <code>simple_majority</code> requires an outright majority of first preferences; {WINNER} holds {FPTP_TOTALS[0]["total"]:.0f} of {N_BALLOTS}, a plurality but not a majority, so the method reports <code>winners: []</code> with the threshold it applied. Like the unregistered-ballot check in chapter 6, an honest refusal beats a fabricated answer.</p>
     <p>Every comparison run is a full saved record of how its method reasoned. Open a few with <code>count show</code>. Borda first — each ballot position contributes points, so it measures breadth of support:</p>
     {cmdcap_auto("13-show-borda")}
-    {hcap("13h-show-borda", "The saved Borda count rendered for people: full ranking, scores, and the winner.")}
+    {tablefig(
+        f"voting --human count show {RESULT_IDS['borda']}",
+        ["rank", "option", "score", "status"],
+        [[row["rank"], row["option_id"], f"{row['score']:g}", row["status"]]
+         for row in BORDA["ranking"]],
+        "The saved Borda count: full ranking, scores, and the winner.",
+    )}
     {svgfig("13p-plot-scores", "Borda totals as a picture: the gaps show breadth of support, not just first choices.")}
     <p>Borda gives <em>{html.escape(BORDA_SCORES[0]["option_id"])}</em> {BORDA_SCORES[0]["total"]:.0f} points against {html.escape(BORDA_SCORES[1]["option_id"])}'s {BORDA_SCORES[1]["total"]:.0f}. <strong>Instant-runoff</strong> reasons completely differently — eliminate the weakest option, retry until someone holds a majority — and its <code>rounds</code> array is that elimination story:</p>
     {cmdcap_auto("13-show-irv")}

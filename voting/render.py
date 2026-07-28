@@ -7,9 +7,14 @@ from __future__ import annotations
 
 
 def print_human(renderable) -> None:
+    import sys
+
     from rich.console import Console
 
-    Console(width=100).print(renderable)
+    # Interactive terminals use their real width; piped/captured output gets a
+    # fixed 90 columns so figures embed in docs without horizontal scrolling.
+    console = Console() if sys.stdout.isatty() else Console(width=90)
+    console.print(renderable)
 
 
 def election_panel(election: dict, option_names: dict[str, str] | None = None):
