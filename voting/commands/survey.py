@@ -32,7 +32,11 @@ def generate(
     ctx: typer.Context,
     election_id: str = typer.Argument(..., help="Election ID to generate a survey for."),
     model: str = typer.Option("gpt-5.5", "--model", "-m", help="EDSL model name."),
-    service: Optional[str] = typer.Option("openai", "--service", help="EDSL inference service name."),
+    service: Optional[str] = typer.Option(
+        None,
+        "--service",
+        help="EDSL inference service name. Omit to infer it from the model name.",
+    ),
     output_path: Optional[Path] = typer.Option(None, "--output", "-o", help="Override output path for the Jobs package."),
 ) -> None:
     """Build an EDSL Jobs package (.jobs.ep) that elicits AI voter preferences via `ep run`."""

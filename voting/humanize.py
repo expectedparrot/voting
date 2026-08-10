@@ -215,6 +215,11 @@ def build_simulation_job(
     jobs = Jobs(survey=survey, agents=agents, models=[model])
     saved_path = _save_jobs(jobs, output_path)
 
+    resolved_service = (
+        getattr(model, "_inference_service_", None)
+        or model.to_dict().get("inference_service")
+        or service_name
+    )
     manifest = {
         "election_id": election["id"],
         "ballot_type": election.get("ballot_type", "ranked"),
@@ -223,7 +228,7 @@ def build_simulation_job(
         "question_texts": {question.question_name: question.question_text for question in questions},
         "voter_count": len(voters),
         "model": model_name,
-        "service": service_name,
+        "service": resolved_service,
         "expected_model_calls": len(voters) * len(questions),
         "job_path": str(saved_path),
     }

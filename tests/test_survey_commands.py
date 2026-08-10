@@ -8,6 +8,7 @@ import pytest
 
 from voting.commands.survey import show, survey_job_path, survey_manifest_path
 from voting.core.errors import UserError
+from voting.humanize import build_simulation_job
 
 
 class ProjectStub:
@@ -68,3 +69,29 @@ def test_show_prints_manifest_summary_for_humans(
     assert "gpt-5.5" in out
     assert "Rank the options." in out
     assert "alice: Alice" in out
+
+
+def test_simulation_job_infers_service_from_model_name(tmp_path: Path) -> None:
+    manifest = build_simulation_job(
+        {"id": "priorities", "name": "Priorities", "ballot_type": "ranked"},
+        [{"id": "speed", "name": "Speed"}, {"id": "quality", "name": "Quality"}],
+        [{"id": "voter_1", "name": "Voter One", "traits": {"persona": "Researcher"}}],
+        tmp_path / "priorities.jobs.ep",
+        model_name="gemini-2.5-flash-lite",
+        service_name=None,
+    )
+
+    assert manifest["service"] == "google"
+
+
+def test_simulation_job_preserves_explicit_service(tmp_path: Path) -> None:
+    manifest = build_simulation_job(
+        {"id": "priorities", "name": "Priorities", "ballot_type": "ranked"},
+        [{"id": "speed", "name": "Speed"}, {"id": "quality", "name": "Quality"}],
+        [{"id": "voter_1", "name": "Voter One", "traits": {}}],
+        tmp_path / "priorities.jobs.ep",
+        model_name="gpt-5-nano",
+        service_name="openai",
+    )
+
+    assert manifest["service"] == "openai"
