@@ -200,3 +200,11 @@ environment configuration.
 
 - `voting docs show troubleshooting` — common errors and fixes
 - `voting docs show workflow` — phase reference
+
+## Count provenance
+
+Each result records `provenance.ballot_ids`, `option_ids`, `package_version`, and
+an `input_fingerprint` used by status to detect changed counting inputs. This
+is lightweight provenance, not a full project snapshot. Voter weights are
+captured on ballots when entered or imported. Existing result records stay
+unchanged when a new count is saved.

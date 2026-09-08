@@ -5,6 +5,7 @@ import typer
 from voting.commands.common import ctx_project, output, parse_json_value
 from voting.core.ids import local_iso_now, validate_id
 from voting.core.store import list_entities, read_entity, write_entity, write_json
+from voting.core.validate import validate_weight
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 
@@ -17,6 +18,7 @@ def add(
     weight: float = typer.Option(1.0, "--weight"),
 ) -> None:
     validate_id(voter_id, "voter id")
+    validate_weight(weight)
     data = {
         "id": voter_id,
         "name": name,

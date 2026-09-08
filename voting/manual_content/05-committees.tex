@@ -1,0 +1,101 @@
+\chapter{Choose a committee}
+\label{chap:committees}
+\section{Several seats change the objective}
+Selecting $k$ projects is not simply selecting a single winner $k$ times. A top-$k$ score rule rewards the largest totals; a transfer or budget-sharing rule can reduce the influence already used to elect one candidate. Neither approach is universally appropriate. A shortlist of the strongest standalone proposals and a committee intended to represent different constituencies answer different questions.
+
+The CLI checks the seat capabilities of a method. Running Borda with two seats is rejected; its implementation is single-winner. STV, approval, block voting, limited voting, SNTV, cumulative, quadratic, and equal shares support multiple seats. A default comparison skips methods that cannot honor the requested settings and reports the reason.
+
+\section{STV: retain a quota, transfer the surplus}
+For $k>1$, this package's STV implementation uses a Droop quota
+\[
+Q=\left\lfloor\frac{W}{k+1}\right\rfloor+1.
+\]
+Initially each ballot carries its original weight. Each round assigns its current weight to its first active ranked candidate. If candidate $c$ has total $T(c)\geq Q$, elect it. Its surplus is $T(c)-Q$; each ballot assigned to it is scaled by
+\[
+f(c)=\frac{T(c)-Q}{T(c)}.
+\]
+Removing $c$ from the active set lets that residual weight move to the next surviving preference in the next round. Exactly $Q$ of the assigned weight is retained when $T(c)>0$. If $T(c)=Q$, those ballots have no residual transferable weight.
+
+If several candidates meet quota in a round, the package processes them by descending tally and then ID, using that round's assignments. If none meets quota, it eliminates the lowest tally. When the remaining active candidates exactly fill the unfilled seats, it elects them without requiring quota. This is a fractional-surplus STV variant; it is not a claim to reproduce every jurisdiction's transfer procedure.
+\begin{lstlisting}[style=votingrun]
+voting count run ranked --method stv --seats 2
+\end{lstlisting}
+For the main profile, $Q=\lfloor100/3\rfloor+1=34$. Library begins with 42 and transfers a surplus of 8 to Trees. Its multiplier is $8/42$. Trees then has 25, Shelters 26, and Playground 15. Eliminating Playground transfers 15 to Shelters, which reaches 41 and takes the second seat.
+\generated{stv-rounds}
+The displayed totals in successive rounds need not sum to the original $W$: weight has been retained by already elected candidates. Exhausted residual weight is a different reason for a reduced continuing total.
+
+For one seat, \code{stv} dispatches to IRV. The floor in the multi-seat quota makes arbitrary rescaling of fractional weights consequential: multiplying all weights by a constant is not generally equivalent to changing the unit of measurement. Use integer multiplicities when intending weighted rows to represent repeated people in a quota calculation, and state the chosen units.
+
+\section{SNTV: one mark, several winners}
+Single non-transferable vote selects the $k$ largest single-choice totals. Votes for a winning candidate are not transferred, and votes for a losing candidate receive no fallback. To illustrate it honestly, create a separate single-choice instrument, using the original profile's first choices as an explicitly disclosed reduction.
+\begin{lstlisting}[style=votingrun]
+voting election add first_choices "Two projects from first choices" --ballot-type single_choice --seats 2
+voting election add-option first_choices library
+voting election add-option first_choices shelters
+voting election add-option first_choices trees
+voting election add-option first_choices playground
+voting election open first_choices
+voting ballot cast first_choices readers --choice library
+voting ballot cast first_choices riders --choice shelters
+voting ballot cast first_choices canopy --choice trees
+voting ballot cast first_choices families --choice playground
+voting count run first_choices --method sntv
+\end{lstlisting}
+Library and Shelters take the two seats, as they did under STV here. Agreement on one profile does not imply equivalence. Change how many supporters concentrate on one candidate and STV's surplus transfer may matter.
+
+\section{Approval and block voting}
+An approval tally is
+\[
+A(c)=\sum_i w_i\ind\{c\in A_i\}.
+\]
+With $k$ seats, this implementation elects the $k$ largest totals. Each ballot may contribute to several candidates, but never more than once to the same candidate. A valid empty approved set contributes zero everywhere and remains a recorded abstention.
+
+The following approval sets are new teaching assumptions. In particular, which options cross an approval threshold cannot be read uniquely from the rankings.
+\begin{lstlisting}[style=votingrun]
+voting election add approvals "Which projects are acceptable?" --ballot-type approval
+voting election add-option approvals library
+voting election add-option approvals shelters
+voting election add-option approvals trees
+voting election add-option approvals playground
+voting election open approvals
+voting ballot approve approvals readers --option library --option trees
+voting ballot approve approvals riders --option shelters --option playground --option trees
+voting ballot approve approvals canopy --option trees --option shelters
+voting ballot approve approvals families --option playground --option shelters
+voting count compare approvals
+\end{lstlisting}
+\generated{approval-methods}
+Trees is approved by 85 units of weight, Shelters by 58, Playground by 41, and Library by 42. These approval percentages have a different denominator interpretation from Borda points. The sum of approvals can exceed $W$ because people may approve several options.
+
+\code{block_voting} uses the same totals but permits at most $k$ approvals per ballot, or a stricter election-level limit. It is therefore a constrained ballot format followed by a top-$k$ count. The current three-option Riders ballot is compatible with a three-seat block election:
+\begin{lstlisting}[style=votingrun]
+voting count run approvals --method block_voting --seats 3
+\end{lstlisting}
+It is not compatible with a one-seat block election. That is why the earlier default one-seat comparison skips block voting rather than silently discarding approved options.
+
+\section{Limited voting}
+Limited voting gives a voter at most $\ell$ approvals, where $1\leq\ell<k$. It again selects the $k$ largest approval totals. The smaller per-voter limit changes what coalitions can support simultaneously; it does not itself guarantee a particular representative composition.
+\begin{lstlisting}[style=votingrun]
+voting election add limited "Three places, two approvals each" --ballot-type approval --seats 3 --approval-limit 2
+voting election add-option limited library
+voting election add-option limited shelters
+voting election add-option limited trees
+voting election add-option limited playground
+voting election open limited
+voting ballot approve limited readers --option library --option trees
+voting ballot approve limited riders --option shelters --option playground
+voting ballot approve limited canopy --option trees --option shelters
+voting ballot approve limited families --option playground --option shelters
+voting count compare limited
+\end{lstlisting}
+\generated{limited-methods}
+Here approval, block, and limited counts use the same legal ballots, so their selected sets coincide. This is useful: it reveals that their distinction lies in permitted messages, not three different formulas applied to these messages. The Riders response differs from the earlier unconstrained approval response; it is an explicit new answer to a stricter question.
+
+Without a configured limit, the limited-voting counter uses $k-1$ and requires at least two seats. Setting \code{--approval-limit} before collection also enforces that constraint on direct entry and hosted approval questions.
+
+\section{Exercises}
+\begin{enumerate}
+\item Verify that Library retains exactly 34 units when its STV surplus transfers.
+\item Why should the second elected member of a three-seat committee not be called the runner-up? The comparison output uses the first unelected candidate instead.
+\item Construct a profile where SNTV gives two seats to a large bloc's candidates. Redistribute that bloc's single-choice votes without changing its size. Does the result change?
+\end{enumerate}

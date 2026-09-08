@@ -1,0 +1,94 @@
+\chapter{First choices, positions, and transfers}
+\label{chap:ranked}
+\section{Plurality and a majority requirement}
+Plurality, exposed as \code{fptp}, counts each ballot's first choice:
+\[
+F(c)=\sum_i w_i\ind\{r_i(c)=1\}.
+\]
+The option with the greatest $F(c)$ wins. It need not receive more than half the valid weight. In the town profile, Library leads with 42 while the three other first-choice groups sum to 58. That observation alone does not identify which alternative those 58 would choose together.
+
+\code{simple_majority} starts with the same totals but declares a winner only if the highest total is strictly greater than half the total counted first-choice weight. A tie at exactly half is insufficient. When no candidate meets the condition, an empty winner list is an informative outcome, not a software failure.
+\begin{lstlisting}[style=votingrun]
+voting count run ranked --method fptp
+voting count run ranked --method simple_majority
+\end{lstlisting}
+\begin{center}
+\generated{first-choice-plot}
+\end{center}
+Here and below, L, S, T, and P abbreviate Library, Shelters, Trees, and Playground. The graphic is generated from this build's saved plurality count.
+
+With a single-choice election the input directly supplies the first choice. With a ranked election these two methods extract the first listed option. They do not use lower preferences. This is an intentional compatible reduction of information; a reduction in the opposite direction would be impossible.
+
+\section{Borda: score the position}
+With $m$ eligible options, this implementation gives a listed option $m-r_i(c)$ points. For a complete ballot that is $m-1,m-2,\ldots,0$ from best to worst:
+\[
+B(c)=\sum_{i:\,c\text{ listed}}w_i\bigl(m-r_i(c)\bigr).
+\]
+For Shelters in the town example,
+\[
+B(S)=42(1)+26(3)+17(2)+15(2)=184.
+\]
+For Trees the calculation is $42(2)+26(1)+17(3)+15(1)=176$. Borda rewards positions across all ballots, so the largest first-choice bloc need not control its answer.
+\begin{lstlisting}[style=votingrun]
+voting count run ranked --method borda
+\end{lstlisting}
+\generated{ranked-totals}
+The columns measure different things. First-choice totals sum to $W=100$. With four completely ranked options, Borda points sum to $W(3+2+1+0)=600$. A Borda total of 184 is not a count of 184 voters or an approval percentage.
+
+For an incomplete ranking, unlisted candidates receive zero in this package while listed candidates keep the points implied by the full eligible option count. Thus listing only a first choice in a four-option election awards it three points, with zero for all others. Other treatments of truncated ballots exist. Record this convention when comparing implementations.
+
+\section{Instant runoff voting}
+IRV maintains an active set $C_t$, initially $C$. Let $h_i(C_t)$ be the first listed candidate on ballot $i$ who remains active. If none remains, the ballot is exhausted in that round. Define
+\[
+F_t(c)=\sum_i w_i\ind\{h_i(C_t)=c\},\qquad
+W_t=\sum_{c\in C_t}F_t(c).
+\]
+The algorithm is:
+\begin{enumerate}
+\item Count first active choices and record exhausted weight.
+\item If a candidate has $F_t(c)>W_t/2$, elect it and stop. If only one candidate remains, elect that candidate.
+\item Otherwise eliminate a candidate with the lowest $F_t(c)$, remove it from $C_t$, and repeat.
+\end{enumerate}
+When the lowest totals tie, the package eliminates the lexicographically smallest tied ID. The same rule favoring a smaller ID for a winning tie therefore removes a smaller ID in an elimination tie. Determinism is useful for replication, but the direction of the tie operation matters.
+\begin{lstlisting}[style=votingrun]
+voting count run ranked --method irv
+\end{lstlisting}
+\generated{irv-rounds}
+Playground is eliminated first. Its 15 units transfer to Shelters, taking Shelters to 41. Trees is then the lowest active candidate with 17; that group's next surviving option is Shelters. Shelters reaches 58 and wins against Library's 42.
+
+Notice the difference between a transfer and a new vote. The Families ballot is counted for exactly one active candidate at a time. It does not continue contributing to Playground after transferring. IRV reallocates the original weight; it does not add weight each round.
+
+Incomplete rankings can exhaust. If a voter lists only Playground, its elimination removes that ballot's weight from $W_t$. A majority of continuing weight can therefore be smaller than a majority of the original electorate. Inspect \code{exhausted_weight} and round totals when interpreting such an outcome.
+
+IRV stops when a winner is found. Its remaining non-winner order is a presentation convention: active candidates follow in their final tally order, then eliminated candidates in reverse elimination order. Do not interpret that displayed order as the result of conducting a fresh runoff for every lower position.
+
+\section{Bucklin: widen the accepted depth}
+Bucklin also uses rankings, but it accumulates support at increasing depths instead of eliminating candidates:
+\[
+D_\ell(c)=\sum_i w_i\ind\{c\text{ appears among the first }\ell\text{ positions of }i\}.
+\]
+Start at $\ell=1$ and increase it until some $D_\ell(c)>W/2$. Among candidates meeting that condition at the first successful depth, the package selects the largest $D_\ell(c)$, then the larger previous-depth total, then the smaller ID.
+
+At depth two in Alderbrook, Trees receives the Readers' 42 and its own 17, for 59. Shelters receives 26 from Riders, 17 from Canopy, and 15 from Families, for 58. Both cross 50 at that depth, and Trees wins by one unit of accumulated support.
+\begin{lstlisting}[style=votingrun]
+voting count run ranked --method bucklin
+\end{lstlisting}
+Depth-two totals can sum to $2W$ on complete ballots. Unlike IRV, the same ballot contributes to two candidates at this depth. This is not double-counting within Bucklin; it is the defined statistic.
+
+On truncated ballots a majority might never emerge. The implementation then uses the largest accumulated support at the final depth, breaking ties by ID. If a research design requires no winner in that situation, that is a different fallback rule.
+
+\section{A simulated two-round runoff}
+The \code{runoff} method selects the two largest first-choice totals, then counts each ranked ballot for whichever finalist it ranks first. In our profile the finalists are Library and Shelters, and the final comparison is 42 to 58.
+\begin{lstlisting}[style=votingrun]
+voting count run ranked --method runoff
+\end{lstlisting}
+This package always constructs the two stages, even if the first-stage leader already has a majority. With complete rankings such a leader necessarily also beats the other finalist. With single-choice ballots, a voter whose chosen option misses the final has no recorded fallback and contributes to \code{no_preference}. The simulated runoff then cannot measure how those voters would behave in a second election.
+
+Even ranked ballots do not observe an actual second campaign. Turnout, information, and preferences may change between real rounds. Describe this computation as a runoff simulated from the recorded preference profile.
+
+\section{Exercises}
+\begin{enumerate}
+\item Verify that the four Borda totals sum to 600. Explain why the analogous sum changes with truncated ballots.
+\item If all Families ballots list only Playground, compute the continuing weight after its elimination. Follow the remaining rounds and report both the winner and exhausted weight.
+\item Explain why a Bucklin depth-two total of 59 and an IRV final total of 58 refer to different coalitions and cannot be compared as measurements of the same quantity.
+\end{enumerate}

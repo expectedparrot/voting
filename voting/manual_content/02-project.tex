@@ -1,0 +1,68 @@
+\chapter{Build the election with commands}
+\label{chap:project}
+\section{Create an ordinary project}
+The following listings are executed by the manual build. If working by hand, run the first command from an empty working directory and then enter \code{study}. The builder performs that directory change itself.
+\begin{lstlisting}[style=votingrun]
+voting init study --description "Alderbrook: fictional teaching elections"
+\end{lstlisting}
+\begin{lstlisting}
+cd study
+\end{lstlisting}
+Register the four options and four weighted groups. IDs are stable identifiers used in subsequent commands; names are readable labels. A name can contain spaces if quoted.
+\begin{lstlisting}[style=votingrun]
+voting option add library "Library" --type proposal
+voting option add shelters "Shelters" --type proposal
+voting option add trees "Trees" --type proposal
+voting option add playground "Playground" --type proposal
+voting voter add readers "Readers group" --weight 42
+voting voter add riders "Bus riders group" --weight 26
+voting voter add canopy "Tree supporters" --weight 17
+voting voter add families "Playground supporters" --weight 15
+\end{lstlisting}
+Define an election whose instrument is ranked, attach the eligible choices, and open it. Methods are selected at count time, so there is no \code{--method} on \code{election add}.
+\begin{lstlisting}[style=votingrun]
+voting election add ranked "One neighborhood priority" --ballot-type ranked
+voting election add-option ranked library
+voting election add-option ranked shelters
+voting election add-option ranked trees
+voting election add-option ranked playground
+voting election open ranked
+\end{lstlisting}
+
+\section{Record preferences}
+Arguments after the voter ID are the ranking, best first. The CLI checks that the ballot matches the election's declared type, options exist and are eligible, rankings contain no duplicates, and the voter is eligible.
+\begin{lstlisting}[style=votingrun]
+voting ballot rank ranked readers library trees shelters playground
+voting ballot rank ranked riders shelters playground trees library
+voting ballot rank ranked canopy trees shelters playground library
+voting ballot rank ranked families playground shelters trees library
+voting ballot validate ranked
+voting ballot list --election ranked --latest
+\end{lstlisting}
+Validation should report four valid ballots. It does not report 100 rows: the sum of weights is 100. A weight is captured on the ballot when it is recorded. The current implementation uses that saved ballot weight when counting.
+
+Every command normally emits one JSON envelope with \code{status}, \code{data}, \code{warnings}, \code{errors}, and \code{next_steps}, together with invocation and schema metadata. Most quantities of interest are under \code{data}. Add the top-level flag \code{--human} to display a terminal table:
+\begin{lstlisting}
+voting --human ballot list --election ranked --latest
+\end{lstlisting}
+This presentation command is optional; it does not change the stored preferences.
+
+\section{Apply several rules to the same ballots}
+\begin{lstlisting}[style=votingrun]
+voting count compare ranked
+\end{lstlisting}
+This prepares one set of valid ballots and runs the compatible methods. Every method's result is saved separately. The comparison gives winner IDs and result IDs, making it possible to inspect a method's full diagnostics with \code{count show}.
+\generated{ranked-methods}
+The disagreement is the central object of study. Plurality, Borda, elimination, and pairwise comparisons do not use the same summary of the input. The next two chapters derive the summaries and explain the results rather than treating method agreement as a vote among algorithms.
+
+\section{Where the data lives}
+\code{study/.voting} contains project metadata, option records, voter records, election definitions, append-only ballot records, and count results. A recast ballot creates a new record. Latest-ballot resolution occurs independently for each election and voter.
+
+Stored counts include the method, seats and settings, winners, ranking, valid and invalid ballot counts, and diagnostics such as rounds or pairwise support. Lightweight provenance includes the used ballot IDs, eligible option IDs, package version, and an input fingerprint. The fingerprint helps detect stale results; it is not a complete frozen copy of all project metadata.
+
+\section{Exercises}
+\begin{enumerate}
+\item Locate the result ID for IRV in \code{commands.json}, then run \code{voting count show <result_id>} in the study directory. Which fields explain the winner?
+\item Why would running an approval counter directly on these ranked ballots be an error? What additional question would you need to ask voters?
+\item Interpret a summary with four valid ballots, zero invalid ballots, and total valid weight 100 without describing it as a survey of four representative residents.
+\end{enumerate}

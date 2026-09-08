@@ -24,9 +24,10 @@ humanize = [
 voting = "voting.cli:main"
 [tool.setuptools.packages.find]
 where = ["."]
+include = ["voting", "voting.*"]
 
 [tool.setuptools.package-data]
-voting = ["docs_content/*.md"]
+voting = ["docs_content/*.md", "manual_content/*.tex", "manual_content/*.md"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]

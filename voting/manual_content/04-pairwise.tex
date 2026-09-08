@@ -1,0 +1,109 @@
+\chapter{Compare every pair}
+\label{chap:pairwise}
+\section{The pairwise matrix}
+Define the directed support matrix
+\[
+P(a,b)=\sum_iw_i\ind\{a\succ_i b\},\qquad a\ne b.
+\]
+For complete strict rankings, $P(a,b)+P(b,a)=W$. A candidate $a$ beats $b$ when $P(a,b)>P(b,a)$. A \emph{Condorcet winner} beats every other candidate in these head-to-head comparisons.
+
+The package treats a listed option as preferred to an unlisted one. If both are unlisted, that ballot contributes to neither direction for that pair. Consequently, incomplete ballots can give $P(a,b)+P(b,a)<W$. There is no ranked-ballot syntax for explicit tied positions among listed options.
+\generated{pairwise}
+Each entry counts the weight preferring the row to the column. Trees beats Library 58 to 42, Shelters 59 to 41, and Playground 59 to 41. It is therefore the Condorcet winner, even though IRV eliminated it. The disagreement is not a numerical mistake: elimination and pairwise dominance are different rules.
+
+A pairwise margin is $M(a,b)=P(a,b)-P(b,a)$. Do not confuse a support of 59 with a margin of 18. Different Condorcet extensions rank or compare these quantities differently.
+
+\section{Copeland and minimax}
+\code{copeland} assigns one point for a pairwise win, half a point for a tie, and zero for a loss:
+\[
+K(a)=\sum_{b\ne a}\left(\ind\{P(a,b)>P(b,a)\}
+             +\tfrac12\ind\{P(a,b)=P(b,a)\}\right).
+\]
+It orders candidates by decreasing $K(a)$, then ID. These are points for contests, not total voter support. A narrow win and a large win each contribute one point.
+
+\code{minimax} instead measures the worst positive defeat margin:
+\[
+D(a)=\max\left(0,\max_{b\ne a}\{P(b,a)-P(a,b)\}\right).
+\]
+It favors the smallest $D(a)$; saved scores are $-D(a)$ so that higher remains better. An undefeated candidate has zero worst defeat. This is the margins variant, not a variant based on the opponent's raw winning votes.
+\begin{lstlisting}[style=votingrun]
+voting count run ranked --method copeland
+voting count run ranked --method minimax
+\end{lstlisting}
+Trees wins both. To learn how these rules differ, one needs a profile without a Condorcet winner, rather than repeatedly recounting a profile on which that criterion resolves the choice.
+
+\section{Ranked pairs: lock strong victories}
+Construct one directed edge $a\to b$ for every strict pairwise victory. Sort these victories by decreasing margin, then decreasing winning support, then the winner and loser IDs. Start with an empty directed graph.
+\begin{enumerate}
+\item Consider each victory in the sorted order.
+\item Before adding $a\to b$, check whether a directed path already runs from $b$ to $a$.
+\item If it does, skip this edge: adding it would create a cycle. Otherwise lock the edge.
+\item After all victories have been considered, take a topological ordering of the locked graph. Choose the first candidate.
+\end{enumerate}
+A topological order places the winner of every locked edge before its loser. In this implementation, when several candidates have no remaining incoming edge, the smallest ID is selected next. Merely counting outgoing minus incoming edges does \emph{not} preserve the constraints of the locked graph.
+
+The source-node characterization of ranked-pairs winners is also used in research on its computational properties.\cite{rankedpairs} Here \code{locked} records accepted edges, and \code{skipped} records those rejected to avoid a cycle.
+\begin{lstlisting}[style=votingrun]
+voting count run ranked --method ranked_pairs
+\end{lstlisting}
+
+\section{Schulze: compare strongest paths}
+Schulze uses a different graph calculation. Initialize the strength of a direct path as
+\[
+p(a,b)=
+\begin{cases}
+P(a,b),&P(a,b)>P(b,a),\\
+0,&\text{otherwise}.
+\end{cases}
+\]
+The strength of a multi-edge path is the minimum edge strength along it. The strongest path between two candidates maximizes that bottleneck over possible paths. For every intermediate candidate $h$, update distinct $a,b,h$ by
+\[
+p(a,b)\leftarrow
+\max\left(p(a,b),\min\{p(a,h),p(h,b)\}\right).
+\]
+This is a max--min analogue of the Floyd--Warshall dynamic program. It needs $O(m^3)$ updates after the pairwise matrix has been built; it does not enumerate every path separately.
+
+The implementation orders candidates by the number of opponents for which $p(a,b)>p(b,a)$, then lexicographically. It returns the strongest-path matrix as \code{path_strengths}. The name \code{beatpath} is an alias. Schulze's own exposition gives the broader definition, examples, and variants.\cite{schulze}
+\begin{lstlisting}[style=votingrun]
+voting count run ranked --method schulze
+\end{lstlisting}
+An indirect path does not imply that the same voters support every edge. The method aggregates pairwise information; it does not discover a single transitive coalition that submitted the full path.
+
+\section{Kemeny--Young: optimize a complete order}
+For a proposed complete ordering $\pi=(\pi_1,\ldots,\pi_m)$, define
+\[
+J(\pi)=\sum_{1\leq j<\ell\leq m}P(\pi_j,\pi_\ell).
+\]
+Each term rewards agreement between the proposed social order and the recorded pairwise preferences. Kemeny--Young chooses an order maximizing $J$ and elects its first candidate. This implementation breaks an exact optimum tie by choosing the lexicographically smallest order.
+\begin{lstlisting}[style=votingrun]
+voting count run ranked --method kemeny_young
+\end{lstlisting}
+The implementation enumerates all $m!$ orders and scores each in $O(m^2)$ work. Four options require only 24 orders. Nine require 362,880, while twelve require 479,001,600. Default comparisons skip this method above nine eligible options, and explicit runs above that limit require \code{--allow-expensive}. The flag changes a resource guard, not the mathematical rule or computational complexity.
+
+\section{A cycle laboratory}
+Consider three additional, unit-weight teaching voters. Their preferences form a symmetric cycle. These ballots live in a separate election so the main profile remains available for comparison.
+\begin{lstlisting}[style=votingrun]
+voting voter add cycle_1 "Cycle voter 1"
+voting voter add cycle_2 "Cycle voter 2"
+voting voter add cycle_3 "Cycle voter 3"
+voting election add cycle "Three-way cycle" --ballot-type ranked
+voting election add-option cycle library
+voting election add-option cycle shelters
+voting election add-option cycle trees
+voting election open cycle
+voting ballot rank cycle cycle_1 library shelters trees
+voting ballot rank cycle cycle_2 shelters trees library
+voting ballot rank cycle cycle_3 trees library shelters
+voting count compare cycle
+\end{lstlisting}
+Library beats Shelters, Shelters beats Trees, and Trees beats Library, each by 2 to 1. Individual rankings are transitive, yet majority comparisons are cyclic. No Condorcet winner exists.
+\generated{cycle-methods}
+Here some outputs depend on tie conventions because the construction is deliberately symmetric. A winning ID in such a profile is not evidence of stronger underlying support. Rename the options in a fresh copy and preserve the same preference relationships to investigate that dependence.
+
+\section{Exercises}
+\begin{enumerate}
+\item Compute Trees' Copeland score and minimax score in the town profile.
+\item In the three-way cycle, write the ranked-pairs edges in the order considered by the package. Which edge is skipped?
+\item What is the strongest path from Library to Trees in the cycle? Compare its strength with the reverse strongest path.
+\item Explain why a graph's topological ordering is not obtained by sorting each node's number of wins minus losses.
+\end{enumerate}

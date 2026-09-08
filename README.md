@@ -21,7 +21,7 @@ It can:
   (counting methods are chosen at count time, never fixed on the election).
 - Record ballots directly or import them from another system.
 - Validate ballots before counting.
-- Run 32 method names and aliases — one at a time (`count run`) or every
+- Run 35 method names and aliases — one at a time (`count run`) or every
   compatible method at once (`count compare`) — including FPTP, approval, score, STAR, IRV,
   STV, Borda, Schulze, ranked pairs, Copeland, Kemeny–Young, Bucklin, runoff,
   cumulative, quadratic voting, Method of Equal Shares, and majority judgment.
@@ -47,6 +47,23 @@ It can:
   to see the utilitarian/proportional trade-off in your own data.
 
 Each of these is a worked six-command recipe in `voting docs show recipes`.
+
+## Textbook and manual
+
+**One Town, Many Ways to Choose** is a LaTeX manual with an extended fictional
+town example, mathematical definitions, algorithm explanations, exercises,
+and actual CLI commands. Its build executes the local examples and generates
+the result tables from their output.
+
+```bash
+voting docs manual --output-dir town-manual --pdf
+```
+
+Choose a new output directory. Omit `--pdf` to export the example and LaTeX
+without TeX installed; use `--sources-only` to export just the sources.
+No EDSL, credentials, or model calls are needed for the worked examples.
+PDF compilation requires `pdflatex` with Latin Modern, PGFPlots, and xurl.
+See `voting docs show manual` for build artifacts and authoring instructions.
 
 ## Use with a coding agent
 
@@ -169,6 +186,34 @@ Ballot type determines what preference information is available. A
 single-choice ballot cannot recover second preferences, and an approval ballot
 does not rank the approved options.
 
+## Configure ballot rules
+
+Use these flags on `election add`, or update an existing election:
+
+```bash
+voting election configure budget_vote --budget 100
+voting election configure committee --seats 3 --approval-limit 2
+voting election configure reviews --grade reject --grade fair --grade good --grade excellent
+```
+
+Grades are ordered from worst to best. `--clear-budget` and
+`--clear-approval-limit` remove optional limits. Voter weights must be finite
+and positive; allocations must be finite and nonnegative. Direct entry,
+imports, and counting share ballot validation. Invalid import rows are
+reported and skipped. To approve nothing, use `ballot approve ... --abstain`
+or import `"approved": []`.
+
+Only the `lexicographic` tie policy is supported. Counts reject incompatible
+ballot types and seat counts. Default `count compare` reports skipped methods
+in `methods_skipped`, including Kemeny–Young above nine eligible options; use
+`--allow-expensive` to opt into its factorial search. Explicit incompatible
+method requests fail before any comparison results are saved.
+
+`status` and `next` track each election separately and identify stale counts
+when ballots, eligibility, or counting settings change. Saved counts include
+ballot IDs, eligible option IDs, package version, and an input fingerprint.
+Older results without a fingerprint should be recounted.
+
 ## Three ways to collect preferences
 
 ### Record ballots directly
@@ -260,11 +305,13 @@ Every registered command (options and defaults live in `voting <command> --help`
 | `voting count run` |  |
 | `voting count show` |  |
 | `voting docs list` | List all available documentation topics. |
+| `voting docs manual` | Build the LaTeX textbook and execute its local worked examples. |
 | `voting docs search` | Search documentation by keyword. |
 | `voting docs show` | Show the full text of a documentation topic. |
 | `voting election add` |  |
 | `voting election add-option` |  |
 | `voting election close` |  |
+| `voting election configure` | Set seats, budget, grade scale, and approval limits. |
 | `voting election list` |  |
 | `voting election open` |  |
 | `voting election remove-option` |  |

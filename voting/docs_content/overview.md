@@ -7,7 +7,7 @@ The `voting` package is a JSON-first CLI for building voting scenarios, recordin
 - Create local voting projects with a `.voting/` hidden directory
 - Register options (candidates, proposals, etc.) and voters
 - Cast ballots in six formats: single choice, ranked, approval, score, grade, allocated
-- Run any of 32 method names and aliases against the same set of ballots
+- Run any of 35 method names and aliases against the same set of ballots
 - Compare how outcomes change across methods — the core value of the tool
 
 ## When to Use It
@@ -55,7 +55,7 @@ no language model; they are answered by people.
 - **JSON default, `--human` opt-in.** All output is machine-readable by default. Pass `--human` or set `VOTING_HUMAN_OUTPUT=true` for readable output.
 - **Append-only ballots.** Ballots are never overwritten; if a voter casts again, the latest ballot supersedes earlier ones for counting. History is preserved.
 - **Phase-aware.** Run `voting status` at any time to see what phase the project is in and what to do next.
-- **Method-agnostic storage.** Ballots are stored once; any method can be applied after the fact.
+- **Method-agnostic storage.** Ballots are stored once; compatible methods can be applied after the fact.
 
 ## Next Steps
 

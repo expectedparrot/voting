@@ -9,6 +9,15 @@ def round_number(value: float) -> float:
     return round(float(value), 6)
 
 
+def runner_up(result: dict) -> str | None:
+    """First unelected option in the final ranking, including multi-seat counts."""
+    winners = set(result.get("winners", []))
+    if not winners:
+        return None
+    return next((row["option_id"] for row in result.get("ranking", [])
+                 if row["option_id"] not in winners), None)
+
+
 def sorted_totals(totals: dict[str, float], reverse: bool = True) -> list[dict]:
     return [
         {"option_id": option_id, "total": round_number(total)}
@@ -29,6 +38,9 @@ def choose_lowest(totals: dict[str, float], tie_policy: str = "lexicographic") -
 
 
 def break_tie(option_ids: Iterable[str], tie_policy: str = "lexicographic") -> str:
+    if tie_policy != "lexicographic":
+        from voting.core.errors import ValidationError
+        raise ValidationError("Only the lexicographic tie policy is supported.")
     items = sorted(option_ids)
     if not items:
         raise ValueError("Cannot break an empty tie.")
@@ -96,11 +108,17 @@ def would_create_cycle(edges: set[tuple[str, str]], new_edge: tuple[str, str]) -
 
 
 def rank_from_edges(options: list[str], edges: set[tuple[str, str]]) -> list[str]:
-    scores = {option_id: 0 for option_id in options}
-    for winner, loser in edges:
-        scores[winner] += 1
-        scores[loser] -= 1
-    return sorted(options, key=lambda option_id: (-scores[option_id], option_id))
+    remaining = set(options)
+    order = []
+    while remaining:
+        incoming = {loser for winner, loser in edges if winner in remaining}
+        sources = remaining - incoming
+        if not sources:
+            raise ValueError("Locked graph contains a cycle.")
+        winner = min(sources)
+        order.append(winner)
+        remaining.remove(winner)
+    return order
 
 
 def kemeny_best(options: list[str], matrix: dict[str, dict[str, float]]) -> tuple[list[str], float]:

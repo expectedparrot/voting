@@ -39,15 +39,40 @@ Common errors, warning codes, and recovery steps.
 
 ## Ballot Warning Codes
 
-Ballot warnings appear in `voting ballot validate` and `voting count run` output. They do not block counting — invalid ballots are skipped.
+Direct entry rejects invalid ballots before saving. Imports report invalid rows
+in `skipped_detail` and preserve the previous ballot. Existing invalid ballots
+are reported by `ballot validate` and excluded by counts. Counts with no valid
+ballots declare no winner.
 
 | Code | Meaning | Fix |
 |------|---------|-----|
-| `unknown_voter` | Ballot voter_id not in voter registry | Add with `voting voter add` or set `allow_unregistered_voters: true` in meta.json |
+| `unknown_voter` | Ballot voter_id not in voter registry | Add with `voting voter add` or re-import with `--register-voters` |
 | `ineligible_voter` | Voter marked as ineligible | `voting voter set-eligible <id> true` |
 | `unknown_option` | Ballot references option not in election | `voting election add-option <election_id> <option_id>` |
 | `duplicate_ranked_option` | Same option appears twice in a ranking | Re-cast the ballot with unique option IDs |
-| `allocation_over_budget` | Allocated votes exceed configured budget | Check election settings.budget and re-cast |
+| `allocation_over_budget` | Allocated votes exceed configured budget | Check `voting election show <id>` and re-cast |
+| `ballot_type_mismatch` | Ballot format differs from the election | Use the matching ballot command or import format |
+| `duplicate_approved_option` | Same option approved more than once | Re-cast with unique options |
+| `invalid_numeric_value` | Score or allocation is not a finite number | Use finite JSON numbers; NaN and infinity are rejected |
+| `invalid_weight` | Weight is nonpositive or non-finite | Use a finite positive voter weight |
+| `negative_allocation` | Negative spending offsets positive spending | Use nonnegative allocations |
+| `unknown_grade` | Grade is not on the configured scale | Set the scale with `election configure --grade` or use a configured label |
+| `approval_over_limit` | Too many options approved | Respect the configured `--approval-limit` |
+
+## Counting Settings
+
+`count run` rejects incompatible methods, including aliases. `count compare`
+skips incompatible methods by default and reports `methods_skipped`. An explicit
+list of incompatible methods fails before saving results. Check ballot type,
+seat count, and approval limits in `voting election show <id>`.
+
+Only `lexicographic` tie-breaking is supported. Seats must be positive and no
+larger than the eligible option count. Kemeny–Young above nine options requires
+`--allow-expensive`; its search grows factorially.
+
+Use `voting election configure <id> --budget 100`, repeated `--grade` labels
+(worst to best), or `--approval-limit 2` to configure ballot rules without
+editing project files. Revalidate and recount after changing these settings.
 
 ## Survey Generation Issues
 

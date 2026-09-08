@@ -8,10 +8,17 @@ The `voting` workflow has six phases inferred from what exists on disk — no me
 |-------|-----------|-------------|
 | `init` | No `.voting/` project | `voting init <name>` |
 | `setup` | Project exists, no options or voters | `voting option add`, `voting voter add` |
-| `elections` | Options+voters ready, no open election | `voting election add` + `voting election open` |
-| `balloting` | Open election exists, no ballots | Direct ballot, synthetic survey, or Humanize survey |
-| `counting` | Ballots recorded, no results | `voting count run <election_id> --method <method>` |
-| `done` | Results exist | `voting count list` / `voting count show` |
+| `elections` | Election needs creation, eligible options, or opening | `voting election add` + `voting election open` |
+| `balloting` | An open election has no valid ballots | Direct ballot, synthetic survey, or Humanize survey |
+| `counting` | An election has ballots (or is closed), with no current count | `voting count run <election_id> --method <method>` |
+| `done` | Every election has at least one current count | `voting count list` / `voting count show` |
+
+Each election has its own phase. Project guidance prioritizes unfinished elections;
+ballots or results from another election do not satisfy its requirements.
+Closing an election preserves its progress. Changes to ballots, eligibility,
+seats, or ballot settings make older counts stale. Status lists current and stale
+result IDs using the most recent count for each method. Results from older
+versions without an input fingerprint are treated as stale and can be recounted.
 
 Check current phase at any time:
 ```bash
@@ -82,7 +89,7 @@ voting ballot import --election <election_id> \
     --from-results .voting/output/survey_<election_id>.results.ep
 ```
 
-The Jobs package bakes in your project's options and voters. Voters with `persona` traits produce richer agent responses.
+The Jobs package includes only eligible options (excluding reference entries) and eligible voters. Voters with `persona` traits produce richer agent responses.
 
 ### Hosted ballots for real people (Humanize path)
 
@@ -101,7 +108,7 @@ the respondent and admin URLs. Retrieve responses later with:
 voting survey responses <election_id>
 ```
 
-For email delivery, every voter must have the selected trait:
+For email delivery, every eligible voter must have the selected trait:
 
 ```bash
 voting voter set-trait <voter_id> email '"person@example.com"'
@@ -121,7 +128,7 @@ voting ballot validate <election_id>
 
 ## Phase: counting
 
-Run any method at any time. Results are saved as records; running again with a different method does not overwrite previous results.
+Run a compatible method at any time. Results are saved as records; running again with a different method does not overwrite previous results.
 
 ```bash
 voting count run <election_id> --method irv

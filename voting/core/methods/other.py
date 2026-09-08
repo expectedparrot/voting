@@ -35,7 +35,7 @@ def bucklin(election: dict, options: list[str], ballots: list[dict], tie_policy:
             winner = contenders[0]
             round_data["elected"] = winner
             rounds.append(round_data)
-            order = sorted(options, key=lambda option_id: (-totals[option_id], option_id))
+            order = [winner] + sorted((oid for oid in options if oid != winner), key=lambda oid: (-totals[oid], oid))
             return {"winners": [winner], "ranking": _ranking(order, [winner], totals, "support"), "scores": sorted_totals(totals), "rounds": rounds}
         rounds.append(round_data)
         previous = totals
@@ -77,24 +77,69 @@ def runoff(election: dict, options: list[str], ballots: list[dict], tie_policy: 
 
 
 def majority_judgment(election: dict, options: list[str], ballots: list[dict], tie_policy: str) -> dict:
-    scale = election.get("settings", {}).get("grade_scale") or ["reject", "poor", "fair", "good", "excellent"]
+    """Lower weighted median, with repeated median removal to resolve grade ties.
+
+    Decimal weights are represented as integer units in grade histograms;
+    neither fractional votes nor large weights require expanding voter lists.
+    Omitted grades are abstentions for that option.
+    """
+    from fractions import Fraction
+    from functools import cmp_to_key
+    from math import lcm
+    from voting.core.validate import GRADE_SCALE
+
+    scale = election.get("settings", {}).get("grade_scale") or GRADE_SCALE
     grade_index = {grade: idx for idx, grade in enumerate(scale)}
-    distributions = {option_id: [] for option_id in options}
-    for ballot in ballots:
-        weight = int(float(ballot.get("weight", 1.0)))
-        for option_id, grade in (ballot.get("grades") or {}).items():
-            if option_id in distributions and grade in grade_index:
-                distributions[option_id].extend([grade_index[grade]] * weight)
-    medians = {}
-    for option_id, values in distributions.items():
-        values = sorted(values)
-        medians[option_id] = values[len(values) // 2] if values else -1
-    order = sorted(options, key=lambda option_id: (-medians[option_id], option_id))
-    winner = order[0]
+    weights = [Fraction(str(b.get("weight", 1.0))) for b in ballots]
+    unit = lcm(*(w.denominator for w in weights)) if weights else 1
+    distributions = {oid: [0] * len(scale) for oid in options}
+    for ballot, weight in zip(ballots, weights):
+        count = int(weight * unit)
+        for oid, grade in (ballot.get("grades") or {}).items():
+            if oid in distributions and grade in grade_index:
+                distributions[oid][grade_index[grade]] += count
+
+    def median(counts):
+        total = sum(counts)
+        if not total:
+            return -1
+        cumulative = 0
+        for grade, count in enumerate(counts):
+            cumulative += count
+            if 2 * cumulative >= total:
+                return grade
+        return -1
+
+    def until_change(counts, grade):
+        below = sum(counts[:grade])
+        above = sum(counts[grade + 1:])
+        middle = counts[grade]
+        return min(middle, middle + above - below, middle + below - above + 1)
+
+    def compare(a, b):
+        left, right = list(distributions[a]), list(distributions[b])
+        while True:
+            lm, rm = median(left), median(right)
+            if lm != rm:
+                return -1 if lm > rm else 1
+            if lm < 0 or left == right:
+                return (a > b) - (a < b)
+            # Skip identical median-removal steps until one median changes.
+            remove = min(until_change(left, lm), until_change(right, rm))
+            left[lm] -= remove
+            right[rm] -= remove
+
+    medians = {oid: median(counts) for oid, counts in distributions.items()}
+    order = sorted(options, key=cmp_to_key(compare))
+    winner = order[0] if order else None
     return {
-        "winners": [winner],
-        "ranking": [{"option_id": option_id, "rank": idx + 1, "status": "elected" if idx == 0 else "defeated", "median": scale[medians[option_id]] if medians[option_id] >= 0 else None} for idx, option_id in enumerate(order)],
-        "scores": [{"option_id": option_id, "median": scale[medians[option_id]] if medians[option_id] >= 0 else None} for option_id in order],
+        "winners": [winner] if winner else [],
+        "ranking": [{"option_id": oid, "rank": idx + 1,
+                     "status": "elected" if oid == winner else "defeated",
+                     "median": scale[medians[oid]] if medians[oid] >= 0 else None}
+                    for idx, oid in enumerate(order)],
+        "scores": [{"option_id": oid, "median": scale[medians[oid]] if medians[oid] >= 0 else None}
+                   for oid in order],
         "rounds": [],
     }
 

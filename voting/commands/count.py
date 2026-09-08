@@ -5,11 +5,12 @@ from typing import Optional
 
 from voting.commands.common import ctx_project, output
 from voting.core.ballots import latest_ballots
-from voting.core.errors import UserError
+from voting.core.errors import UserError, ValidationError
 from voting.core.ids import local_iso_now
 from voting.core.methods.approval import approval, block_voting, limited_voting
 from voting.core.methods.borda import borda
 from voting.core.methods.budget import equal_shares, quadratic
+from voting.core.methods.common import runner_up
 from voting.core.methods.condorcet import copeland, kemeny_young, minimax, ranked_pairs, schulze
 from voting.core.methods.irv import irv
 from voting.core.methods.other import bucklin, cumulative, majority_judgment, runoff
@@ -18,7 +19,8 @@ from voting.core.methods.simple import fptp, simple_majority, sntv
 from voting.core.methods.stv import stv
 from voting.core.project import Project
 from voting.core.store import append_record, list_records, read_entity, read_json
-from voting.core.validate import eligible_options
+from voting.core.validate import ballot_issue, eligible_options, validate_settings
+from voting.core.provenance import input_fingerprint, package_version
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 
@@ -74,24 +76,68 @@ COMPATIBLE_METHODS = {
 }
 
 
-def _count_once(project: Project, election_id: str, prepared: dict, method: str,
-                seats: Optional[int], tie_policy: Optional[str]) -> dict:
-    """Count prepared ballots under one method and save the result record."""
-    election = dict(prepared["election"])
+# A method's aliases inherit the same compatibility and resource checks.
+MULTI_WINNER = {stv, approval, block_voting, limited_voting, sntv, cumulative, quadratic, equal_shares}
+KEMENY_LIMIT = 9
+
+
+def _count_election(prepared: dict, seats: int | None, tie_policy: str | None) -> dict:
+    election = {**prepared["election"], "settings": dict(prepared["election"].get("settings") or {})}
     if seats is not None:
         election["seats"] = seats
-    selected_tie_policy = tie_policy or election.get("settings", {}).get("tie_policy", "lexicographic")
+    if tie_policy is not None:
+        election["settings"]["tie_policy"] = tie_policy
+    validate_settings(election)
+    if election.get("seats", 1) > len(prepared["options"]):
+        raise ValidationError("Seats cannot exceed the number of eligible options.")
+    return election
+
+
+def _check_method(election: dict, prepared: dict, method: str, allow_expensive: bool) -> None:
     counter = METHODS[method]
-    method_result = counter(election, prepared["options"], prepared["ballots"], selected_tie_policy)
+    compatible = {METHODS[m] for m in COMPATIBLE_METHODS[election["ballot_type"]]}
+    if counter not in compatible:
+        raise ValidationError(f"Method {method} is incompatible with {election['ballot_type']} ballots.")
+    seats = election.get("seats", 1)
+    if seats != 1 and counter not in MULTI_WINNER:
+        raise ValidationError(f"Method {method} supports exactly one seat.")
+    if counter is kemeny_young and len(prepared["options"]) > KEMENY_LIMIT and not allow_expensive:
+        raise ValidationError("Kemeny enumeration is limited to 9 options; use --allow-expensive to opt in.")
+    limit = election["settings"].get("approval_limit")
+    if counter is block_voting:
+        limit = min(limit, seats) if limit is not None else seats
+    if counter is limited_voting:
+        limit = limit if limit is not None else seats - 1
+        if not 1 <= limit < seats:
+            raise ValidationError("Limited voting requires an approval limit below the number of seats (at least two seats).")
+    if counter in {block_voting, limited_voting}:
+        if any(len(b.get("approved", [])) > limit for b in prepared["ballots"]):
+            raise ValidationError(f"Some ballots exceed {method}'s approval limit of {limit}.")
+
+
+def _count_once(project: Project, election_id: str, prepared: dict, method: str,
+                seats: Optional[int], tie_policy: Optional[str], allow_expensive: bool = False) -> dict:
+    """Count prepared ballots under one method and save the result record."""
+    election = _count_election(prepared, seats, tie_policy)
+    _check_method(election, prepared, method, allow_expensive)
+    selected_tie_policy = election["settings"].get("tie_policy", "lexicographic")
+    counter = METHODS[method]
+    if prepared["ballots"]:
+        method_result = counter(election, prepared["options"], prepared["ballots"], selected_tie_policy)
+    else:
+        method_result = {"winners": [], "ranking": [], "scores": [], "rounds": [],
+                         "warnings": [{"code": "no_valid_ballots", "message": "No countable ballots; no winner declared."}]}
     method_warnings = method_result.pop("warnings", [])
     result = {
         "election_id": election_id,
         "method": method,
+        "provenance": {"package_version": package_version(), "input_fingerprint": prepared["fingerprint"],
+                       "ballot_ids": [b["id"] for b in prepared["ballots"]], "option_ids": prepared["options"]},
         "created_at": local_iso_now(),
         "settings": {
             "seats": election.get("seats", 1),
-            "tie_policy": selected_tie_policy,
             **(election.get("settings") or {}),
+            "tie_policy": selected_tie_policy,
         },
         "winners": method_result.get("winners", []),
         "ranking": method_result.get("ranking", []),
@@ -116,10 +162,11 @@ def run(
     method: str = typer.Option(..., "--method", help="Counting method to apply (a count is a lens on the ballots; elections do not fix one)."),
     seats: Optional[int] = typer.Option(None, "--seats"),
     tie_policy: Optional[str] = typer.Option(None, "--tie-policy"),
+    allow_expensive: bool = typer.Option(False, "--allow-expensive", help="Allow factorial Kemeny enumeration above 9 options."),
 ) -> None:
     project = ctx_project(ctx)
     prepared = prepare_count(project, election_id, method)
-    result = _count_once(project, election_id, prepared, prepared["method"], seats, tie_policy)
+    result = _count_once(project, election_id, prepared, prepared["method"], seats, tie_policy, allow_expensive)
     rid = result["id"]
     def _run_table():
         from voting.render import count_result_table
@@ -130,6 +177,7 @@ def run(
         ctx,
         "count run",
         result,
+        warnings=result["warnings"],
         next_steps=[f"voting count show {rid}", "voting count list"],
         human_renderable=_run_table,
     )
@@ -142,6 +190,7 @@ def compare(
     method: Optional[list[str]] = typer.Option(None, "--method", help="Restrict to these methods (repeatable). Default: every method compatible with the election's ballot type."),
     seats: Optional[int] = typer.Option(None, "--seats"),
     tie_policy: Optional[str] = typer.Option(None, "--tie-policy"),
+    allow_expensive: bool = typer.Option(False, "--allow-expensive", help="Allow factorial Kemeny enumeration above 9 options."),
 ) -> None:
     """Count the same ballots under every compatible method in one command."""
     project = ctx_project(ctx)
@@ -165,12 +214,27 @@ def compare(
                 hint="Name methods explicitly with --method <name> (repeatable).",
             )
 
-    results = [_count_once(project, election_id, prepared, m, seats, tie_policy) for m in selected]
+    election = _count_election(prepared, seats, tie_policy)
+    skipped = []
+    checked = []
+    for m in selected:
+        try:
+            _check_method(election, prepared, m, allow_expensive)
+        except ValidationError as exc:
+            if method:
+                raise
+            skipped.append({"method": m, "reason": str(exc)})
+        else:
+            checked.append(m)
+    selected = checked
+    if not selected:
+        raise UserError("No compatible methods for these settings and ballots.", {"skipped": skipped})
+    results = [_count_once(project, election_id, prepared, m, seats, tie_policy, allow_expensive) for m in selected]
     rows = [{
         "method": r["method"],
         "result_id": r["id"],
         "winners": r["winners"],
-        "runner_up": next((x["option_id"] for x in r.get("ranking", []) if x.get("rank") == 2), None),
+        "runner_up": runner_up(r),
     } for r in results]
     decided = [tuple(sorted(r["winners"])) for r in results if r["winners"]]
     no_winner = [r["method"] for r in results if not r["winners"]]
@@ -188,6 +252,7 @@ def compare(
             "election_id": election_id,
             "ballot_type": ballot_type,
             "methods_run": selected,
+            "methods_skipped": skipped,
             "results": rows,
             "no_winner": no_winner,
             "unanimous_winners": unanimous,
@@ -196,7 +261,7 @@ def compare(
                 "invalid_ballots": len(prepared["warnings"]),
             },
         },
-        warnings=prepared["warnings"],
+        warnings=prepared["warnings"] + [{"code": "method_skipped", **item} for item in skipped],
         next_steps=[
             f"voting plot methods --election {election_id}",
             f"voting count show {rows[0]['result_id']}" if rows else "voting count list",
@@ -242,6 +307,7 @@ def prepare_count(project: Project, election_id: str, method: str | None) -> dic
     counting always names its method explicitly — elections do not carry one.
     """
     election = read_entity(project, "elections", election_id)
+    validate_settings(election)
     selected_method = method
     if selected_method is not None and selected_method not in METHODS:
         raise UserError(
@@ -268,7 +334,7 @@ def prepare_count(project: Project, election_id: str, method: str | None) -> dic
             warnings.append(warning)
         else:
             ballots.append(ballot)
-    return {"election": election, "method": selected_method, "options": options, "ballots": ballots, "warnings": warnings}
+    return {"election": election, "method": selected_method, "options": options, "ballots": ballots, "warnings": warnings, "fingerprint": input_fingerprint(project, election)}
 
 
 def _safe_list_voters(project: Project) -> list[dict]:
@@ -283,29 +349,4 @@ def _ballot_warning(ballot: dict, options: list[str], voters: dict[str, dict], e
         return {"code": "unknown_voter", "ballot_id": ballot.get("id"), "voter_id": voter_id}
     if not voter.get("eligible", True):
         return {"code": "ineligible_voter", "ballot_id": ballot.get("id"), "voter_id": voter_id}
-    option_set = set(options)
-    ballot_type = ballot.get("ballot_type")
-    values: list[str] = []
-    if ballot_type == "single_choice":
-        values = [ballot.get("choice")]
-    elif ballot_type == "ranked":
-        values = list(ballot.get("ranking") or [])
-        if len(values) != len(set(values)):
-            return {"code": "duplicate_ranked_option", "ballot_id": ballot.get("id")}
-    elif ballot_type == "approval":
-        values = list(ballot.get("approved") or [])
-    elif ballot_type == "score":
-        values = list((ballot.get("scores") or {}).keys())
-    elif ballot_type == "grade":
-        values = list((ballot.get("grades") or {}).keys())
-    elif ballot_type == "allocated":
-        values = list((ballot.get("allocations") or {}).keys())
-    unknown = [v for v in values if v not in option_set]
-    if unknown:
-        return {"code": "unknown_option", "ballot_id": ballot.get("id"), "options": unknown}
-    if ballot_type == "allocated":
-        budget = election.get("settings", {}).get("budget")
-        total = sum(float(v) for v in (ballot.get("allocations") or {}).values())
-        if budget is not None and total > float(budget):
-            return {"code": "allocation_over_budget", "ballot_id": ballot.get("id"), "total": total, "budget": budget}
-    return None
+    return ballot_issue(ballot, options, election)

@@ -47,7 +47,12 @@ def add_election(project: Path, election_id: str, method: str, ballot_type: str,
 
 
 def count(project: Path, election_id: str, method: str) -> dict:
-    return invoke(["count", "run", election_id, "--method", method], project)
+    result = invoke(["count", "run", election_id, "--method", method], project)
+    ranking = result["ranking"]
+    assert [row["rank"] for row in ranking] == list(range(1, len(ranking) + 1))
+    assert [row["option_id"] for row in ranking[:len(result["winners"])]] == result["winners"]
+    assert {row["option_id"] for row in ranking if row["status"] == "elected"} == set(result["winners"])
+    return result
 
 
 def test_ranked_neighborhood_methods(tmp_path: Path) -> None:

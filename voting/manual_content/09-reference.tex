@@ -1,0 +1,72 @@
+\chapter{A working reference and a research agenda}
+\label{chap:reference}
+\section{Match methods to available information}
+\begin{longtable}{p{.19\linewidth}p{.40\linewidth}p{.30\linewidth}}
+\toprule Ballot & Core compatible methods & What cannot be recovered\\\midrule\endhead
+Single choice & FPTP, simple majority, SNTV, runoff, approval & Lower preferences for an eliminated choice\\
+Ranked & FPTP, simple majority, Borda, IRV, STV, Bucklin, runoff, Copeland, minimax, ranked pairs, Schulze, Kemeny--Young & Cardinal distances or an approval threshold\\
+Approval & Approval, block, limited & Ordering or intensity among approved options\\
+Score & Score, STAR & A unique categorical grade scale or credit budget\\
+Grade & Majority judgment & Cardinal distances between labels\\
+Allocated & Cumulative, quadratic, equal shares & Actual project costs or a model of strategic behavior\\
+\bottomrule
+\end{longtable}
+Compatibility is necessary but not sufficient. A method can also reject a seat count or approval limit. Default \code{count compare} reports methods it skips; an explicit incompatible method list fails before saving any comparison results. Read the reason instead of silently changing the instrument until every name runs.
+
+\section{Aliases do not add independent evidence}
+The following table is generated from the package's registry. It groups accepted names by the same underlying algorithm function. There are \MethodNameCount{} registered names in this edition, covering \AlgorithmCount{} functions.
+\generated{aliases}
+STV with one seat delegates to IRV, and approval-family methods share a tally while imposing different legal ballot limits. Even distinct function names need not produce independent answers. A claim that ten methods agree should identify which rules were actually compared.
+
+\section{Computational scale}
+Let $n$ be the number of countable ballot rows and $m$ the number of eligible options. These bounds describe the current direct implementations, not the best possible algorithm for every rule:
+\begin{longtable}{p{.28\linewidth}p{.24\linewidth}p{.38\linewidth}}
+\toprule Calculation & Typical upper-bound work & Main source of cost\\\midrule\endhead
+Plurality & $O(n+m\log m)$ & Scan choices and sort totals\\
+Approval, score, Borda & $O(nm+m\log m)$ & Read supplied option values\\
+Pairwise matrix & $O(nm^2)$ & Compare every ordered pair on each ballot\\
+IRV & $O(nm^2)$ & Repeated active-choice scans\\
+STV & $O(nm^2)$ plus sorting & Transfers and eliminations across rounds\\
+Bucklin & $O(nm^2)$ & Recount prefixes at increasing depth\\
+Ranked pairs & Up to $O(m^4)$ after pairwise counts & Graph search for each candidate edge\\
+Schulze & $O(nm^2+m^3)$ & Pairwise counts and max--min closure\\
+Kemeny--Young & $O(nm^2+m!m^2)$ & Enumerate and score permutations\\
+Equal shares & About $O(kmn\log n)$ & Sort supporters for candidate prices each round\\
+\bottomrule
+\end{longtable}
+For most small teaching elections, reading project files and starting CLI processes dominate. For Kemeny, the factorial quickly dominates everything else. Weighted rows can reduce file counts, but the interpretation of grouping must still be appropriate to the method.
+
+Majority judgment uses weighted grade histograms and skips blocks of repeated median removal. Its work depends on grade transitions and integer arithmetic, rather than allocating one list element per unit of voting weight.
+
+\section{Questions to ask of an algorithm}
+\emph{Majority consistency.} Does an option ranked first by a strict majority necessarily win? Work through the package's rule rather than transferring the property from a similar name.
+
+\emph{Condorcet consistency.} Does the rule choose a candidate that beats every other candidate when one exists? The main example makes clear that IRV and the pairwise methods answer differently even with complete ballots.
+
+\emph{Monotonicity.} Could raising an option on a ballot make its outcome worse? An elimination path can change discontinuously. A fixed profile illustrates an outcome; proving a property requires considering all permitted profiles.
+
+\emph{Representation.} Does the committee give substantial groups a voice, or does it concentrate on the largest aggregate totals? Specify the axiom and the ballot domain before treating either as mathematically equivalent to fairness.
+
+\emph{Neutrality and ties.} Does renaming an option change the outcome? Lexicographic resolution deliberately uses IDs in tied situations. Save and disclose the tie convention.
+
+\emph{Strategy.} What can a participant gain by changing their message? A direct count is not a behavioral or equilibrium model. Strategic simulations need a specified information structure, utility function, and feasible deviations.
+
+\section{Selected answers and calculations}
+\textbf{Chapter 1.} Library leads first choices, but 42 is below the majority threshold of 50. Trees beats Shelters by $42+17=59$ to $26+15=41$, and beats Library by $26+17+15=58$ to 42.
+
+\textbf{Chapter 3.} Borda totals are Library 126, Shelters 184, Trees 176, and Playground 114, summing to 600. If Families list only Playground, its elimination exhausts 15 and leaves 85 continuing weight. Trees is then eliminated, transferring 17 to Shelters. Shelters has 43 against Library's 42 and wins with a majority of 85, while having less than half the original 100.
+
+\textbf{Chapter 4.} Trees has Copeland score 3 and minimax score 0. In the symmetric cycle, the package considers Library over Shelters before Shelters over Trees, then skips Trees over Library because it would close the cycle. The strongest path in each direction between Library and Trees has strength 2.
+
+\textbf{Chapter 5.} Library's residual transfer is $42(8/42)=8$, retaining 34. In a two-seat result, the runner-up is the first candidate outside the two-person winner set.
+
+\textbf{Chapter 6.} If only one person scores Library 10 while two score Shelters 6, Library has the greater reported average but Shelters the greater sum. The fractional-weight grade example elects Trees; both grades retain positive weight.
+
+\textbf{Chapter 7.} Shelters' initial equal-shares price in the three-person credit panel is $1/113$. The two payments are $64/113$ and $49/113$, both below $2/3$. The supporters retain $2/3-64/113$ and $2/3-49/113$, whose sum is $1/3$. That cannot fund another unit-cost candidate by itself.
+
+\textbf{Chapter 8.} A valid empty approval ballot is a submitted abstention and supersedes an earlier ballot. A missing response should not erase a prior recorded answer merely because a field was absent.
+
+\section{Extend the example}
+Start a fresh manual build before changing a profile. Useful follow-ups include perturbing one unit-weight ballot, truncating rankings systematically, changing an approval limit, scaling all score responses together, changing only one person's score scale, and comparing representative committees under different cardinal utility assumptions.
+
+For each experiment, write the hypothesis first, preserve the baseline, and report the change in both inputs and outputs. If studying uncertainty, introduce an explicit sampling or behavioral model. Recounting a fixed ballot file with several deterministic rules is a sensitivity analysis over rules, not a confidence interval for public support.

@@ -31,7 +31,7 @@ DOCS: dict[str, dict] = {
     },
     "voting-methods": {
         "title": "Voting Methods",
-        "summary": "All 32 supported method names and aliases grouped by category, with selection guidance.",
+        "summary": "Supported method names and aliases grouped by category, with selection guidance.",
         "file": "voting-methods.md",
     },
     "data-model": {
@@ -48,6 +48,11 @@ DOCS: dict[str, dict] = {
         "title": "Recipes",
         "summary": "Worked organizational patterns — prioritization, hiring panels, preference surveys, AI pretesting, budget allocation.",
         "file": "recipes.md",
+    },
+    "manual": {
+        "title": "Textbook and Extended Example",
+        "summary": "Build the LaTeX manual, execute its fictional town elections, and export a PDF.",
+        "file": "manual.md",
     },
 }
 

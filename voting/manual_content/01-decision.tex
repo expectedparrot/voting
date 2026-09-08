@@ -1,0 +1,49 @@
+\chapter{A town has to choose}
+\label{chap:decision}
+\section{What is the decision?}
+Imagine Alderbrook, a fictional town choosing among four neighborhood proposals: extending Library evening hours, adding bus Shelters, planting street Trees, and improving a Playground. First the town selects one proposal for further development; later it chooses two or three together.
+
+The alternatives are feasible proposals with comparable planning commitments. Selection establishes a priority; it does not authorize construction. A fixed number of winners also differs from a municipal spending limit, especially when project costs vary. Chapter~\ref{chap:credits} returns to that distinction.
+
+A voting rule is a function from recorded messages to an outcome. Before choosing the function, decide who participates, what an option means, what information voters provide, how abstention works, and what a winner authorizes. The most sophisticated aggregation algorithm cannot repair an ambiguous question.
+
+\section{The teaching profile}
+We will encode 100 units of voting weight in four groups. Every member of a group has the ranking printed below. The numbers are selected to create an instructive disagreement among methods; they are not observations or estimates.
+\begin{center}
+\begin{tabular}{lrl}
+\toprule Group ID & Weight & Most preferred to least preferred\\\midrule
+\code{readers} & 42 & Library $>$ Trees $>$ Shelters $>$ Playground\\
+\code{riders} & 26 & Shelters $>$ Playground $>$ Trees $>$ Library\\
+\code{canopy} & 17 & Trees $>$ Shelters $>$ Playground $>$ Library\\
+\code{families} & 15 & Playground $>$ Shelters $>$ Trees $>$ Library\\
+\bottomrule
+\end{tabular}
+\end{center}
+Library has the largest first-choice group. Shelters is a compromise for the two smaller groups. Trees appears above Shelters for the largest group and for its own supporters. These are three different sources of support; the algorithms will give them different roles.
+
+For additive ranked, approval, and score calculations, a row with weight 42 has the same contribution as 42 identical rows of weight one. Grouping saves typing. It does not mean a poll with four actual respondents can be made representative by inventing large weights. When using weights for a real research sample, specify what population or normative role the weights represent.
+
+\section{Notation}
+Let $C$ be the set of eligible options, with $m=|C|$. Let $i=1,\ldots,n$ index the latest countable ballot for each participating voter. Ballot $i$ has finite positive weight $w_i$, and total valid weight is
+\[
+W=\sum_{i=1}^n w_i.
+\]
+The number of stored rows $n$ and the total weight $W$ are different quantities. Initially $n=4$ and $W=100$. Invalid ballots contribute to neither. An older ballot is superseded when the same voter casts a later ballot in the same election.
+
+For a ranked ballot, $r_i(c)$ is the position of candidate $c$, with position 1 best. Write $a\succ_i b$ when $i$ prefers $a$ to $b$. For approval, $A_i\subseteq C$ is the approved set. For score, $s_i(c)$ is a numeric rating. For grades, $g_i(c)$ is an ordered label. For allocated ballots, $x_i(c)\geq0$ is the number of credits spent on $c$. The symbol $\ind\{P\}$ is 1 if proposition $P$ is true and 0 otherwise.
+
+The number of seats is $k$. It is a count of selected options, not an amount of money. A single-winner rule has $k=1$. Calling an election a budget does not alter the mathematical meaning of seats.
+
+\section{Information comes before aggregation}
+A rank says which option is preferred, not how much. Approval records a threshold judgment, not an ordering among approved options. Scores require a common scale. Grades require labels with an agreed ordering. Allocations require a budget and an interpretation of the points.
+
+There is no unique conversion from a ranking into a score vector or an approval set. The same ranking could be produced by almost equal evaluations or by a very intense first preference. Later chapters explicitly supply new invented responses for these instruments. They do not recover those responses from the ranked profile.
+
+The \emph{Handbook of Computational Social Choice} introduces the broader study of preference aggregation.\cite{handbook} Here we develop the rules this package implements.
+
+\section{Exercises}
+\begin{enumerate}
+\item Without running a command, identify the plurality leader. Why is having the largest group different from having a majority?
+\item Count the weight preferring Trees to Shelters. Repeat for Trees against Library. What does this suggest about a rule based on head-to-head contests?
+\item Write two score vectors with the Readers ranking but very different gaps between first and second place. Explain why the ranking alone cannot choose between them.
+\end{enumerate}

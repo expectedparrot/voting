@@ -1,0 +1,129 @@
+\chapter{Collect, validate, revise, and explain}
+\label{chap:practice}
+\section{Make the instrument match the question}
+Before collecting real preferences, specify the decision, eligible options, eligible voters, ballot type, seats, tie convention, and meaning of missing answers. For allocated ballots, specify the credit budget. For grades, specify labels from worst to best. For limited voting, set the approval limit before collection.
+
+Configuration is inspectable and editable through the CLI:
+\begin{lstlisting}
+voting election show credits
+voting election configure credits --budget 100 --seats 2
+voting election configure limited --approval-limit 2
+voting election configure grades --grade reject --grade poor --grade fair --grade good --grade excellent
+\end{lstlisting}
+Changing a constraint after collection can make earlier ballots invalid. Revalidate and explain which ballots the new rule excludes. Do not treat a count made under a changed scale as the same measurement instrument.
+
+\section{Importing existing responses}
+For a JSON import, the outer object can identify the election and ballot type, and each row supplies a voter ID and the answer field corresponding to that type:
+\begin{lstlisting}[language={}]
+{
+  "election_id": "credits",
+  "ballot_type": "allocated",
+  "rows": [
+    {"voter_id": "credit_1",
+     "answer": {"allocations": {"library": 70, "trees": 30}}}
+  ]
+}
+\end{lstlisting}
+Save a file like this as \code{responses.json}, then use:
+\begin{lstlisting}
+voting ballot import --election credits --from responses.json
+voting ballot validate credits
+\end{lstlisting}
+The JSON importer supports all six ballot types. The answer keys are \code{choice}, \code{ranking}, \code{approved}, \code{scores}, \code{grades}, and \code{allocations}. Numeric values must be JSON numbers. An explicit \code{"approved": []} records an approval abstention; a missing approval answer is not silently converted into one.
+
+Imports report invalid rows under \code{skipped_detail}. A rejected row does not replace the voter's previous valid ballot. Unknown voters can be recorded with a warning but cannot count until registered; \code{--register-voters} registers valid unknown respondents at weight one. Inspect who was added instead of assuming an imported respondent identifier is an eligibility decision.
+
+\section{Errors as executable examples}
+These four orange listings intentionally fail. The builder checks that each returns an error envelope and records that failure in the command transcript.
+\begin{lstlisting}[style=votingerror]
+voting ballot allocate credits credit_1 library=101
+voting ballot allocate credits credit_1 library=100 trees=-1
+voting ballot grade grades readers library=A
+voting count run ranked --method score
+\end{lstlisting}
+\generated{validation}
+The first violates the 100-credit budget. The second uses a negative allocation. The third uses a grade outside the stored scale. The fourth asks a score counter to analyze ranked ballots, which contain no scores.
+
+The first person's existing credit ballot still spends 100 on Library. A command's failure is not permission to mutate a different record or guess what the voter intended.
+\begin{lstlisting}[style=votingrun]
+voting ballot validate credits
+voting ballot list --election credits --latest
+\end{lstlisting}
+When counting previously stored data, invalid ballots are excluded with warnings. With no valid ballots the package declares no winner. A successfully executed count can still contain data-quality warnings; success means the command completed.
+
+\section{Ballot revisions and stale results}
+Create a small separate ranked election using the three credit panelists. This exercise changes one person's answer rather than changing an entire weighted group.
+\begin{lstlisting}[style=votingrun]
+voting election add revision "A preference changes" --ballot-type ranked
+voting election add-option revision library
+voting election add-option revision shelters
+voting election add-option revision trees
+voting election open revision
+voting ballot rank revision credit_1 library shelters trees
+voting ballot rank revision credit_2 library shelters trees
+voting ballot rank revision credit_3 shelters trees library
+voting count run revision --method irv
+voting status
+voting ballot rank revision credit_2 shelters trees library
+voting status
+voting count run revision --method irv
+voting election close revision
+voting status
+\end{lstlisting}
+Initially Library has two of three first preferences. After the second person's revision, Shelters has two. The second ballot supersedes the older ballot for that voter only in \code{revision}; their allocated ballot in \code{credits} is unaffected.
+\generated{revision-history}
+The first saved count remains on disk. After the recast it is stale, because its input fingerprint no longer matches the current ballot set. Recounting creates a current result. Closing the election does not erase the count or send the project back to setup.
+
+\code{status} reports each election independently. \code{next} prioritizes unfinished work and names the appropriate ballot command. Results from an unrelated election do not complete a new one. Results from older package versions without an input fingerprint should be recounted rather than presumed current.
+
+\section{Reading plots responsibly}
+The package can export SVG figures:
+\begin{lstlisting}
+voting plot ranks ranked
+voting plot methods --election ranked
+voting plot scores <borda_result_id>
+voting plot pairwise <schulze_result_id>
+\end{lstlisting}
+Replace angle-bracket placeholders with actual saved result IDs. A ranks plot summarizes validated latest ballots. A pairwise plot shows row-over-column margins. A score plot needs a method exposing numeric totals; it is not the same display as an ordinal grade median.
+
+Always restrict a method comparison to a clearly identified election. Saved counts can reflect different collection dates, seat overrides, or eligibility settings. A color grid alone cannot establish that the input snapshots match. For multi-seat counts, a finishing position of two may still be elected; read the winner sets, not just the darkest cell.
+
+\section{Optional human and AI fielding}
+The base package's local examples need no EDSL installation. To construct synthetic or hosted surveys, install the documented \code{humanize} extra. Those integrations support ranked, single-choice, approval, and score ballots. Grade and allocated exercises in this edition use direct entry or JSON import.
+
+Synthetic fielding builds a Jobs package with the survey, eligible voter agents, and a model. The voting package does not execute the model:
+\begin{lstlisting}
+voting survey generate ranked --model gpt-5.5 --service openai
+voting --human survey show ranked
+ep run --jobs .voting/output/survey_ranked.jobs.ep --output .voting/output/survey_ranked.results.ep
+voting ballot import --election ranked --from-results .voting/output/survey_ranked.results.ep
+\end{lstlisting}
+Inspect the questions, personas, model, and expected call count before external execution. Model-generated preferences are a distinct data source from human responses. Do not describe synthetic agents as a sample of residents, or take agreement between several models as measured public opinion.
+
+For a hosted human survey:
+\begin{lstlisting}
+voting survey humanize ranked
+voting survey publish ranked
+voting survey responses ranked
+voting ballot import --election ranked --from-results .voting/output/humanize_responses_ranked.ep --register-voters
+\end{lstlisting}
+Publishing creates a hosted survey. Without email delivery, share its respondent URL. With registered eligible voters and an email trait, the package can prepare and send unique invitation links:
+\begin{lstlisting}
+voting survey humanize ranked --email-trait email
+voting survey publish ranked
+voting survey email ranked --name "Neighborhood priorities"
+\end{lstlisting}
+These are alternative fielding instructions, not steps executed by the manual. They require appropriate voter information and service authentication. Survey generation excludes ineligible options, reference entries, and ineligible voters; publishing a previously generated job does not retroactively rebuild it when eligibility changes.
+
+\clearpage
+\section{A report that makes the decision understandable}
+Report the question and who answered it, then the instrument and how invalid or missing responses were treated. Name the counting rule, seats, quota or score convention, and tie handling. Present the winner alongside enough diagnostics to explain it: an elimination path, pairwise matrix, score/runoff decomposition, or payment rounds.
+
+Compare methods on the same instrument when possible, and state explicitly when a comparison uses newly elicited scores or approvals. Describe the extent of disagreement without counting method names as independent evidence. Aliases, such as \code{qv} and \code{quadratic}, are the same algorithm.
+
+\section{Exercises}
+\begin{enumerate}
+\item Inspect the before-and-after revision count records. Which ballot IDs differ?
+\item Why is a zero-approval ballot different from a missing response, even if neither adds approval points?
+\item Draft a four-sentence report of the town's ranked election. Include plurality, IRV, the Condorcet winner, and one limitation of the fictional data.
+\end{enumerate}

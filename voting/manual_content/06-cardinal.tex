@@ -1,0 +1,107 @@
+\chapter{Scores, runoffs, and grades}
+\label{chap:cardinal}
+\section{What a score means}
+A score ballot records numeric evaluations. Summing them requires treating the stated units as comparable across voters. Choosing 0--10 rather than 0--5 is not the main issue: uniformly rescaling everyone preserves a sum ordering, while changing one person's use of the scale changes their relative influence.
+
+The CLI requires finite numeric scores but imposes no default minimum or maximum. Hosted score surveys currently ask for integers from 0 to 10. Our example follows that scale deliberately; it is not a promise that arbitrary imported scores will be range-checked.
+
+\section{Score voting}
+The score counter chooses the largest weighted total,
+\[
+S(c)=\sum_{i:\,c\text{ scored}}w_i s_i(c).
+\]
+Missing scores contribute zero to this total. The displayed average is
+\[
+\bar s(c)=\frac{S(c)}{\sum_{i:\,c\text{ scored}}w_i},
+\]
+when that denominator is positive. This average is descriptive: it is not the selection criterion. With different patterns of missing scores, the average ordering can differ from the total ordering.
+\begin{lstlisting}[style=votingrun]
+voting election add scores "Support on a zero-to-ten scale" --ballot-type score
+voting election add-option scores library
+voting election add-option scores shelters
+voting election add-option scores trees
+voting election add-option scores playground
+voting election open scores
+voting ballot score scores readers library=10 shelters=2 trees=7 playground=0
+voting ballot score scores riders library=0 shelters=10 trees=5 playground=6
+voting ballot score scores canopy library=0 shelters=8 trees=10 playground=3
+voting ballot score scores families library=0 shelters=7 trees=5 playground=10
+voting count compare scores
+\end{lstlisting}
+\generated{score-totals}
+These evaluations happen to preserve each group's original strict ranking. Their distances are additional assumptions. Trees' high score total reflects the Readers' substantial second-choice support as well as its own group's enthusiasm.
+
+Before studying strategic score submission, distinguish a behavioral question from an arithmetic fact. Maximizing one's influence under a sum can favor extreme reports in some settings. A table of sincere-looking fictional scores is not evidence that people will submit them under strategic incentives.
+
+\section{STAR: score, then automatic runoff}
+STAR first chooses the two candidates with the largest score totals. For finalists $a,b$, define
+\[
+R(a,b)=\sum_i w_i\ind\{s_i(a)>s_i(b)\}.
+\]
+Each voter contributes its full weight to whichever finalist it scores higher. Equal scores contribute to neither direction and are recorded as no preference. Missing finalist scores are treated as zero by this implementation.
+
+The greater runoff total determines the winner. Thus one point of score difference and ten points both express one directional preference in the second stage. The score gap matters for reaching the final, but not for the weight of the final preference.
+\generated{star-runoff}
+The package implements the two-stage idea with lexicographic tie handling and unrestricted direct-entry scores. Published STAR specifications use a prescribed scale and richer tie procedures; do not claim exact conformance to those specifications from the shared method name alone.\cite{star}
+
+\section{A score winner can lose the runoff}
+To see the distinction, use a separate five-person panel considering Library, Shelters, and Trees. Unit weights make every arithmetic step visible. These people and scores are additional invented examples, not a disaggregation of the original four groups.
+\begin{lstlisting}[style=votingrun]
+voting voter add star_1 "STAR voter 1"
+voting voter add star_2 "STAR voter 2"
+voting voter add star_3 "STAR voter 3"
+voting voter add star_4 "STAR voter 4"
+voting voter add star_5 "STAR voter 5"
+voting election add star_demo "Score versus final preference" --ballot-type score
+voting election add-option star_demo library
+voting election add-option star_demo shelters
+voting election add-option star_demo trees
+voting election open star_demo
+voting ballot score star_demo star_1 library=5 shelters=4 trees=0
+voting ballot score star_demo star_2 library=5 shelters=3 trees=0
+voting ballot score star_demo star_3 library=0 shelters=5 trees=4
+voting ballot score star_demo star_4 library=0 shelters=5 trees=3
+voting ballot score star_demo star_5 library=3 shelters=2 trees=5
+voting count compare star_demo
+\end{lstlisting}
+\generated{star-reversal}
+Shelters has score total 19, Library 13, and Trees 12. Library reaches the final and is preferred to Shelters by voters 1, 2, and 5, so it wins 3 to 2. A correct result must show Library as elected in both its winner field and final ranking, while preserving the score totals as a separate diagnostic.
+
+\section{Majority judgment}
+Grades are ordered categories rather than numeric distances. Let the scale be $G_0<G_1<\cdots<G_q$. The package defaults to reject, poor, fair, good, excellent. A monotone relabeling preserves the ordering; there is no assumption that the distance from fair to good equals that from good to excellent.
+
+For candidate $c$, let $H_c(j)$ be the total weight assigning grade $G_j$, and let $W_c=\sum_jH_c(j)$ include only voters who graded $c$. The lower weighted median is the smallest grade index satisfying
+\[
+2\sum_{j=0}^{h}H_c(j)\ \geq\ W_c.
+\]
+For two equally weighted grades reject and excellent, this convention returns reject. It does not average them into fair. A candidate with no grades has no median and sorts below graded candidates.
+
+Candidates are compared first by median grade. If tied, remove one median unit from each tied distribution and compare the medians again, repeating as necessary. Decimal weights are represented internally by exact integer units on a common denominator, so fractional weights are not rounded down to zero and large weights do not require repeated ballot objects. Identical remaining distributions are finally ordered by ID. See Balinski and Laraki for the median-removal approach.\cite{majorityjudgment}
+\begin{lstlisting}[style=votingrun]
+voting election add grades "Project grades" --ballot-type grade
+voting election add-option grades library
+voting election add-option grades shelters
+voting election add-option grades trees
+voting election add-option grades playground
+voting election open grades
+voting ballot grade grades readers library=excellent shelters=fair trees=good playground=reject
+voting ballot grade grades riders library=reject shelters=excellent trees=good playground=good
+voting ballot grade grades canopy library=reject shelters=good trees=excellent playground=fair
+voting ballot grade grades families library=reject shelters=good trees=fair playground=excellent
+voting count compare grades
+\end{lstlisting}
+\generated{grade-totals}
+Omitting a grade is an abstention for that candidate in this implementation, not an automatic lowest grade. The candidate-specific denominator can therefore vary. Decide whether that missingness policy is suitable before using the method in a study.
+
+A different vocabulary can be configured explicitly, listing grades from worst to best:
+\begin{lstlisting}
+voting election configure grades --grade F --grade C --grade B --grade A
+\end{lstlisting}
+This illustrative command is not executed: it would make the currently stored word grades invalid. A real change of scale requires revalidation and possibly new ballots, not merely relabeling a result table.
+
+\section{Exercises}
+\begin{enumerate}
+\item Give an example where a candidate has a higher mean score but a lower total score because fewer people rated it.
+\item In the five-person STAR example, increase Library's score from 3 to 4 on voter 5's ballot. Which stages change numerically? Does the winner change?
+\item A single weight-.5 ballot gives Library reject and Trees excellent. What must majority judgment report? Explain why truncating the weight to an integer is wrong.
+\end{enumerate}

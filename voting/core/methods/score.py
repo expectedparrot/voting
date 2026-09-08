@@ -41,6 +41,10 @@ def star(election: dict, options: list[str], ballots: list[dict], tie_policy: st
                 no_preference += weight
     winner = sorted(runoff, key=lambda option_id: (-runoff[option_id], option_id))[0] if runoff else None
     base["winners"] = [winner] if winner else []
+    base["ranking"].sort(key=lambda row: (row["option_id"] != winner, row["rank"]))
+    for rank, row in enumerate(base["ranking"], 1):
+        row["rank"] = rank
+        row["status"] = "elected" if row["option_id"] == winner else "defeated"
     base["finalists"] = finalists
     base["runoff"] = {"totals": sorted_totals(runoff), "no_preference": round(no_preference, 6)}
     return base

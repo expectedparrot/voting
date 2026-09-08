@@ -68,10 +68,10 @@ def stv(election: dict, options: list[str], ballots: list[dict], tie_policy: str
         round_data["eliminated"] = loser
         rounds.append(round_data)
 
-    ranking_order = elected + list(reversed(eliminated)) + sorted(active)
+    ranking_order = elected + sorted(active, key=lambda oid: (-totals[oid], oid)) + list(reversed(eliminated))
     return {
         "winners": elected[:seats],
-        "ranking": [{"option_id": option_id, "rank": idx + 1, "status": "elected" if option_id in elected[:seats] else "eliminated"} for idx, option_id in enumerate(ranking_order)],
+        "ranking": [{"option_id": option_id, "rank": idx + 1, "status": "elected" if option_id in elected[:seats] else "eliminated" if option_id in eliminated else "defeated"} for idx, option_id in enumerate(ranking_order)],
         "rounds": rounds,
         "scores": rounds[-1]["totals"] if rounds else [],
         "quota": quota,

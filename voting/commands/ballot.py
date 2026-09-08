@@ -7,10 +7,10 @@ from typing import Optional
 import typer
 
 from voting.commands.common import ctx_project, output
-from voting.core.errors import UserError
+from voting.core.errors import UserError, ValidationError
 from voting.core.ids import local_iso_now, validate_id
 from voting.core.store import append_record, list_records, read_entity, read_json
-from voting.core.validate import validate_unique
+from voting.core.validate import ballot_issue, eligible_options, validate_settings, validate_unique
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 
@@ -24,7 +24,7 @@ def cast(
 ) -> None:
     data = _base(ctx, election_id, voter_id, "single_choice")
     data["choice"] = choice
-    rid, _ = append_record(ctx_project(ctx), "ballots", [voter_id, election_id], data)
+    rid = _record(ctx, data)
     output(
         ctx,
         "ballot cast",
@@ -47,7 +47,7 @@ def rank(
     validate_unique(ranking, "ranked option")
     data = _base(ctx, election_id, voter_id, "ranked")
     data["ranking"] = ranking
-    rid, _ = append_record(ctx_project(ctx), "ballots", [voter_id, election_id], data)
+    rid = _record(ctx, data)
     output(
         ctx,
         "ballot rank",
@@ -62,14 +62,18 @@ def approve(
     ctx: typer.Context,
     election_id: str,
     voter_id: str,
-    option: list[str] = typer.Option(..., "--option"),
+    option: list[str] | None = typer.Option(None, "--option"),
+    abstain: bool = typer.Option(False, "--abstain", help="Record approval of no options, replacing any previous ballot."),
 ) -> None:
-    if not option:
-        raise UserError("At least one --option is required.", hint="Pass --option <id> for each approved option.")
+    if abstain and option:
+        raise UserError("Use --abstain or --option, not both.")
+    if not option and not abstain:
+        raise UserError("Pass --option <id> or --abstain.")
+    option = option or []
     validate_unique(option, "approved option")
     data = _base(ctx, election_id, voter_id, "approval")
     data["approved"] = option
-    rid, _ = append_record(ctx_project(ctx), "ballots", [voter_id, election_id], data)
+    rid = _record(ctx, data)
     output(
         ctx,
         "ballot approve",
@@ -87,8 +91,8 @@ def score(
     pairs: list[str] = typer.Argument(...),
 ) -> None:
     data = _base(ctx, election_id, voter_id, "score")
-    data["scores"] = {key: float(value) for key, value in [_split_pair(pair) for pair in pairs]}
-    rid, _ = append_record(ctx_project(ctx), "ballots", [voter_id, election_id], data)
+    data["scores"] = {key: _number(value) for key, value in _pairs(pairs)}
+    rid = _record(ctx, data)
     output(
         ctx,
         "ballot score",
@@ -106,8 +110,8 @@ def grade(
     pairs: list[str] = typer.Argument(...),
 ) -> None:
     data = _base(ctx, election_id, voter_id, "grade")
-    data["grades"] = dict(_split_pair(pair) for pair in pairs)
-    rid, _ = append_record(ctx_project(ctx), "ballots", [voter_id, election_id], data)
+    data["grades"] = dict(_pairs(pairs))
+    rid = _record(ctx, data)
     output(
         ctx,
         "ballot grade",
@@ -125,8 +129,8 @@ def allocate(
     pairs: list[str] = typer.Argument(...),
 ) -> None:
     data = _base(ctx, election_id, voter_id, "allocated")
-    data["allocations"] = {key: float(value) for key, value in [_split_pair(pair) for pair in pairs]}
-    rid, _ = append_record(ctx_project(ctx), "ballots", [voter_id, election_id], data)
+    data["allocations"] = {key: _number(value) for key, value in _pairs(pairs)}
+    rid = _record(ctx, data)
     output(
         ctx,
         "ballot allocate",
@@ -183,6 +187,7 @@ def validate_cmd(ctx: typer.Context, election_id: str) -> None:
         ctx,
         "ballot validate",
         {"valid_ballots": len(prepared["ballots"]), "warnings": prepared["warnings"]},
+        warnings=prepared["warnings"],
         next_steps=[f"voting count run {election_id} --method <method>"],
     )
 
@@ -243,7 +248,10 @@ def _rows_from_edsl_results(results_dict: dict, election: dict, options: list[di
                     continue
                 rows.append({"voter_id": voter_id, "answer": {"choice": label_to_id[label]}, "respondent": respondent})
             elif ballot_type == "approval":
-                labels = answer.get("approved") or answer.get("approval") or []
+                labels = answer.get("approved") if "approved" in answer else answer.get("approval")
+                if not isinstance(labels, list):
+                    issues.append({"voter_id": voter_id, "reason": "missing or invalid approval answer"})
+                    continue
                 unknown = [label for label in labels if label not in label_to_id]
                 if unknown:
                     issues.append({"voter_id": voter_id, "reason": "unknown option labels", "labels": unknown})
@@ -303,6 +311,8 @@ def import_ballots(
         except json.JSONDecodeError as exc:
             raise UserError(f"Invalid JSON in results file: {exc}", {"path": str(from_file)}) from exc
 
+        if not isinstance(results, dict):
+            raise UserError("Expected a JSON object containing ballot rows.")
         file_election_id = results.get("election_id")
         if file_election_id and file_election_id != election_id:
             raise UserError(
@@ -310,7 +320,7 @@ def import_ballots(
                 {"file_election_id": file_election_id, "requested_election_id": election_id},
                 hint="Check --election matches the election_id in the results file.",
             )
-        ballot_type = results.get("ballot_type")
+        ballot_type = results.get("ballot_type", election.get("ballot_type"))
         rows = results.get("rows", [])
         source_display = str(from_file)
     else:
@@ -342,6 +352,8 @@ def import_ballots(
                 ) from exc
             source_display = f"coop:{from_coop}"
         options = [read_entity(project, "options", oid) for oid in election.get("options", [])]
+        eligible = set(eligible_options(election, options))
+        options = [o for o in options if o["id"] in eligible]
         ballot_type = election.get("ballot_type", "ranked")
         rows, conversion_issues = _rows_from_edsl_results(results_obj.to_dict(), election, options)
 
@@ -352,12 +364,14 @@ def import_ballots(
             hint=f"Run `voting election open {election_id}` first.",
         )
 
-    voters_by_id = {}
-    try:
-        from voting.core.store import list_entities
-        voters_by_id = {v["id"]: v for v in list_entities(project, "voters")}
-    except Exception:
-        pass
+    validate_settings(election)
+    if ballot_type != election["ballot_type"]:
+        raise ValidationError("Imported ballot type does not match the election.")
+    if not isinstance(rows, list):
+        raise UserError("Ballot rows must be a list.")
+    from voting.core.store import list_entities
+    voters_by_id = {v["id"]: v for v in list_entities(project, "voters")}
+    option_ids = eligible_options(election, [read_entity(project, "options", oid) for oid in election.get("options", [])])
 
     from voting.core.ballots import latest_ballots as _latest_ballots
     existing_voter_ids = {b["voter_id"] for b in _latest_ballots(project, election_id)}
@@ -366,91 +380,49 @@ def import_ballots(
     skipped: list[dict] = []
     warnings_list: list[dict] = []
 
+    fields = {"ranked": "ranking", "single_choice": "choice", "approval": "approved",
+              "score": "scores", "grade": "grades", "allocated": "allocations"}
     for row in rows:
-        voter_id = row.get("voter_id")
-        if not voter_id:
-            skipped.append({"row": row, "reason": "missing voter_id"})
-            continue
-
-        answer = row.get("answer", {})
-        voter = voters_by_id.get(voter_id)
-        weight = float(voter.get("weight", 1.0)) if voter else 1.0
-        if voter is None and register_voters:
-            from voting.core.store import write_entity
-
-            voter = {
-                "id": voter_id,
-                "name": row.get("respondent") or voter_id,
-                "added_at": local_iso_now(),
-                "weight": 1.0,
-                "eligible": True,
-                "traits": {},
-                "metadata": {"source": "ballot import --register-voters"},
-            }
-            write_entity(project, "voters", voter_id, voter)
-            voters_by_id[voter_id] = voter
-            weight = 1.0
-            warnings_list.append({"code": "voter_registered", "voter_id": voter_id})
-        elif voter is None:
-            warnings_list.append({
-                "code": "unregistered_voter",
-                "voter_id": voter_id,
-                "message": "Ballot recorded but will not count until the voter is registered (or re-import with --register-voters).",
-            })
-        if voter_id in existing_voter_ids:
-            warnings_list.append({"code": "ballot_overwritten", "voter_id": voter_id, "message": f"Existing ballot for voter '{voter_id}' replaced by this import."})
-
-        record: dict = {
-            "election_id": election_id,
-            "voter_id": voter_id,
-            "ballot_type": ballot_type,
-            "recorded_at": local_iso_now(),
-            "weight": weight,
-            "metadata": {
-                "source": "import",
-                "import_file": source_display,
-                **({"respondent": row["respondent"]} if row.get("respondent") and row["respondent"] != voter_id else {}),
-            },
-        }
-
+        voter_id = row.get("voter_id") if isinstance(row, dict) else None
         try:
-            if ballot_type == "ranked":
-                ranking = answer.get("ranking", [])
-                if not ranking:
-                    skipped.append({"voter_id": voter_id, "reason": "empty ranking"})
-                    continue
-                record["ranking"] = ranking
-            elif ballot_type == "single_choice":
-                choice = answer.get("choice")
-                if not choice:
-                    skipped.append({"voter_id": voter_id, "reason": "missing choice"})
-                    continue
-                record["choice"] = choice
-            elif ballot_type == "approval":
-                approved = answer.get("approved", [])
-                if not approved:
-                    skipped.append({"voter_id": voter_id, "reason": "empty approved list"})
-                    continue
-                record["approved"] = approved
-            elif ballot_type == "score":
-                scores = answer.get("scores", {})
-                if not scores:
-                    skipped.append({"voter_id": voter_id, "reason": "empty scores"})
-                    continue
-                record["scores"] = {k: float(v) for k, v in scores.items()}
-            elif ballot_type == "grade":
-                grades = answer.get("grades", {})
-                if not grades:
-                    skipped.append({"voter_id": voter_id, "reason": "empty grades"})
-                    continue
-                record["grades"] = grades
-            else:
-                skipped.append({"voter_id": voter_id, "reason": f"unsupported ballot_type: {ballot_type}"})
-                continue
-
+            if not isinstance(voter_id, str) or not voter_id:
+                raise UserError("missing or invalid voter_id")
+            validate_id(voter_id, "voter id")
+            answer = row.get("answer")
+            if not isinstance(answer, dict):
+                raise UserError("answer must be an object")
+            voter = voters_by_id.get(voter_id)
+            if voter is not None and not voter.get("eligible", True):
+                raise UserError("ineligible_voter")
+            record = {
+                "election_id": election_id, "voter_id": voter_id,
+                "ballot_type": ballot_type, "recorded_at": local_iso_now(),
+                "weight": voter.get("weight", 1.0) if voter else 1.0,
+                "metadata": {"source": "import", "import_file": source_display,
+                             **({"respondent": row["respondent"]} if row.get("respondent") else {})},
+                fields[ballot_type]: answer.get(fields[ballot_type]),
+            }
+            issue = ballot_issue(record, option_ids, election)
+            if issue:
+                raise ValidationError(issue["code"], issue)
+            if voter is None and register_voters:
+                from voting.core.store import write_entity
+                voter = {"id": voter_id, "name": row.get("respondent") or voter_id,
+                         "added_at": local_iso_now(), "weight": 1.0, "eligible": True,
+                         "traits": {}, "metadata": {"source": "ballot import --register-voters"}}
+                write_entity(project, "voters", voter_id, voter)
+                voters_by_id[voter_id] = voter
+                warnings_list.append({"code": "voter_registered", "voter_id": voter_id})
+            elif voter is None:
+                warnings_list.append({"code": "unregistered_voter", "voter_id": voter_id,
+                    "message": "Ballot recorded but will not count until the voter is registered."})
             append_record(project, "ballots", [voter_id, election_id], record)
+            if voter_id in existing_voter_ids:
+                warnings_list.append({"code": "ballot_overwritten", "voter_id": voter_id,
+                                     "message": "This import replaces the voter's previous ballot."})
+            existing_voter_ids.add(voter_id)
             cast_count += 1
-        except Exception as exc:
+        except (UserError, ValidationError) as exc:
             skipped.append({"voter_id": voter_id, "reason": str(exc)})
 
     output(
@@ -477,7 +449,10 @@ def _base(ctx: typer.Context, election_id: str, voter_id: str, ballot_type: str)
             {"election_id": election_id, "status": election.get("status")},
             hint=f"Run `voting election open {election_id}` first.",
         )
+    validate_settings(election)
     voter = read_entity(project, "voters", voter_id)
+    if not voter.get("eligible", True):
+        raise ValidationError("Voter is not eligible.")
     validate_id(election_id, "election id")
     validate_id(voter_id, "voter id")
     return {
@@ -495,3 +470,27 @@ def _split_pair(pair: str) -> tuple[str, str]:
         raise UserError("Expected KEY=VALUE.", {"value": pair}, hint="Format: option_id=score, e.g. alice=8")
     key, value = pair.split("=", 1)
     return key, value
+
+
+def _record(ctx: typer.Context, ballot: dict) -> str:
+    project = ctx_project(ctx)
+    election = read_entity(project, "elections", ballot["election_id"])
+    options = eligible_options(election, [read_entity(project, "options", oid) for oid in election.get("options", [])])
+    issue = ballot_issue(ballot, options, election)
+    if issue:
+        raise ValidationError(issue["code"], issue)
+    rid, _ = append_record(project, "ballots", [ballot["voter_id"], ballot["election_id"]], ballot)
+    return rid
+
+
+def _number(value: str) -> float:
+    try:
+        return float(value)
+    except ValueError as exc:
+        raise ValidationError("Expected a numeric value.", {"value": value}) from exc
+
+
+def _pairs(pairs: list[str]) -> list[tuple[str, str]]:
+    parsed = [_split_pair(pair) for pair in pairs]
+    validate_unique([key for key, _ in parsed], "option")
+    return parsed

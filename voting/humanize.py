@@ -7,9 +7,16 @@ from pathlib import Path
 from typing import Any
 
 from voting.core.errors import UserError
+from voting.core.validate import eligible_options
 
 
 SUPPORTED_BALLOT_TYPES = {"ranked", "single_choice", "approval", "score"}
+
+
+def _participants(election: dict, options: list[dict], voters: list[dict]) -> tuple[list[dict], list[dict]]:
+    ids = set(eligible_options(election, options))
+    return ([o for o in options if o["id"] in ids],
+            [v for v in voters if v.get("eligible", True)])
 
 
 def _build_questions(election: dict, options: list[dict]) -> list:
@@ -72,7 +79,7 @@ def _build_questions(election: dict, options: list[dict]) -> list:
             question_text=f"{election_name}{context}\n\nSelect every option you approve of.",
             question_options=labels,
             min_selections=0,
-            max_selections=len(labels),
+            max_selections=min(len(labels), election.get("settings", {}).get("approval_limit", len(labels))),
             include_comment=False,
         ))
     else:
@@ -113,6 +120,7 @@ def build_humanize_job(
     randomize_options: bool = True,
 ) -> dict:
     """Build a model-free EDSL Jobs package suitable for `ep humanize create`."""
+    options, voters = _participants(election, options, voters)
     try:
         from edsl import Agent, AgentList, Jobs, Survey
     except ImportError as exc:
@@ -182,6 +190,7 @@ def build_simulation_job(
     The job carries the survey, one agent per registered voter, and the model —
     everything `ep run` needs. voting never executes the model calls itself.
     """
+    options, voters = _participants(election, options, voters)
     try:
         from edsl import Agent, AgentList, Jobs, Model, Survey
     except ImportError as exc:

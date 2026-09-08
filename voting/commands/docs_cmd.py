@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import typer
 
 from voting.commands.common import output
@@ -7,6 +9,20 @@ from voting.core.errors import UserError
 from voting.docs import DOCS, load_doc, search_docs
 
 app = typer.Typer(help="Read built-in documentation.", no_args_is_help=True, add_completion=False)
+
+
+@app.command("manual")
+def manual(
+    ctx: typer.Context,
+    output_dir: Path = typer.Option(..., "--output-dir", help="New directory for the book and isolated example."),
+    pdf: bool = typer.Option(False, "--pdf", help="Compile the exported LaTeX with pdflatex."),
+    sources_only: bool = typer.Option(False, "--sources-only", help="Export sources without executing examples."),
+) -> None:
+    """Build the LaTeX textbook and run its local worked examples."""
+    from voting.manual import build_manual
+
+    data = build_manual(output_dir, pdf=pdf, sources_only=sources_only)
+    output(ctx, "docs manual", data, human_message=f"Manual written to {data['directory']}")
 
 
 @app.command("list")

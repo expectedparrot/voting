@@ -22,13 +22,15 @@ voting ballot rank <election_id> <voter_id> opt_a opt_b opt_c
 
 Options not listed are treated as unranked (tied last) by most methods. Duplicates are rejected.
 
-Use with: `irv`, `stv`, `borda`, `bucklin`, `ranked_pairs`, `schulze`, `kemeny_young`, `copeland`, `minimax`, `majority_judgment`
+Use with: `irv`, `stv`, `borda`, `bucklin`, `ranked_pairs`, `schulze`, `kemeny_young`, `copeland`, `minimax`
 
-Many ranked-ballot methods also accept single-choice ballots by extracting the first choice.
+FPTP, simple majority, and runoff also accept ranked ballots by extracting first preferences. Ranked-only methods reject single-choice ballots.
 
 ## approval
 
-Voter marks any number of options as approved (no ordering).
+Voter marks any number of options as approved (no ordering). Duplicates are rejected.
+Use `voting ballot approve <election_id> <voter_id> --abstain` to approve nothing.
+Set a per-ballot limit with `voting election configure <election_id> --approval-limit 2`.
 
 ```bash
 voting ballot approve <election_id> <voter_id> --option opt_a --option opt_b
@@ -50,11 +52,15 @@ Use with: `score` (range voting), `star`
 
 ## grade
 
-Voter assigns a letter grade to each option.
+Voter assigns an ordered grade label to each option. Defaults, worst to best:
+`reject`, `poor`, `fair`, `good`, `excellent`. Omitted grades are abstentions for that option.
 
 ```bash
-voting ballot grade <election_id> <voter_id> opt_a=A opt_b=C opt_c=B
+voting ballot grade <election_id> <voter_id> opt_a=excellent opt_b=fair opt_c=good
 ```
+
+Customize with `voting election configure <election_id> --grade F --grade C --grade B --grade A`
+(repeat labels from worst to best).
 
 Use with: `majority_judgment`
 
@@ -66,9 +72,10 @@ Voter distributes a fixed budget of votes across options (cumulative voting).
 voting ballot allocate <election_id> <voter_id> opt_a=40 opt_b=35 opt_c=25
 ```
 
-Budget validation is optional — set `budget` in election settings to enforce it.
+Budget validation is optional: use `voting election configure <election_id> --budget 100`.
+Allocations must always be finite and nonnegative; negative amounts cannot offset spending.
 
-Use with: `cumulative`
+Use with: `cumulative`, `quadratic`, `equal_shares`
 
 ## Choosing a Ballot Type
 
@@ -83,9 +90,10 @@ Use with: `cumulative`
 
 ## Cross-type Compatibility
 
-Some methods handle ballot types they weren't designed for:
+Counts enforce ballot-type compatibility, including method aliases:
 - FPTP and simple_majority can extract a first choice from ranked ballots
-- Score voting degrades gracefully to approval if scores are 0/1
+- Approval counting accepts single-choice ballots as one approval each
+- Binary score ballots can model approval, but approval ballots are not automatically converted to scores
 
 Always validate after importing: `voting ballot validate <election_id>`
 
@@ -94,7 +102,8 @@ Always validate after importing: `voting ballot validate <election_id>`
 Both synthetic EDSL generation and hosted Humanize surveys support
 `single_choice`, `ranked`, `approval`, and `score`. Humanize jobs are model-free
 and collect answers from real people at a respondent URL. `grade` and
-`allocated` ballots currently use direct casting or custom imports.
+`allocated` ballots currently use direct casting or JSON imports (`ballot import --from`).
+The JSON importer supports all six ballot types. EDSL Results imports support the four survey ballot types.
 
 ## Next Steps
 

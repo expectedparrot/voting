@@ -1,0 +1,145 @@
+\chapter{Credits, quadratic voting, and equal shares}
+\label{chap:credits}
+\section{What is being allocated?}
+An allocated ballot is a vector of nonnegative numbers $x_i(c)$, with an optional per-ballot budget $B$:
+\[
+x_i(c)\geq0,\qquad \sum_{c\in C}x_i(c)\leq B.
+\]
+The budget is a constraint on one person's submitted points. It is not the cost of implementing the selected projects. In this package, a two-seat result chooses two options regardless of their real-world price.
+
+Use \code{--budget} when creating the election or \code{election configure} before collecting ballots. Negative amounts are rejected: a voter cannot spend 200 points on one project and offset them with $-100$ on another.
+
+\section{Cumulative voting}
+Cumulative voting selects the largest raw allocations,
+\[
+V(c)=\sum_iw_i x_i(c).
+\]
+For $k$ seats it takes the top $k$ totals. The rule allows a voter to concentrate all available points on a single choice or spread them among several. There is no proportional reweighting after a winner is selected.
+
+As a preference measurement exercise, a fixed allocation budget asks a different question from rating each option independently. High support for one project leaves fewer points for others. A score survey does not automatically impose that trade-off.
+
+\section{Quadratic voting: distinguish votes from credits}
+The package's \code{quadratic} rule treats $x_i(c)$ as \emph{credits spent}, and converts those credits into effective votes
+\[
+v_i(c)=\sqrt{x_i(c)},\qquad
+Q(c)=\sum_i w_i\sqrt{x_i(c)}.
+\]
+Equivalently, purchasing $v$ effective votes costs $v^2$ credits. The marginal cost is $2v$. Going from one to two votes costs three additional credits; going from nine to ten costs nineteen. This is why spending 100 credits is not equivalent to casting 100 effective votes.
+
+Compute the square root \emph{before} summing over voters. In general,
+\[
+\sum_iw_i\sqrt{x_i(c)}\ne\sqrt{\sum_iw_i x_i(c)}.
+\]
+The left side recognizes the distribution of spending across people. Replacing it by the right side would largely discard the mechanism's intended distinction between concentrated and distributed support.
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=.78\linewidth,height=5cm,xmin=0,xmax=10,ymin=0,ymax=100,
+ xlabel={Effective votes $v$},ylabel={Credits $v^2$},axis lines=left,grid=major]
+\addplot[VotingGreen,thick,domain=0:10,samples=60]{x^2};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\section{What the mechanism does and does not establish}
+Quadratic voting is studied as a mechanism under assumptions about preferences, payments, and strategic behavior.\cite{quadratic} This implementation is a local nonnegative credit-allocation counter with a top-$k$ selection rule. It does not implement cash transfers, signed opposition votes, rebates, or an equilibrium solver.
+
+A small optimization problem clarifies one intuition. Suppose, as a separate continuous approximation, that a voter wants to maximize the linear influence objective $\sum_c u_c v_c$ under $\sum_c v_c^2\leq B$, with $u_c\geq0$. The Lagrangian is
+\[
+\mathcal L(v,\lambda)=\sum_cu_cv_c-\lambda\left(\sum_cv_c^2-B\right).
+\]
+For positive $u_c$, the first-order condition gives $v_c=u_c/(2\lambda)$. Enforcing the budget yields
+\[
+v_c=\frac{\sqrt B\,u_c}{\sqrt{\sum_du_d^2}},\qquad
+x_c=v_c^2=\frac{B\,u_c^2}{\sum_du_d^2}.
+\]
+Effective votes are proportional to $u_c$ in this surrogate problem; \emph{credits spent are proportional to squared} $u_c$. That calculation is not a proof of truthful reporting for this package's discrete top-$k$ election. The probability of changing an outcome, other voters' behavior, and how preferences enter the payoff have all been left out.
+
+\section{A three-person credit panel}
+Use a new unit-weight panel to isolate the effect of concentration. The first person spends everything on Library. The other two distribute points between Shelters and Trees. We select two projects.
+\begin{lstlisting}[style=votingrun]
+voting voter add credit_1 "Concentrated credit voter"
+voting voter add credit_2 "Distributed credit voter 1"
+voting voter add credit_3 "Distributed credit voter 2"
+voting election add credits "Two priorities from credits" --ballot-type allocated --seats 2 --budget 100
+voting election add-option credits library
+voting election add-option credits shelters
+voting election add-option credits trees
+voting election open credits
+voting ballot allocate credits credit_1 library=100
+voting ballot allocate credits credit_2 shelters=64 trees=36
+voting ballot allocate credits credit_3 shelters=49 trees=51
+voting count compare credits
+\end{lstlisting}
+\generated{credit-totals}
+Cumulative totals favor Shelters and Library. Quadratic totals favor Shelters and Trees. In particular, Library gets $\sqrt{100}=10$ effective votes; Shelters gets $\sqrt{64}+\sqrt{49}=15$; Trees gets $\sqrt{36}+\sqrt{51}\approx13.141$. There is no raw-total tie behind this difference.
+\generated{credit-methods}
+The two outcomes answer different aggregation questions. The quadratic result values support distributed across two people more highly than the raw sum does here. It does not establish that Trees yields more money-valued social benefit than Library.
+
+\section{Method of Equal Shares}
+Equal shares uses allocations as cardinal utilities $u_i(c)$ for deciding how to pay for unit-cost candidates. A separate virtual budget gives each voter a share of the available $k$ units. With unit weights, that initial share is $b_i=k/n$. In the implemented weighted extension it is
+\[
+b_i=\frac{k w_i}{W}.
+\]
+For each remaining candidate $c$, seek the smallest price per utility $\rho_c$ such that
+\[
+\sum_i\min\{b_i,\rho_c u_i(c)\}=1.
+\]
+Only positive-utility supporters can pay. If their remaining budgets sum to less than one, $c$ is unaffordable. Among affordable candidates, elect the one with smallest $\rho_c$ and charge each supporter
+\[
+p_i(c)=\min\{b_i,\rho_c u_i(c)\},\qquad
+b_i\leftarrow b_i-p_i(c).
+\]
+Then repeat for another seat. The cardinal construction and its generalizations are discussed by Peters, Pierczy\'nski, and Skowron.\cite{equalshares}
+
+\subsection{Finding the price}
+For a fixed $c$, sort supporters by their cap thresholds $b_i/u_i(c)$. Before anyone is capped, the candidate price would be $1/\sum_i u_i(c)$. If that price would overcharge a supporter's remaining budget, cap that supporter, subtract its full budget from the outstanding cost, and solve again using the uncapped utility sum:
+\[
+\rho_c=\frac{1-\text{already capped budget}}{\text{uncapped utility sum}}.
+\]
+The sorted scan identifies the first feasible price. This avoids testing an arbitrary grid of possible prices. The package uses a small numerical tolerance when checking affordability and equal prices.
+
+In the three-person panel, each person starts with $2/3$. Library's only supporter cannot alone afford its unit cost. Shelters and Trees initially have two supporters and are affordable. Shelters is cheaper per utility and is selected. The remaining virtual budget cannot fund another candidate from its positive-utility supporters. The package then fills the remaining seat by raw utility totals, which selects Library.
+
+\subsection{Completion and weights are substantive choices}
+When no candidate is affordable before all seats are filled, this package completes the committee using the largest remaining raw point totals. Such rounds have \code{completion: utilitarian}; the result also lists \code{completed_seats}. Report that distinction instead of attributing every selected member to the affordability stage.
+
+The virtual candidate cost is always one. This is not a solver for a collection of projects with heterogeneous dollar costs. Also, in the weighted implementation, $w_i$ changes the initial virtual budget, while the price equation uses $u_i(c)$ without an additional weight multiplier. A weighted agent is therefore not automatically equivalent to several identical unit-weight agents in equal shares. The examples in this chapter use explicit unit weights to avoid conflating those interpretations.
+
+\section{A cohesive minority and three seats}
+For a second committee question, add Garden as a fifth town proposal. Four unit-weight panelists support Library, Shelters, and Trees; two support Playground and Garden. Each has 100 credits. The example is designed so the minority's raw support is divided between two options.
+\begin{lstlisting}[style=votingrun]
+voting option add garden "Garden" --type proposal
+voting voter add panel_1 "Committee panelist 1"
+voting voter add panel_2 "Committee panelist 2"
+voting voter add panel_3 "Committee panelist 3"
+voting voter add panel_4 "Committee panelist 4"
+voting voter add panel_5 "Committee panelist 5"
+voting voter add panel_6 "Committee panelist 6"
+voting election add representation "Three representative priorities" --ballot-type allocated --seats 3 --budget 100
+voting election add-option representation library
+voting election add-option representation shelters
+voting election add-option representation trees
+voting election add-option representation playground
+voting election add-option representation garden
+voting election open representation
+voting ballot allocate representation panel_1 library=34 shelters=33 trees=33
+voting ballot allocate representation panel_2 library=34 shelters=33 trees=33
+voting ballot allocate representation panel_3 library=34 shelters=33 trees=33
+voting ballot allocate representation panel_4 library=34 shelters=33 trees=33
+voting ballot allocate representation panel_5 playground=50 garden=50
+voting ballot allocate representation panel_6 playground=50 garden=50
+voting count compare representation
+\end{lstlisting}
+\generated{representation-methods}
+The cumulative totals for the majority's three options are 136, 132, and 132, exceeding each minority option's 100. That selects three majority-supported projects. In equal shares each panelist starts with $3/6=1/2$ of virtual budget. The two minority panelists can together fund one project; their budget cannot be spent on projects for which they report zero utility.
+\generated{mes-rounds}
+This example demonstrates a representation mechanism. It is not a general theorem that every possible cardinal profile, weighted extension, or completion policy satisfies every proportionality axiom. Distinguish the observed example, the exact implemented rule, and the assumptions of any theorem being cited.
+
+\section{Exercises}
+\begin{enumerate}
+\item Show that changing a voter's budget from 100 to 400 multiplies its quadratic support by two if it preserves all spending proportions.
+\item In the three-person panel, compute the initial equal-shares price for Shelters. What remains of the two supporters' budgets after funding it?
+\item Why can an equal-shares candidate with the highest raw utility total be initially unaffordable?
+\item Replace both minority ballots by a single row of weight two in a fresh copy. Compare its payment equation with two separate rows. Explain why a budget share and a utility multiplicity are different operations.
+\end{enumerate}

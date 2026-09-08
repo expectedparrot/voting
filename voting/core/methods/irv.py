@@ -32,7 +32,7 @@ def irv(election: dict, options: list[str], ballots: list[dict], tie_policy: str
             rounds.append(round_data)
             return {
                 "winners": [winner],
-                "ranking": _ranking(winner, eliminated, options),
+                "ranking": _ranking(winner, eliminated, totals),
                 "rounds": rounds,
                 "scores": sorted_totals({option_id: totals.get(option_id, 0.0) for option_id in options}),
                 "exhausted_weight": round_number(exhausted),
@@ -45,6 +45,9 @@ def irv(election: dict, options: list[str], ballots: list[dict], tie_policy: str
     return {"winners": [], "ranking": [], "rounds": rounds, "scores": []}
 
 
-def _ranking(winner: str, eliminated: list[str], options: list[str]) -> list[dict]:
-    order = [winner] + list(reversed(eliminated)) + [option_id for option_id in options if option_id != winner and option_id not in eliminated]
-    return [{"option_id": option_id, "rank": idx + 1, "status": "elected" if idx == 0 else "eliminated"} for idx, option_id in enumerate(order)]
+def _ranking(winner: str, eliminated: list[str], totals: dict[str, float]) -> list[dict]:
+    remaining = sorted((oid for oid in totals if oid != winner), key=lambda oid: (-totals[oid], oid))
+    order = [winner] + remaining + list(reversed(eliminated))
+    return [{"option_id": oid, "rank": idx + 1,
+             "status": "elected" if oid == winner else "eliminated" if oid in eliminated else "defeated"}
+            for idx, oid in enumerate(order)]

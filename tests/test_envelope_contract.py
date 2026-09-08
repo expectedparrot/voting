@@ -303,7 +303,9 @@ def test_survey_generate_emits_executable_jobs_package(tmp_path: Path) -> None:
             cwd = tmp_path / "books"
 
     generated = subprocess.run(
-        [sys.executable, "-m", "voting", "survey", "generate", "favorite"],
+        # Packaging is local; use EDSL's test model so this does not depend on
+        # the external model directory or the user's cached service registry.
+        [sys.executable, "-m", "voting", "survey", "generate", "favorite", "--model", "test"],
         cwd=cwd, text=True, capture_output=True,
         env={"PYTHONPATH": str(REPO), "PATH": "/usr/bin:/bin", "HOME": str(tmp_path)},
     )

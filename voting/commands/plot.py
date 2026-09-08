@@ -78,12 +78,14 @@ def ranks(
     """Stacked bars of where voters ranked each option (latest ballot per voter)."""
     project = ctx_project(ctx)
     election = read_entity(project, "elections", election_id)
-    from voting.core.ballots import latest_ballots
+    from voting.commands.count import prepare_count
 
-    ballots = latest_ballots(project, election_id)
+    prepared = prepare_count(project, election_id, None)
+    ballots = prepared["ballots"]
+    names = _option_names(project, election)
     try:
         svg = plots.ranks_svg(ballots, [
-            {"id": oid, "name": name} for oid, name in _option_names(project, election).items()
+            {"id": oid, "name": names[oid]} for oid in prepared["options"]
         ])
     except ValueError as exc:
         raise UserError(str(exc), {"election_id": election_id},

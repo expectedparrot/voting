@@ -1,0 +1,93 @@
+\documentclass[11pt,oneside]{book}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,longtable,array}
+\usepackage{microtype}
+\usepackage{xcolor,listings}
+\usepackage{graphicx}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xurl}
+\input{version.tex}
+\setcounter{tocdepth}{1}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{.4em}
+\setlength{\emergencystretch}{3em}
+\definecolor{VotingGreen}{HTML}{214D35}
+\definecolor{ShellOption}{HTML}{7030A0}
+\lstdefinestyle{votingbash}{
+ language=bash,basicstyle=\ttfamily\footnotesize,
+ keywordstyle=\color{VotingGreen}\bfseries,keywordstyle=[2]\color{ShellOption},
+ stringstyle=\color{VotingGreen},commentstyle=\color{black!55}\itshape,
+ morekeywords={voting,ep,uv,pdflatex},alsoletter={-},
+ morekeywords=[2]{--ballot-type,--weight,--type,--seats,--method,--option,
+ --choice,--budget,--grade,--approval-limit,--election,--latest,--from,
+ --from-results,--register-voters,--abstain,--output-dir,--pdf,--sources-only,
+ --allow-expensive,--model,--service,--jobs,--output,--email-trait,--name},
+ breaklines=true,breakatwhitespace=true,columns=fullflexible,keepspaces=true,
+ frame=single,rulecolor=\color{black!20},backgroundcolor=\color{black!3},
+ showstringspaces=false
+}
+\lstdefinestyle{votingrun}{style=votingbash}
+\lstdefinestyle{votingerror}{style=votingbash,rulecolor=\color{orange!70!black}}
+\lstset{style=votingbash}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\generated}[1]{\IfFileExists{generated/#1.tex}{\input{generated/#1.tex}}{\begin{quote}\emph{Sources-only edition: execute the example to generate this table or figure.}\end{quote}}}
+\newcommand{\ind}{\mathbf{1}}
+\title{One Town, Many Ways to Choose\\[.5em]\large A Mathematical and Practical Manual for \texttt{voting}}
+\author{The voting project}
+\date{First working edition --- September 2026\\Built with voting \VotingVersion}
+\begin{document}
+\frontmatter
+\maketitle
+\chapter*{How to use this book}
+This book follows one fictional town as it chooses neighborhood projects. The same rankings can favor a library under plurality, shelters under instant runoff, and trees under pairwise comparisons. Rather than declare that one answer is automatically right, we will identify exactly what each rule counts, work through its mathematics, and execute the corresponding commands.
+
+The intended reader is a student, researcher, or practitioner who wants to understand a calculation well enough to challenge it. Familiarity with sums and inequalities is sufficient for most chapters. Graphs appear in the pairwise chapter; a constrained optimization argument appears in the credit chapter. Every symbol is defined before use. Exercises ask readers to calculate, explain, and modify a profile.
+
+\textbf{All preferences in this book are invented teaching data.} The book does not estimate what a real town wants, collect human responses, or execute a language model. Larger weights initially represent groups with identical specified rankings. Later exercises use separate unit-weight panels when the distinction between a weighted agent and repeated people matters.
+
+The manual describes the algorithms implemented by this version of \code{voting}. A method name can cover several variants in the literature. This package makes particular choices about incomplete rankings, lexical ties, weighted quotas, and completion of equal-shares committees. Those choices are stated where they matter. The references provide a route into the wider literature; the executable examples document this implementation.
+
+\section*{Build and inspect}
+Install the base package with Python 3.11 or newer and \code{uv}:
+\begin{lstlisting}
+uv tool install "voting @ git+https://github.com/expectedparrot/voting.git@main"
+voting --help
+\end{lstlisting}
+Then build the book from the installed version:
+\begin{lstlisting}
+voting docs manual --output-dir town-manual --pdf
+voting docs manual --output-dir town-manual-tex
+voting docs manual --output-dir town-manual-sources --sources-only
+\end{lstlisting}
+Choose a new output directory for each build. The first command exports the chapter sources, executes their marked local commands in \code{town-manual/study}, generates numerical tables, and compiles \code{manual.pdf}. The second does everything except PDF compilation. The third exports editable sources without generating numerical results. Source-only PDFs can also be built by adding \code{--pdf}; missing generated material is explicitly labeled.
+
+PDF compilation requires \code{pdflatex}, Latin Modern, PGFPlots, and the standard LaTeX packages in the preamble. It disables shell escape. Local examples require only the base voting package: neither EDSL nor credentials are needed. Instructions for optional human and AI fielding appear in Chapter~\ref{chap:practice}; the build does not execute them.
+
+\code{commands.json} stores exact invocations and JSON envelopes. \code{results.json} contains the saved count results. \code{generated/commands.txt} is the readable transcript, and \code{study/.voting} is an ordinary working project you can inspect. The chapter sources themselves contain the commands the builder executes; there is no hidden ballot generator. Orange command boxes in the validation chapter deliberately produce an error.
+
+Read Chapters 1--4 for single-winner ranked elections, Chapters 5--7 for committees and richer ballots, and Chapter 8 for operating the package. The final chapter and appendices provide a method map, answers to selected exercises, and the command transcript. Generated tables come from actual CLI output; algebraic worked calculations are checked against those results by the manual tests.
+\tableofcontents
+\mainmatter
+\input{01-decision.tex}
+\input{02-project.tex}
+\input{03-ranked.tex}
+\input{04-pairwise.tex}
+\input{05-committees.tex}
+\input{06-cardinal.tex}
+\input{07-credits.tex}
+\input{08-practice.tex}
+\input{09-reference.tex}
+\appendix
+\chapter{Results from this build}
+Each row is a saved count from the executed listings. Repeated counts of the same election, method, and seat count are represented by their latest result here; the complete history remains in \code{results.json}. Results from different elections can answer different questions and must not be mistaken for alternative counts of an unchanged instrument.
+\generated{all-results}
+\chapter{Executed command transcript}
+Start in a fresh exported manual directory. The transcript initializes \code{study} and enters it once. Commands marked as expected errors demonstrate validation and intentionally exit nonzero. Executing this over an existing project will encounter duplicate IDs; rebuild into a fresh directory instead.
+\IfFileExists{generated/commands.txt}{\lstinputlisting{generated/commands.txt}}{No commands were executed for this sources-only edition.}
+\input{references.tex}
+\end{document}

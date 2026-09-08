@@ -6,6 +6,7 @@ from voting.commands.common import ctx_project, output
 from voting.core.errors import UserError
 from voting.core.ids import local_iso_now, validate_id
 from voting.core.store import list_entities, read_entity, write_entity, write_json
+from voting.core.validate import validate_settings
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 
@@ -18,6 +19,9 @@ def add(
     ballot_type: str = typer.Option("single_choice", "--ballot-type"),
     seats: int = typer.Option(1, "--seats"),
     tie_policy: str = typer.Option("lexicographic", "--tie-policy"),
+    budget: float | None = typer.Option(None, "--budget", help="Maximum points per allocated ballot."),
+    grade: list[str] | None = typer.Option(None, "--grade", help="Grade label; repeat from worst to best."),
+    approval_limit: int | None = typer.Option(None, "--approval-limit", help="Maximum approved options per ballot."),
     description: str = "",
 ) -> None:
     validate_id(election_id, "election id")
@@ -34,6 +38,10 @@ def add(
         "options": [],
         "settings": {"tie_policy": tie_policy, "quota": "droop"},
     }
+    data["settings"].update({k: v for k, v in {
+        "budget": budget, "grade_scale": grade, "approval_limit": approval_limit,
+    }.items() if v is not None})
+    validate_settings(data)
     write_entity(ctx_project(ctx), "elections", election_id, data)
     output(
         ctx,
@@ -45,6 +53,39 @@ def add(
             f"voting election open {election_id}",
         ],
     )
+
+
+@app.command("configure")
+def configure(
+    ctx: typer.Context,
+    election_id: str,
+    seats: int | None = typer.Option(None, "--seats"),
+    tie_policy: str | None = typer.Option(None, "--tie-policy"),
+    budget: float | None = typer.Option(None, "--budget"),
+    grade: list[str] | None = typer.Option(None, "--grade", help="Repeat labels from worst to best."),
+    approval_limit: int | None = typer.Option(None, "--approval-limit"),
+    clear_budget: bool = typer.Option(False, "--clear-budget"),
+    clear_approval_limit: bool = typer.Option(False, "--clear-approval-limit"),
+) -> None:
+    """Update seats, budget, grade scale, or approval limit; existing ballots are revalidated at count time."""
+    project = ctx_project(ctx)
+    data = read_entity(project, "elections", election_id)
+    if (clear_budget and budget is not None) or (clear_approval_limit and approval_limit is not None):
+        raise UserError("Cannot set and clear the same setting in one command.")
+    if seats is not None:
+        data["seats"] = seats
+    settings = data.setdefault("settings", {})
+    settings.update({k: v for k, v in {
+        "tie_policy": tie_policy, "budget": budget, "grade_scale": grade,
+        "approval_limit": approval_limit,
+    }.items() if v is not None})
+    if clear_budget:
+        settings.pop("budget", None)
+    if clear_approval_limit:
+        settings.pop("approval_limit", None)
+    validate_settings(data)
+    write_entity(project, "elections", election_id, data, overwrite=True)
+    output(ctx, "election configure", data, next_steps=[f"voting ballot validate {election_id}"])
 
 
 @app.command("list")
@@ -80,8 +121,8 @@ def open_cmd(ctx: typer.Context, election_id: str) -> None:
         data,
         human_message=f"Opened {election_id}",
         next_steps=[
-            f"voting ballot rank {election_id} <voter_id> <opt1> <opt2> ...",
-            f"voting survey generate {election_id}",
+            "voting next",
+            f"voting election show {election_id}",
         ],
     )
 

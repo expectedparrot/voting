@@ -39,6 +39,8 @@ def simple_majority(election: dict, options: list[str], ballots: list[dict], tie
     result["majority_met"] = met
     if not met:
         result["winners"] = []
+        for row in result["ranking"]:
+            row["status"] = "defeated"
     return result
 
 

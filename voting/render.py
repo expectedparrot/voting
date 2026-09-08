@@ -124,6 +124,7 @@ def count_result_table(result: dict):
 
 def count_list_table(results: list[dict]):
     from rich.table import Table
+    from voting.core.methods.common import runner_up
 
     table = Table(title=f"Count runs ({len(results)})", border_style="green")
     table.add_column("method", style="bold")
@@ -131,12 +132,10 @@ def count_list_table(results: list[dict]):
     table.add_column("runner-up")
     table.add_column("created", no_wrap=True)
     for result in results:
-        ranking = result.get("ranking", [])
-        runner_up = next((r["option_id"] for r in ranking if r.get("rank") == 2), "")
         table.add_row(
             result.get("method", ""),
             ", ".join(result.get("winners", [])) or "(no winner)",
-            runner_up,
+            runner_up(result) or "",
             (result.get("created_at") or "").replace("T", " "),
         )
     return table
